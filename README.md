@@ -4,10 +4,11 @@
 小红书个人主页图片和视频无水印爬取
 
 ## 效果图
+### 处理后的所有用户
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/00902dbd-4da1-45bc-90bb-19f5856a04ad)
-
+### 某个用户所有的笔记
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/880884e8-4a1d-4dc1-a4dc-e168dd0e9896)
-
+### 某个笔记具体的内容
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/d17f3f4e-cd44-4d3a-b9f6-d880da626cc8)
 
 
