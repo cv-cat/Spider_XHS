@@ -50,4 +50,8 @@ python search.py
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/78e791a6-ba51-455a-a438-3c829db5c387)
 
 3. 欢迎star，不时更新。
-4. 有问题可以加QQ或者微信交流，点击开启对话（<a href="tencent://message/?uin=992822653&Site=qq&Menu=yes" target="_blank" rel="nofollow">992822653</a>）
+
+
+点击下面的连接将跳转到首页
+
+5. 有问题可以加QQ或者微信交流，点击开启对话（[992822653](tencent://message/?uin=992822653&Site=qq&Menu=yes)）
