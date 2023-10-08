@@ -5,7 +5,7 @@
 
 相关代码已上传Pypi，可通过以下指令安装。
 ```
-pip install xhs-spider -i https://pypi.org/project/xhs-spider/1.1.0/
+pip install xhs-spider -i https://pypi.org/simple
 ```
 
 ## 效果图
