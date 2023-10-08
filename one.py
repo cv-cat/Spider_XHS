@@ -61,7 +61,22 @@ class OneNote:
             print(f'笔记 {url} 保存失败')
             return
 
-def main():
+    def main(self, url_list):
+        # url_list = [
+        #     'https://www.xiaohongshu.com/explore/64356527000000001303282b',
+        #     # 'https://www.xiaohongshu.com/explore/63d625f8000000001d01042c',
+        #     # 'https://www.xiaohongshu.com/explore/61ac8820000000002103a8aa',
+        #     # 'https://www.xiaohongshu.com/explore/62d2699c000000001200f101',
+        #     # 'https://www.xiaohongshu.com/explore/637f0938000000001f012d15',
+        # ]
+        for url in url_list:
+            try:
+                self.save_one_note_info(url)
+            except:
+                print(f'笔记 {url} 保存失败')
+                continue
+
+if __name__ == '__main__':
     one_note = OneNote()
     url_list = [
         'https://www.xiaohongshu.com/explore/64356527000000001303282b',
@@ -70,10 +85,5 @@ def main():
         # 'https://www.xiaohongshu.com/explore/62d2699c000000001200f101',
         # 'https://www.xiaohongshu.com/explore/637f0938000000001f012d15',
     ]
-    for url in url_list:
-        one_note.save_one_note_info(url)
-
-
-if __name__ == '__main__':
-    main()
+    one_note.main(url_list)
 
