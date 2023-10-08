@@ -49,5 +49,5 @@ python search.py
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/e2ceaa15-defc-4d41-a6db-4a9d3f3055e4)
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/78e791a6-ba51-455a-a438-3c829db5c387)
 
-3. 欢迎star，不时更新。
+3. 感谢star⭐，不时更新。
 4. 有问题可以加QQ或者微信交流（[992822653](tencent://message/?uin=992822653&Site=qq&Menu=yes)）
