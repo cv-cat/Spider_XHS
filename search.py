@@ -62,13 +62,13 @@ class Search:
         print(f'搜索结果全部下载完成，共 {index} 个笔记')
 
 
-def main():
+    def main(self, query, number):
+        self.handle_note_info(query, number, need_cover=True)
+
+
+if __name__ == '__main__':
     search = Search()
     query = '你好'
     # 搜索的数量（前多少个）
     number = 22
-    search.handle_note_info(query, number, need_cover=True)
-
-
-if __name__ == '__main__':
-    main()
+    search.main(query, number)
