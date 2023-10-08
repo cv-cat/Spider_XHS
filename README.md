@@ -1,7 +1,11 @@
 # Spider_XHS
 ![image](https://img.shields.io/badge/cv_cat-Spider_XHS-blue)
 
-小红书个人主页图片和视频无水印爬取
+小红书个人主页图片和视频无水印爬取。
+相关代码已上传Pypi，可通过以下指令安装。
+```
+pip install xhs-spider -i https://pypi.org/project/xhs-spider/1.1.0/
+```
 
 ## 效果图
 ### 处理后的所有用户
