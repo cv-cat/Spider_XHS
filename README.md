@@ -21,7 +21,7 @@ pip install xhs-spider -i https://pypi.org/project/xhs-spider/1.1.0/
 Python环境>=3.6
 NodeJS环境>=14
 
-运行方法：把你想要的笔记对应网址放到对应文件最下面的列表里
+git 运行方法：把你想要的笔记对应网址放到对应文件最下面的列表里
 ```
 多用户下载（下载用户列表所有的笔记）
 python home.py
@@ -30,7 +30,30 @@ python one.py
 下载搜索内容
 python search.py
 ```
+pip 运行方法：把你想要的笔记对应网址放到对应文件最下面的列表里
+```
+# 主页处理
 
+
+
+
+from xhs_spider.home import Home
+from xhs_spider.one import OneNote
+from xhs_spider.search import Search
+
+home, one_note, search = Home(), OneNote(), Search()
+home_url_list = [
+    'https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b',
+    'https://www.xiaohongshu.com/user/profile/6034d6f20000000001006fbb',
+]
+one_url_list = [
+    'https://www.xiaohongshu.com/explore/64356527000000001303282b',
+]
+home.main(home_url_list)
+one_note.main(one_url_list)
+query, number = '你好', 22 # 搜索的数量（前多少个）
+search.main(query, number)
+```
 ## 日志
    
 | 日期       | 说明                                   |
