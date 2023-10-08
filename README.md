@@ -21,7 +21,8 @@ pip install xhs-spider -i https://pypi.org/project/xhs-spider/1.1.0/
 Python环境>=3.6
 NodeJS环境>=14
 
-git 运行方法：把你想要的笔记对应网址放到对应文件最下面的列表里
+## 运行方法
+运行方法1 github下载源码：把你想要的笔记对应网址放到对应文件最下面的列表里
 ```
 多用户下载（下载用户列表所有的笔记）
 python home.py
@@ -31,7 +32,7 @@ python one.py
 python search.py
 ```
 
-pip 运行方法：把你想要的笔记对应网址放到对应文件最下面的列表里
+运行方法2 pip install后参考以下代码
 ```
 from xhs_spider.home import Home
 from xhs_spider.one import OneNote
