@@ -30,13 +30,9 @@ python one.py
 下载搜索内容
 python search.py
 ```
+
 pip 运行方法：把你想要的笔记对应网址放到对应文件最下面的列表里
 ```
-# 主页处理
-
-
-
-
 from xhs_spider.home import Home
 from xhs_spider.one import OneNote
 from xhs_spider.search import Search
