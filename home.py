@@ -65,20 +65,24 @@ class Home:
         print(f'用户 {profile.nickname} 全部视频信息保存成功')
 
 
-def main():
+    def main(self, url_list):
+        # url_list = [
+        #     'https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b',
+        #     'https://www.xiaohongshu.com/user/profile/6034d6f20000000001006fbb',
+        # ]
+        for url in url_list:
+            try:
+                self.save_all_note_info(url)
+            except:
+                print(f'用户 {url} 查询失败')
+
+
+if __name__ == '__main__':
     home = Home()
     url_list = [
         'https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b',
         'https://www.xiaohongshu.com/user/profile/6034d6f20000000001006fbb',
     ]
-    for url in url_list:
-        try:
-            home.save_all_note_info(url)
-        except:
-            print(f'用户 {url} 查询失败')
-
-
-if __name__ == '__main__':
-    main()
+    home.main(url_list)
 
 
