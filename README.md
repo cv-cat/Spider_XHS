@@ -78,3 +78,5 @@ search.main(query, number)
 
 3. 感谢star⭐，不时更新。
 4. 有问题可以加QQ或者微信交流（[992822653](tencent://message/?uin=992822653&Site=qq&Menu=yes)）
+5. 感谢打赏！ ![1696832397](https://github.com/cv-cat/Spider_XHS/assets/94289429/8f8be018-ca1a-47d4-ac86-92b57439d70e)
+
