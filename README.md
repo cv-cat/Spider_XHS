@@ -1,4 +1,4 @@
-# Spider_XHS
+# 🎀Spider_XHS
 ![image](https://img.shields.io/badge/cv_cat-Spider_XHS-blue)
 
 小红书个人主页图片和视频无水印爬取。
@@ -8,7 +8,7 @@
 pip install xhs-spider -i https://pypi.org/simple
 ```
 
-## 效果图
+## 🎨效果图
 ### 处理后的所有用户
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/00902dbd-4da1-45bc-90bb-19f5856a04ad)
 ### 某个用户所有的笔记
@@ -17,11 +17,11 @@ pip install xhs-spider -i https://pypi.org/simple
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/d17f3f4e-cd44-4d3a-b9f6-d880da626cc8)
 
 
-## 运行环境
+## ⛳运行环境
 Python环境>=3.6
 NodeJS环境>=14
 
-## 运行方法
+## 🎯运行方法
 运行方法1 github下载源码：把你想要的笔记对应网址放到对应文件最下面的列表里
 ```
 多用户下载（下载用户列表所有的笔记）
@@ -51,7 +51,7 @@ one_note.main(one_url_list)
 query, number = '你好', 22 # 搜索的数量（前多少个）
 search.main(query, number)
 ```
-## 日志
+## 🍥日志
    
 | 日期       | 说明                                   |
 | -------- | ------------------------------------ |
@@ -63,14 +63,14 @@ search.main(query, number)
 | 23/10/08 | - 上传代码☞Pypi，可通过pip install安装本项目。|
 
 
-## 注意事项
+## 🧸注意事项
 **本项目仅供学习与交流，侵权必删**
 
 1. home处理的是个人主页 https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b
 2. one处理的是笔记详细页 https://www.xiaohongshu.com/explore/64d06670000000000800fb4a
 3. search处理的是搜索结果
 
-额外说明
+🛹额外说明
 1. 自行将cookie放到static目录下cookies.txt中，去设置里的应用程序里找或者网络请求里找，需要哪些可以参考cookies.txt文件。
 2. 可采用以下方法获取cookie，并运行对应文件，只有登陆后的cookies是有用的。
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/e2ceaa15-defc-4d41-a6db-4a9d3f3055e4)
