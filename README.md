@@ -1,4 +1,4 @@
-# 🎀Spider_XHS
+![mm_facetoface_collect_qrcode_1696839915907](https://github.com/cv-cat/Spider_XHS/assets/94289429/8b8f44b7-ab05-479b-9163-207f95291433)# 🎀Spider_XHS
 ![image](https://img.shields.io/badge/cv_cat-Spider_XHS-blue)
 
 小红书个人主页图片和视频无水印爬取。
@@ -80,6 +80,8 @@ search.main(query, number)
 4. 有问题可以加QQ或者微信交流（[992822653](tencent://message/?uin=992822653&Site=qq&Menu=yes)）
 5. 感谢赞助！请作者喝一杯奶茶~~ （开心一整天😊）
 
-![mm_facetoface_collect_qrcode_1696839915907](https://github.com/cv-cat/Spider_XHS/assets/94289429/9189eeb0-6752-456b-8567-c2f7c4abfe6a)![1696832397](https://github.com/cv-cat/Spider_XHS/assets/94289429/6a43e430-2904-40fd-908f-45579f0b4ab1)
+![mm_facetoface_collect_qrcode_1696839915907](https://github.com/cv-cat/Spider_XHS/assets/94289429/f8bac4e2-88f1-440c-987a-9803c0a2bbd5)![1696832397](https://github.com/cv-cat/Spider_XHS/assets/94289429/fb7fee7d-7394-4353-b202-165d74a87f54)
+
+
 
 
