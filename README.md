@@ -1,4 +1,4 @@
-![mm_facetoface_collect_qrcode_1696839915907](https://github.com/cv-cat/Spider_XHS/assets/94289429/8b8f44b7-ab05-479b-9163-207f95291433)# 🎀Spider_XHS
+# 🎀Spider_XHS
 ![image](https://img.shields.io/badge/cv_cat-Spider_XHS-blue)
 
 小红书个人主页图片和视频无水印爬取。
