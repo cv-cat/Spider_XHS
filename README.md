@@ -72,7 +72,7 @@ search.main(query, number)
 
 额外说明
 1. 自行将cookie放到static目录下cookies.txt中，去设置里的应用程序里找或者网络请求里找，需要哪些可以参考cookies.txt文件。
-2. 可采用以下方法获取cookie，并运行对应文件。
+2. 可采用以下方法获取cookie，并运行对应文件，只有登陆后的cookies是有用的。
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/e2ceaa15-defc-4d41-a6db-4a9d3f3055e4)
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/78e791a6-ba51-455a-a438-3c829db5c387)
 
