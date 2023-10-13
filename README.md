@@ -1,5 +1,4 @@
 # 🎀Spider_XHS
-![image](https://img.shields.io/badge/cv_cat-Spider_XHS-blue)
 
 小红书个人主页图片和视频无水印爬取。
 
