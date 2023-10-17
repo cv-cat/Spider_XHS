@@ -1,6 +1,8 @@
 import json
+import re
+import requests
 from one import OneNote
-from xhs_utils.xhs_util import *
+from xhs_utils.xhs_util import get_headers, get_search_data, get_params, js
 
 class Search:
     def __init__(self):
@@ -35,8 +37,9 @@ class Search:
                     break
         return note_ids
 
-    def handle_note_info(self, query, number, need_cover=False):
+    def handle_note_info(self, query, number, sort, need_cover=False):
         data = get_search_data()
+        data['sort'] = sort
         api = '/api/sns/web/v1/search/notes'
         data = json.dumps(data, separators=(',', ':'))
         data = re.sub(r'"keyword":".*?"', f'"keyword":"{query}"', data)
@@ -62,13 +65,16 @@ class Search:
         print(f'搜索结果全部下载完成，共 {index} 个笔记')
 
 
-    def main(self, query, number):
-        self.handle_note_info(query, number, need_cover=True)
+    def main(self, query, number, sort):
+        self.handle_note_info(query, number, sort, need_cover=True)
 
 
 if __name__ == '__main__':
     search = Search()
+    # 搜索的关键词
     query = '你好'
     # 搜索的数量（前多少个）
     number = 22
-    search.main(query, number)
+    # 排序方式 general: 综合排序 popularity_descending: 热门排序 time_descending: 最新排序
+    sort = 'general'
+    search.main(query, number, sort)
