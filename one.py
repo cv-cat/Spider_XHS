@@ -1,5 +1,6 @@
 import json
-from xhs_utils.xhs_util import *
+import requests
+from xhs_utils.xhs_util import get_headers, get_params, js, check_cookies, get_note_data, handle_note_info, norm_str, check_and_create_path, save_note_detail, download_media
 
 class OneNote:
     def __init__(self, cookies=None):
