@@ -2,6 +2,8 @@
 
 小红书个人主页图片和视频无水印爬取。
 
+如需定制内容，csv、数据库、WebUI界面等请联系作者
+
 相关代码已上传Pypi，可通过以下指令安装。
 ```
 pip install xhs-spider -i https://pypi.org/simple
