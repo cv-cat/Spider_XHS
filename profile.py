@@ -1,6 +1,6 @@
 import requests
 from xhs_utils.xhs_util import get_headers, check_cookies, handle_profile_info, download_media, check_and_create_path, norm_str, save_user_detail
-
+ 
 class Profile:
     def __init__(self):
         self.cookies = check_cookies()
