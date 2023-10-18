@@ -6,5 +6,5 @@
      "webId": "",
      "web_session": "",
      "xsecappid": "xhs-pc-web",
-     "webBuild": "3.8.2",
+     "webBuild": "",
 }
