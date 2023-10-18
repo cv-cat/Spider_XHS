@@ -1,4 +1,4 @@
-class Note_Detail():
+class Note_Detail(): 
     def __init__(self, id, note_id, note_type, user_id, nickname, avatar, title, desc, liked_count, collected_count, comment_count, share_count, video_addr, image_list, tag_list, upload_time, ip_location):
         self.id = id
         self.note_id = note_id
