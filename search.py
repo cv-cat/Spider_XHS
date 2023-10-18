@@ -3,7 +3,7 @@ import re
 import requests
 from one import OneNote
 from xhs_utils.xhs_util import get_headers, get_search_data, get_params, js
-
+ 
 class Search:
     def __init__(self):
         self.search_url = "https://edith.xiaohongshu.com/api/sns/web/v1/search/notes"
