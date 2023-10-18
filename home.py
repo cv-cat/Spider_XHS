@@ -2,7 +2,7 @@ import requests
 from one import OneNote
 from profile import Profile
 from xhs_utils.xhs_util import get_headers, get_params, js
-
+ 
 class Home:
     def __init__(self):
         self.more_url = 'https://edith.xiaohongshu.com/api/sns/web/v1/user_posted'
