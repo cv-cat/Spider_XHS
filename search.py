@@ -2,15 +2,19 @@ import json
 import re
 import requests
 from one import OneNote
-from xhs_utils.xhs_util import get_headers, get_search_data, get_params, js
- 
+from xhs_utils.xhs_util import get_headers, get_search_data, get_params, js, check_cookies
+
+
 class Search:
-    def __init__(self):
+    def __init__(self, cookies=None):
+        if cookies is None:
+            self.cookies = check_cookies()
+        else:
+            self.cookies = cookies
         self.search_url = "https://edith.xiaohongshu.com/api/sns/web/v1/search/notes"
         self.headers = get_headers()
         self.params = get_params()
-        self.oneNote = OneNote()
-        self.cookies = self.oneNote.cookies
+        self.oneNote = OneNote(self.cookies)
 
     def get_search_note(self, query, number):
         data = get_search_data()
@@ -65,7 +69,10 @@ class Search:
         print(f'搜索结果全部下载完成，共 {index} 个笔记')
 
 
-    def main(self, query, number, sort):
+    def main(self, info):
+        query = info['query']
+        number = info['number']
+        sort = info['sort']
         self.handle_note_info(query, number, sort, need_cover=True)
 
 
@@ -77,4 +84,9 @@ if __name__ == '__main__':
     number = 22
     # 排序方式 general: 综合排序 popularity_descending: 热门排序 time_descending: 最新排序
     sort = 'general'
-    search.main(query, number, sort)
+    info = {
+        'query': query,
+        'number': number,
+        'sort': sort,
+    }
+    search.main(info)
