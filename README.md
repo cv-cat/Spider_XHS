@@ -1,6 +1,6 @@
 # 🎀Spider_XHS
 
-小红书个人主页图片和视频无水印爬取。 
+小红书个人主页无水印图片、无水印视频、个人信息和搜索爬取。（抖音爬虫在隔壁）
 
 如需定制内容，csv、数据库、WebUI界面等请联系作者
 
@@ -16,6 +16,8 @@ pip install xhs-spider -i https://pypi.org/simple
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/880884e8-4a1d-4dc1-a4dc-e168dd0e9896)
 ### 某个笔记具体的内容
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/d17f3f4e-cd44-4d3a-b9f6-d880da626cc8)
+### 图形化界面
+![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/f836698c-0b00-40bb-914d-64f1107330ff)
 
 
 ## ⛳运行环境
