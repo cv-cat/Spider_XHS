@@ -1,17 +1,18 @@
 import json
 import requests
 from xhs_utils.xhs_util import get_headers, get_params, js, check_cookies, get_note_data, handle_note_info, norm_str, check_and_create_path, save_note_detail, download_media
- 
+
 class OneNote:
     def __init__(self, cookies=None):
-        self.feed_url = 'https://edith.xiaohongshu.com/api/sns/web/v1/feed'
-        self.detail_url = 'https://www.xiaohongshu.com/explore/'
-        self.headers = get_headers()
-        self.params = get_params()
         if cookies is None:
             self.cookies = check_cookies()
         else:
             self.cookies = cookies
+        self.feed_url = 'https://edith.xiaohongshu.com/api/sns/web/v1/feed'
+        self.detail_url = 'https://www.xiaohongshu.com/explore/'
+        self.headers = get_headers()
+        self.params = get_params()
+
     # 单个视频
     def get_one_note_info(self, url):
         note_id = url.split('/')[-1]
@@ -63,13 +64,6 @@ class OneNote:
             return
 
     def main(self, url_list):
-        # url_list = [
-        #     'https://www.xiaohongshu.com/explore/64356527000000001303282b',
-        #     # 'https://www.xiaohongshu.com/explore/63d625f8000000001d01042c',
-        #     # 'https://www.xiaohongshu.com/explore/61ac8820000000002103a8aa',
-        #     # 'https://www.xiaohongshu.com/explore/62d2699c000000001200f101',
-        #     # 'https://www.xiaohongshu.com/explore/637f0938000000001f012d15',
-        # ]
         for url in url_list:
             try:
                 self.save_one_note_info(url)
