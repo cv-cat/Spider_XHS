@@ -1,16 +1,22 @@
 import requests
+
 from one import OneNote
 from profile import Profile
-from xhs_utils.xhs_util import get_headers, get_params, js
- 
+from xhs_utils.xhs_util import get_headers, get_params, js, check_cookies
+
+
 class Home:
-    def __init__(self):
+    def __init__(self, cookies=None):
+        if cookies is None:
+            self.cookies = check_cookies()
+        else:
+            self.cookies = cookies
         self.more_url = 'https://edith.xiaohongshu.com/api/sns/web/v1/user_posted'
-        self.profile = Profile()
-        self.oneNote = OneNote(self.profile.cookies)
+        self.profile = Profile(self.cookies)
+        self.oneNote = OneNote(self.cookies)
         self.headers = get_headers()
         self.params = get_params()
-        self.cookies = self.profile.cookies
+
 
     # 主页
     def get_all_note_info(self, url):
@@ -86,5 +92,4 @@ if __name__ == '__main__':
         'https://www.xiaohongshu.com/user/profile/6034d6f20000000001006fbb',
     ]
     home.main(url_list)
-
 
