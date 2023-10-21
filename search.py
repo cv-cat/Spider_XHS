@@ -78,7 +78,7 @@ class Search:
 
 if __name__ == '__main__':
     search = Search()
-    # 搜索的关键词
+    # 搜索的关键词 
     query = '你好'
     # 搜索的数量（前多少个）
     number = 22
