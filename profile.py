@@ -1,9 +1,13 @@
 import requests
+
 from xhs_utils.xhs_util import get_headers, check_cookies, handle_profile_info, download_media, check_and_create_path, norm_str, save_user_detail
- 
+
 class Profile:
-    def __init__(self):
-        self.cookies = check_cookies()
+    def __init__(self, cookies=None):
+        if cookies is None:
+            self.cookies = check_cookies()
+        else:
+            self.cookies = cookies
 
     # 个人信息主页
     def get_profile_info(self, url):
@@ -28,10 +32,6 @@ class Profile:
 
 
     def main(self, user_url_list):
-        # user_url_list = [
-        #     'https://www.xiaohongshu.com/user/profile/59d44fd66eea883eff45747f',
-        #     'https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b',
-        # ]
         for url in user_url_list:
             try:
                 self.save_profile_info(url)
