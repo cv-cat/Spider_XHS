@@ -82,8 +82,8 @@ search.main(query, number)
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/e2ceaa15-defc-4d41-a6db-4a9d3f3055e4)
 ![image](https://github.com/cv-cat/Spider_XHS/assets/94289429/78e791a6-ba51-455a-a438-3c829db5c387)
 
-3. 感谢star⭐，不时更新。
-4. 有问题可以加QQ或者微信交流（[992822653](tencent://message/?uin=992822653&Site=qq&Menu=yes)）
+3. 感谢star⭐！不时更新。
+4. 有问题可以加QQ或者微信交流！（[992822653](tencent://message/?uin=992822653&Site=qq&Menu=yes)）
 5. 感谢赞助！请作者喝一杯奶茶~~ （开心一整天😊）
 
 ![mm_facetoface_collect_qrcode_1696839915907](https://github.com/cv-cat/Spider_XHS/assets/94289429/f8bac4e2-88f1-440c-987a-9803c0a2bbd5)![1696832397](https://github.com/cv-cat/Spider_XHS/assets/94289429/fb7fee7d-7394-4353-b202-165d74a87f54)
