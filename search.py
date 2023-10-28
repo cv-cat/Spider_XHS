@@ -63,7 +63,7 @@ class Search:
                 break
             for note in items:
                 index += 1
-                # self.oneNote.save_one_note_info(self.oneNote.detail_url + note['id'], need_cover, '', 'datas_search')
+                self.oneNote.save_one_note_info(self.oneNote.detail_url + note['id'], need_cover, '', 'datas_search')
                 if index >= number:
                     break
             if not res['data']['has_more']:
