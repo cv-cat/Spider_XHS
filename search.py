@@ -56,16 +56,19 @@ class Search:
             self.headers['x-s'], self.headers['x-t'] = ret['X-s'], str(ret['X-t'])
             response = requests.post(self.search_url, headers=self.headers, cookies=self.cookies, data=data.encode('utf-8'))
             res = response.json()
+            try:
+                items = res['data']['items']
+            except:
+                print(f'搜索结果数量为 {index}, 不足 {number}')
+                break
+            for note in items:
+                index += 1
+                # self.oneNote.save_one_note_info(self.oneNote.detail_url + note['id'], need_cover, '', 'datas_search')
+                if index >= number:
+                    break
             if not res['data']['has_more']:
                 print(f'搜索结果数量为 {index}, 不足 {number}')
                 break
-            items = res['data']['items']
-            for note in items:
-                index += 1
-                self.oneNote.save_one_note_info(self.oneNote.detail_url + note['id'], need_cover, '', 'datas_search')
-
-                if index >= number:
-                    break
         print(f'搜索结果全部下载完成，共 {index} 个笔记')
 
 
@@ -79,9 +82,9 @@ class Search:
 if __name__ == '__main__':
     search = Search()
     # 搜索的关键词 
-    query = '你好'
+    query = '亚运会'
     # 搜索的数量（前多少个）
-    number = 22
+    number = 2222
     # 排序方式 general: 综合排序 popularity_descending: 热门排序 time_descending: 最新排序
     sort = 'general'
     info = {
