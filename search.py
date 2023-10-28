@@ -66,7 +66,7 @@ class Search:
                 self.oneNote.save_one_note_info(self.oneNote.detail_url + note['id'], need_cover, '', 'datas_search')
                 if index >= number:
                     break
-            if not res['data']['has_more']:
+            if not res['data']['has_more'] and index < number:
                 print(f'搜索结果数量为 {index}, 不足 {number}')
                 break
         print(f'搜索结果全部下载完成，共 {index} 个笔记')
