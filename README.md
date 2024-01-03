@@ -86,6 +86,7 @@ search.main(query, number)
 3. 感谢star⭐！不时更新。
 4. 有问题可以加QQ（992822653）或者微信（CVZC15751076989）交流！
 5. 感谢赞助！如果此项目对您有帮助，请作者喝一杯奶茶~~ （开心一整天😊😊）
+6. thank you~~~
 
 ![mm_facetoface_collect_qrcode_1696839915907](https://github.com/cv-cat/Spider_XHS/assets/94289429/f8bac4e2-88f1-440c-987a-9803c0a2bbd5)![1696832397](https://github.com/cv-cat/Spider_XHS/assets/94289429/fb7fee7d-7394-4353-b202-165d74a87f54)
 
