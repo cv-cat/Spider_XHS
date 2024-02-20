@@ -1,17 +1,9 @@
 # 🎀Spider_XHS
 
-**联系作者获取更多测试cookie号，小红书网页端所有Api源码(登录，评论，点赞等等)，定制需求**
-
-**联系作者获取更多测试cookie号，小红书网页端所有Api源码(登录，评论，点赞等等)，定制需求**
-
-**联系作者获取更多测试cookie号，小红书网页端所有Api源码(登录，评论，点赞等等)，定制需求**
+**联系作者获取cookie号，其他Api，定制需求**
 
 小红书个人主页无水印图片、无水印视频、个人信息和搜索爬取。
 
-相关代码已上传Pypi（不再维护），可通过以下指令安装。
-```
-pip install xhs-spider -i https://pypi.org/simple
-```
 
 ## 🎨效果图
 ### 处理后的所有用户
@@ -29,7 +21,6 @@ Python环境>=3.7
 NodeJS环境>=16
 
 ## 🎯运行方法
-运行方法 1 推荐！github下载源码：把你想要的笔记对应网址放到对应文件最下面的列表里
 ```
 多用户下载（下载用户列表所有的笔记）
 python home.py
@@ -39,25 +30,6 @@ python one.py
 python search.py
 ```
 
-运行方法 2 pip install后参考以下代码
-```
-from xhs_spider.home import Home
-from xhs_spider.one import OneNote
-from xhs_spider.search import Search
-
-home, one_note, search = Home(), OneNote(), Search()
-home_url_list = [
-    'https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b',
-    'https://www.xiaohongshu.com/user/profile/6034d6f20000000001006fbb',
-]
-one_url_list = [
-    'https://www.xiaohongshu.com/explore/64356527000000001303282b',
-]
-home.main(home_url_list)
-one_note.main(one_url_list)
-query, number = '你好', 22 # 搜索的数量（前多少个）
-search.main(query, number)
-```
 ## 🍥日志
    
 | 日期       | 说明                                   |
