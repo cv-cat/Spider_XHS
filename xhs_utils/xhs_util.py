@@ -63,6 +63,10 @@ def download_media(path, name, url, type, info=''):
                         print(f'\r视频:%.2fMB\t' % (content_size / 1024 / 1024),
                               '下载进度:[%-50s%.2f%%]耗时: %.1fs, ' % ('>' * int(50 * percentage), percentage * 100, time.time() - start_time),
                               end='')
+                              
+                    # 判断下载size是否和总size一致
+                    if size != content_size:
+                        raise Exception()
                     print(f"{name}下载完成")
             break
         except:
