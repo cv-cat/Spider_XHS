@@ -1,6 +1,10 @@
 # 🎀Spider_XHS
 
-**最新signSvn55 AES | xs xt xscommom sign a1 qsignature源码**
+# 功能列表
+![8aecb2ce40f23fa5bff23fcbc7c100c](https://github.com/user-attachments/assets/612c4b0d-5f7e-484f-9747-f63c16194839)
+
+
+**最新signSvn56 AES | xs xt xscommom x-b3-traceid x-xray-traceid sign a1 qsignature源码**
 
 **联系作者 全部协议接口、小红书pc、小红书创作者、小红书专业号、小红书千帆、小红书蒲公英，定制需求**
 
