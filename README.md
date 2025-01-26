@@ -1,7 +1,7 @@
 # 🎀Spider_XHS
 
 ### 功能列表
-![image](https://github.com/user-attachments/assets/dd66e864-d33e-4780-ab9a-13e73fa88860)
+![image](https://github.com/user-attachments/assets/54c45c9d-294f-4a05-b74a-c78c7f02a180)
 
 
 
