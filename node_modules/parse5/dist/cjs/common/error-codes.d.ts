@@ -65,4 +65,3 @@ export declare enum ERR {
     nestedNoscriptInHead = "nested-noscript-in-head",
     eofInElementThatCanContainOnlyText = "eof-in-element-that-can-contain-only-text"
 }
-//# sourceMappingURL=error-codes.d.ts.map

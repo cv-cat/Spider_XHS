@@ -10,12 +10,13 @@ Converts a string of Unicode symbols to a case-folded Punycode string of ASCII s
 
 Available options:
 
-* [`checkBidi`](#checkBidi)
-* [`checkHyphens`](#checkHyphens)
-* [`checkJoiners`](#checkJoiners)
-* [`processingOption`](#processingOption)
-* [`useSTD3ASCIIRules`](#useSTD3ASCIIRules)
-* [`verifyDNSLength`](#verifyDNSLength)
+* [`checkBidi`](#checkbidi)
+* [`checkHyphens`](#checkhyphens)
+* [`checkJoiners`](#checkjoiners)
+* [`ignoreInvalidPunycode`](#ignoreinvalidpunycode)
+* [`transitionalProcessing`](#transitionalprocessing)
+* [`useSTD3ASCIIRules`](#usestd3asciirules)
+* [`verifyDNSLength`](#verifydnslength)
 
 ### `toUnicode(domainName[, options])`
 
@@ -23,11 +24,12 @@ Converts a case-folded Punycode string of ASCII symbols to a string of Unicode s
 
 Available options:
 
-* [`checkBidi`](#checkBidi)
-* [`checkHyphens`](#checkHyphens)
-* [`checkJoiners`](#checkJoiners)
-* [`processingOption`](#processingOption)
-* [`useSTD3ASCIIRules`](#useSTD3ASCIIRules)
+* [`checkBidi`](#checkbidi)
+* [`checkHyphens`](#checkhyphens)
+* [`checkJoiners`](#checkjoiners)
+* [`ignoreInvalidPunycode`](#ignoreinvalidpunycode)
+* [`transitionalProcessing`](#transitionalprocessing)
+* [`useSTD3ASCIIRules`](#usestd3asciirules)
 
 ## Options
 
@@ -49,11 +51,17 @@ Type: `boolean`
 Default value: `false`
 When set to `true`, any word joiner characters within the input will be checked for validation.
 
-### `processingOption`
+### `ignoreInvalidPunycode`
 
-Type: `string`
-Default value: `"nontransitional"`
-When set to `"transitional"`, symbols within the input will be validated according to the older IDNA2003 protocol. When set to `"nontransitional"`, the current IDNA2008 protocol will be used.
+Type: `boolean`
+Default value: `false`
+When set to `true`, invalid Punycode strings within the input will be allowed.
+
+### `transitionalProcessing`
+
+Type: `boolean`
+Default value: `false`
+When set to `true`, uses [transitional (compatibility) processing](https://unicode.org/reports/tr46/#Compatibility_Processing) of the deviation characters.
 
 ### `useSTD3ASCIIRules`
 

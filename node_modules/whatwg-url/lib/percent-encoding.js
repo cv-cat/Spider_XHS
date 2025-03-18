@@ -65,14 +65,14 @@ function isSpecialQueryPercentEncode(c) {
 }
 
 // https://url.spec.whatwg.org/#path-percent-encode-set
-const extraPathPercentEncodeSet = new Set([p("?"), p("`"), p("{"), p("}")]);
+const extraPathPercentEncodeSet = new Set([p("?"), p("`"), p("{"), p("}"), p("^")]);
 function isPathPercentEncode(c) {
   return isQueryPercentEncode(c) || extraPathPercentEncodeSet.has(c);
 }
 
 // https://url.spec.whatwg.org/#userinfo-percent-encode-set
 const extraUserinfoPercentEncodeSet =
-  new Set([p("/"), p(":"), p(";"), p("="), p("@"), p("["), p("\\"), p("]"), p("^"), p("|")]);
+  new Set([p("/"), p(":"), p(";"), p("="), p("@"), p("["), p("\\"), p("]"), p("|")]);
 function isUserinfoPercentEncode(c) {
   return isPathPercentEncode(c) || extraUserinfoPercentEncodeSet.has(c);
 }

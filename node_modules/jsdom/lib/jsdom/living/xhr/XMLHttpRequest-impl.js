@@ -8,7 +8,7 @@ const tough = require("tough-cookie");
 const MIMEType = require("whatwg-mimetype");
 
 const xhrUtils = require("./xhr-utils");
-const DOMException = require("domexception/webidl2js-wrapper");
+const DOMException = require("../generated/DOMException");
 const { documentBaseURLSerialized } = require("../helpers/document-base-url");
 const { asciiCaseInsensitiveMatch } = require("../helpers/strings");
 const idlUtils = require("../generated/utils");
@@ -218,7 +218,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
 
         try {
           res = parseJSONFromBytes(responseBuffer);
-        } catch (e) {
+        } catch {
           res = null;
         }
         break;
@@ -306,7 +306,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     });
     try {
       parseIntoDocument(resText, res);
-    } catch (e) {
+    } catch {
       properties.responseXMLCache = null;
       return null;
     }
@@ -457,7 +457,7 @@ class XMLHttpRequestImpl extends XMLHttpRequestEventTargetImpl {
     let urlObj;
     try {
       urlObj = new URL(uri, documentBaseURLSerialized(_ownerDocument));
-    } catch (e) {
+    } catch {
       throw DOMException.create(this._globalObject, [
         "The string did not match the expected pattern.",
         "SyntaxError"

@@ -1,12 +1,10 @@
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^net|tls|https$" }] */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex$", "caughtErrors": "none" }] */
 
 'use strict';
 
 const EventEmitter = require('events');
 const http = require('http');
-const https = require('https');
-const net = require('net');
-const tls = require('tls');
+const { Duplex } = require('stream');
 const { createHash } = require('crypto');
 
 const extension = require('./extension');
@@ -31,6 +29,11 @@ class WebSocketServer extends EventEmitter {
    * Create a `WebSocketServer` instance.
    *
    * @param {Object} options Configuration options
+   * @param {Boolean} [options.allowSynchronousEvents=true] Specifies whether
+   *     any of the `'message'`, `'ping'`, and `'pong'` events can be emitted
+   *     multiple times in the same tick
+   * @param {Boolean} [options.autoPong=true] Specifies whether or not to
+   *     automatically send a pong in response to a ping
    * @param {Number} [options.backlog=511] The maximum length of the queue of
    *     pending connections
    * @param {Boolean} [options.clientTracking=true] Specifies whether or not to
@@ -57,6 +60,8 @@ class WebSocketServer extends EventEmitter {
     super();
 
     options = {
+      allowSynchronousEvents: true,
+      autoPong: true,
       maxPayload: 100 * 1024 * 1024,
       skipUTF8Validation: false,
       perMessageDeflate: false,
@@ -221,8 +226,7 @@ class WebSocketServer extends EventEmitter {
    * Handle a HTTP Upgrade request.
    *
    * @param {http.IncomingMessage} req The request object
-   * @param {(net.Socket|tls.Socket)} socket The network socket between the
-   *     server and client
+   * @param {Duplex} socket The network socket between the server and client
    * @param {Buffer} head The first packet of the upgraded stream
    * @param {Function} cb Callback
    * @public
@@ -231,6 +235,7 @@ class WebSocketServer extends EventEmitter {
     socket.on('error', socketOnError);
 
     const key = req.headers['sec-websocket-key'];
+    const upgrade = req.headers.upgrade;
     const version = +req.headers['sec-websocket-version'];
 
     if (req.method !== 'GET') {
@@ -239,13 +244,13 @@ class WebSocketServer extends EventEmitter {
       return;
     }
 
-    if (req.headers.upgrade.toLowerCase() !== 'websocket') {
+    if (upgrade === undefined || upgrade.toLowerCase() !== 'websocket') {
       const message = 'Invalid Upgrade header';
       abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
       return;
     }
 
-    if (!key || !keyRegex.test(key)) {
+    if (key === undefined || !keyRegex.test(key)) {
       const message = 'Missing or invalid Sec-WebSocket-Key header';
       abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
       return;
@@ -346,8 +351,7 @@ class WebSocketServer extends EventEmitter {
    * @param {String} key The value of the `Sec-WebSocket-Key` header
    * @param {Set} protocols The subprotocols
    * @param {http.IncomingMessage} req The request object
-   * @param {(net.Socket|tls.Socket)} socket The network socket between the
-   *     server and client
+   * @param {Duplex} socket The network socket between the server and client
    * @param {Buffer} head The first packet of the upgraded stream
    * @param {Function} cb Callback
    * @throws {Error} If called more than once with the same socket
@@ -379,7 +383,7 @@ class WebSocketServer extends EventEmitter {
       `Sec-WebSocket-Accept: ${digest}`
     ];
 
-    const ws = new this.options.WebSocket(null);
+    const ws = new this.options.WebSocket(null, undefined, this.options);
 
     if (protocols.size) {
       //
@@ -413,6 +417,7 @@ class WebSocketServer extends EventEmitter {
     socket.removeListener('error', socketOnError);
 
     ws.setSocket(socket, head, {
+      allowSynchronousEvents: this.options.allowSynchronousEvents,
       maxPayload: this.options.maxPayload,
       skipUTF8Validation: this.options.skipUTF8Validation
     });
@@ -477,7 +482,7 @@ function socketOnError() {
 /**
  * Close the connection when preconditions are not fulfilled.
  *
- * @param {(net.Socket|tls.Socket)} socket The socket of the upgrade request
+ * @param {Duplex} socket The socket of the upgrade request
  * @param {Number} code The HTTP response status code
  * @param {String} [message] The HTTP response body
  * @param {Object} [headers] Additional HTTP response headers
@@ -518,7 +523,7 @@ function abortHandshake(socket, code, message, headers) {
  *
  * @param {WebSocketServer} server The WebSocket server
  * @param {http.IncomingMessage} req The request object
- * @param {(net.Socket|tls.Socket)} socket The socket of the upgrade request
+ * @param {Duplex} socket The socket of the upgrade request
  * @param {Number} code The HTTP response status code
  * @param {String} message The HTTP response body
  * @private

@@ -43,30 +43,13 @@ function parseUrlencodedString(input) {
 }
 
 // https://url.spec.whatwg.org/#concept-urlencoded-serializer
-function serializeUrlencoded(tuples, encodingOverride = undefined) {
-  let encoding = "utf-8";
-  if (encodingOverride !== undefined) {
-    // TODO "get the output encoding", i.e. handle encoding labels vs. names.
-    encoding = encodingOverride;
-  }
+function serializeUrlencoded(tuples) {
+  // TODO: accept and use encoding argument
 
   let output = "";
   for (const [i, tuple] of tuples.entries()) {
-    // TODO: handle encoding override
-
     const name = utf8PercentEncodeString(tuple[0], isURLEncodedPercentEncode, true);
-
-    let value = tuple[1];
-    if (tuple.length > 2 && tuple[2] !== undefined) {
-      if (tuple[2] === "hidden" && name === "_charset_") {
-        value = encoding;
-      } else if (tuple[2] === "file") {
-        // value is a File object
-        value = value.name;
-      }
-    }
-
-    value = utf8PercentEncodeString(value, isURLEncodedPercentEncode, true);
+    const value = utf8PercentEncodeString(tuple[1], isURLEncodedPercentEncode, true);
 
     if (i !== 0) {
       output += "&";

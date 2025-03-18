@@ -297,3 +297,5 @@ export declare class Decimal {
   static readonly ROUND_HALF_FLOOR: 8;
   static readonly EUCLID: 9;
 }
+
+export declare function Decimal(n: Decimal.Value): Decimal;

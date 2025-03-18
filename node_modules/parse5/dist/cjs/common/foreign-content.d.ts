@@ -7,4 +7,3 @@ export declare function adjustTokenSVGAttrs(token: TagToken): void;
 export declare function adjustTokenXMLAttrs(token: TagToken): void;
 export declare function adjustTokenSVGTagName(token: TagToken): void;
 export declare function isIntegrationPoint(tn: $, ns: NS, attrs: Attribute[], foreignNS?: NS): boolean;
-//# sourceMappingURL=foreign-content.d.ts.map

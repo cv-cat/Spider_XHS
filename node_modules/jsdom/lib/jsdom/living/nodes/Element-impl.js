@@ -13,7 +13,7 @@ const { parseFragment } = require("../../browser/parser");
 const InnerHTMLImpl = require("../domparsing/InnerHTML-impl").implementation;
 const { fragmentSerialization } = require("../domparsing/serialization");
 const { domSymbolTree } = require("../helpers/internal-constants");
-const DOMException = require("domexception/webidl2js-wrapper");
+const DOMException = require("../generated/DOMException");
 const DOMTokenList = require("../generated/DOMTokenList");
 const NamedNodeMap = require("../generated/NamedNodeMap");
 const validateNames = require("../helpers/validate-names");
@@ -423,6 +423,10 @@ class ElementImpl extends NodeImpl {
       host: this
     });
 
+    if (this._ceState === "precustomized" || this._ceState === "custom") {
+      shadow._availableToElementInternals = true;
+    }
+
     this._shadowRoot = shadow;
 
     return shadow;
@@ -544,6 +548,23 @@ class ElementImpl extends NodeImpl {
   closest(selectors) {
     const matcher = addNwsapi(this);
     return matcher.closest(selectors, idlUtils.wrapperForImpl(this));
+  }
+
+  // https://html.spec.whatwg.org/#reflecting-content-attributes-in-idl-attributes
+  _reflectGetTheElement() {
+    return this;
+  }
+
+  _reflectGetTheContentAttribute(reflectedContentAttributeName) {
+    return this.getAttributeNS(null, reflectedContentAttributeName);
+  }
+
+  _reflectSetTheContentAttribute(reflectedContentAttributeName, value) {
+    this.setAttributeNS(null, reflectedContentAttributeName, value);
+  }
+
+  _reflectDeleteTheContentAttribute(reflectedContentAttributeName) {
+    this.removeAttributeNS(null, reflectedContentAttributeName);
   }
 }
 

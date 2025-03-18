@@ -1,21 +1,6 @@
 "use strict";
-const path = require("path");
-const whatwgURL = require("whatwg-url");
 const { domSymbolTree } = require("./living/helpers/internal-constants");
 const SYMBOL_TREE_POSITION = require("symbol-tree").TreePosition;
-
-exports.toFileUrl = function (fileName) {
-  // Beyond just the `path.resolve`, this is mostly for the benefit of Windows,
-  // where we need to convert "\" to "/" and add an extra "/" prefix before the
-  // drive letter.
-  let pathname = path.resolve(process.cwd(), fileName).replace(/\\/g, "/");
-  if (pathname[0] !== "/") {
-    pathname = "/" + pathname;
-  }
-
-  // path might contain spaces, so convert those to %20
-  return "file://" + encodeURI(pathname);
-};
 
 /**
  * Define a set of properties on an object, by copying the property descriptors
@@ -30,29 +15,6 @@ exports.define = function define(object, properties) {
     Object.defineProperty(object, name, propDesc);
   }
 };
-
-/**
- * Define a list of constants on a constructor and its .prototype
- *
- * - `Constructor` {Function} the constructor to define the constants on
- * - `propertyMap` {Object}  key/value map of properties to define
- */
-exports.addConstants = function addConstants(Constructor, propertyMap) {
-  for (const property in propertyMap) {
-    const value = propertyMap[property];
-    addConstant(Constructor, property, value);
-    addConstant(Constructor.prototype, property, value);
-  }
-};
-
-function addConstant(object, property, value) {
-  Object.defineProperty(object, property, {
-    configurable: false,
-    enumerable: true,
-    writable: false,
-    value
-  });
-}
 
 exports.mixin = (target, source) => {
   const keys = Reflect.ownKeys(source);
@@ -105,14 +67,6 @@ exports.memoizeQuery = function memoizeQuery(fn) {
   };
 };
 
-function isValidAbsoluteURL(str) {
-  return whatwgURL.parseURL(str) !== null;
-}
-
-exports.isValidTargetOrigin = function (str) {
-  return str === "*" || str === "/" || isValidAbsoluteURL(str);
-};
-
 exports.simultaneousIterators = function* (first, second) {
   for (;;) {
     const firstResult = first.next();
@@ -144,7 +98,6 @@ exports.treeOrderSorter = function (a, b) {
   return 0;
 };
 
-/* eslint-disable global-require */
 try {
   exports.Canvas = require("canvas");
 } catch {

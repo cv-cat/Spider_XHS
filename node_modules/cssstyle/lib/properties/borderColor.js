@@ -3,22 +3,21 @@
 var parsers = require('../parsers');
 var implicitSetter = require('../parsers').implicitSetter;
 
-module.exports.isValid = function parse(v) {
-  if (typeof v !== 'string') {
-    return false;
-  }
-  return (
-    v === '' || v.toLowerCase() === 'transparent' || parsers.valueType(v) === parsers.TYPES.COLOR
-  );
-};
-var isValid = module.exports.isValid;
-
 var parser = function (v) {
-  if (isValid(v)) {
-    return v.toLowerCase();
+  var parsed = parsers.parseColor(v);
+  if (parsed !== undefined) {
+    return parsed;
+  }
+  if (parsers.valueType(v) === parsers.TYPES.KEYWORD && v.toLowerCase() === 'inherit') {
+    return v;
   }
   return undefined;
 };
+
+module.exports.isValid = function parse(v) {
+  return parser(v) !== undefined;
+};
+var isValid = module.exports.isValid;
 
 module.exports.definition = {
   set: implicitSetter('border', 'color', isValid, parser),

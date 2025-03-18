@@ -1,5 +1,4 @@
 "use strict";
-const { atob } = require("abab");
 
 exports.stripLeadingAndTrailingASCIIWhitespace = string => {
   return string.replace(/^[ \t\n\f\r]+/u, "").replace(/[ \t\n\f\r]+$/u, "");
@@ -10,9 +9,12 @@ exports.isomorphicDecode = input => {
 };
 
 exports.forgivingBase64Decode = data => {
-  const asString = atob(data);
-  if (asString === null) {
+  let asString;
+  try {
+    asString = atob(data);
+  } catch {
     return null;
   }
+
   return Uint8Array.from(asString, c => c.codePointAt(0));
 };

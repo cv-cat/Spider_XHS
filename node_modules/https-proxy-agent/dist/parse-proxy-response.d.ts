@@ -1,7 +1,15 @@
 /// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="node" />
+import { IncomingHttpHeaders } from 'http';
 import { Readable } from 'stream';
-export interface ProxyResponse {
+export interface ConnectResponse {
     statusCode: number;
-    buffered: Buffer;
+    statusText: string;
+    headers: IncomingHttpHeaders;
 }
-export default function parseProxyResponse(socket: Readable): Promise<ProxyResponse>;
+export declare function parseProxyResponse(socket: Readable): Promise<{
+    connect: ConnectResponse;
+    buffered: Buffer;
+}>;
+//# sourceMappingURL=parse-proxy-response.d.ts.map

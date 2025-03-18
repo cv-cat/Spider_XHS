@@ -17,7 +17,7 @@ CSSOM.js is a CSS parser written in pure JavaScript. It is also a partial implem
     }
 
 
-## [Parser demo](http://nv.github.com/CSSOM/docs/parse.html)
+## [Parser demo](http://nv.github.io/CSSOM/docs/parse.html)
 
 Works well in Google Chrome 6+, Safari 5+, Firefox 3.6+, Opera 10.63+.
 Doesn't work in IE < 9 because of unsupported getters/setters.
@@ -32,6 +32,13 @@ To use CSSOM.js in the browser you might want to build a one-file version that e
 To use it with Node.js or any other CommonJS loader:
 
     ➤ npm install cssom
+
+## Why is this not maintained?
+
+1. I no longer use it in my projects
+2. Even though cssom npm package has 26 million weekly downloads (as of April 17, 2023), I haven't made a dollar from my work.
+
+If you want specific issues to be resolved, you can hire me for $100 per hour (which is 1/2 of my normal rate).
 
 ## Don’t use it if...
 

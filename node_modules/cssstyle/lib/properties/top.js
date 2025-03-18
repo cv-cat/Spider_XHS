@@ -1,6 +1,6 @@
 'use strict';
 
-var parseMeasurement = require('../parsers').parseMeasurement;
+var parseMeasurement = require('../parsers').parseInheritingMeasurement;
 
 module.exports.definition = {
   set: function (v) {

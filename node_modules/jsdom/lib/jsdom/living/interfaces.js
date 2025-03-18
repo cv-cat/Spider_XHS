@@ -1,4 +1,3 @@
-/* eslint-disable global-require */
 "use strict";
 
 const style = require("../level2/style");
@@ -9,7 +8,7 @@ const xpath = require("../level3/xpath");
 // We cannot "refactor" this to something less duplicative because that would break bundlers which depend on static
 // analysis of require()s.
 const generatedInterfaces = {
-  DOMException: require("domexception/webidl2js-wrapper"),
+  DOMException: require("./generated/DOMException.js"),
 
   URL: require("whatwg-url/webidl2js-wrapper").URL,
   URLSearchParams: require("whatwg-url/webidl2js-wrapper").URLSearchParams,
@@ -183,6 +182,7 @@ const generatedInterfaces = {
   Storage: require("./generated/Storage"),
 
   CustomElementRegistry: require("./generated/CustomElementRegistry"),
+  ElementInternals: require("./generated/ElementInternals"),
   ShadowRoot: require("./generated/ShadowRoot"),
 
   MutationObserver: require("./generated/MutationObserver"),
@@ -213,6 +213,9 @@ exports.installInterfaces = (window, globalNames) => {
   // Install legacy HTMLDocument interface
   // https://html.spec.whatwg.org/#htmldocument
   install(window, "HTMLDocument", window.Document);
+
+  // https://webidl.spec.whatwg.org/#es-DOMException-specialness
+  Object.setPrototypeOf(window.DOMException.prototype, window.Error.prototype);
 
   // These need to be cleaned up...
   style.addToCore(window);

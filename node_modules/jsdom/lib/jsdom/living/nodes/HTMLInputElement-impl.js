@@ -1,5 +1,5 @@
 "use strict";
-const DOMException = require("domexception/webidl2js-wrapper");
+const DOMException = require("../generated/DOMException");
 const FileList = require("../generated/FileList");
 const Decimal = require("decimal.js");
 const HTMLElementImpl = require("./HTMLElement-impl").implementation;
@@ -483,7 +483,7 @@ class HTMLInputElementImpl extends HTMLElementImpl {
   }
 
   set valueAsNumber(v) {
-    if (!isFinite(v)) {
+    if (!isFinite(v) && !isNaN(v)) {
       throw new TypeError("Failed to set infinite value as Number");
     }
 
@@ -495,7 +495,11 @@ class HTMLInputElementImpl extends HTMLElementImpl {
       ]);
     }
 
-    this._value = this._convertNumberToString(v);
+    if (isNaN(v)) {
+      this._value = "";
+    } else {
+      this._value = this._convertNumberToString(v);
+    }
   }
 
   // https://html.spec.whatwg.org/multipage/input.html#dom-input-stepup
@@ -538,7 +542,7 @@ class HTMLInputElementImpl extends HTMLElementImpl {
       if (isNaN(value)) { // Empty value is parsed as NaN.
         value = 0;
       }
-    } catch (error) {
+    } catch {
       // Step 5. Default value is 0.
     }
     value = new Decimal(value);
@@ -742,49 +746,6 @@ class HTMLInputElementImpl extends HTMLElementImpl {
     }
 
     return null;
-  }
-
-  // Reflected IDL attribute does not care about whether the content attribute applies.
-  get maxLength() {
-    if (!this.hasAttributeNS(null, "maxlength")) {
-      return 524288; // stole this from chrome
-    }
-    return parseInt(this.getAttributeNS(null, "maxlength"));
-  }
-
-  set maxLength(value) {
-    if (value < 0) {
-      throw DOMException.create(this._globalObject, ["The index is not in the allowed range.", "IndexSizeError"]);
-    }
-    this.setAttributeNS(null, "maxlength", String(value));
-  }
-
-  get minLength() {
-    if (!this.hasAttributeNS(null, "minlength")) {
-      return 0;
-    }
-    return parseInt(this.getAttributeNS(null, "minlength"));
-  }
-
-  set minLength(value) {
-    if (value < 0) {
-      throw DOMException.create(this._globalObject, ["The index is not in the allowed range.", "IndexSizeError"]);
-    }
-    this.setAttributeNS(null, "minlength", String(value));
-  }
-
-  get size() {
-    if (!this.hasAttributeNS(null, "size")) {
-      return 20;
-    }
-    return parseInt(this.getAttributeNS(null, "size"));
-  }
-
-  set size(value) {
-    if (value <= 0) {
-      throw DOMException.create(this._globalObject, ["The index is not in the allowed range.", "IndexSizeError"]);
-    }
-    this.setAttributeNS(null, "size", String(value));
   }
 
   // https://html.spec.whatwg.org/multipage/input.html#the-min-and-max-attributes
@@ -1066,7 +1027,7 @@ class HTMLInputElementImpl extends HTMLElementImpl {
             // first.
             new RegExp(pattern, "u"); // eslint-disable-line no-new
             regExp = new RegExp("^(?:" + pattern + ")$", "u");
-          } catch (e) {
+          } catch {
             return false;
           }
           if (this._hasAttributeAndApplies("multiple")) {

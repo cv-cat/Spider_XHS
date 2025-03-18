@@ -4,7 +4,6 @@ An arbitrary-precision Decimal type for JavaScript.
 
 [![npm version](https://img.shields.io/npm/v/decimal.js.svg)](https://www.npmjs.com/package/decimal.js)
 [![npm downloads](https://img.shields.io/npm/dw/decimal.js)](https://www.npmjs.com/package/decimal.js)
-[![Build Status](https://travis-ci.org/MikeMcl/decimal.js.svg)](https://travis-ci.org/MikeMcl/decimal.js)
 [![CDNJS](https://img.shields.io/cdnjs/v/decimal.js.svg)](https://cdnjs.com/libraries/decimal.js)
 
 <br>
@@ -243,4 +242,4 @@ import Decimal from './decimal.min.mjs';
 
 ## Licence
 
-[The MIT Licence (Expat).](LICENCE.md)
+[The MIT Licence](LICENCE.md)

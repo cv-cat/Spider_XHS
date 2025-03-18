@@ -1,6 +1,6 @@
 "use strict";
 
-const DOMException = require("domexception/webidl2js-wrapper");
+const DOMException = require("../generated/DOMException");
 const isPotentialCustomElementName = require("is-potential-custom-element-name");
 
 const NODE_TYPE = require("../node-type");
@@ -104,6 +104,8 @@ function upgradeElement(definition, element) {
         "NotSupportedError"
       ]);
     }
+
+    element._ceState = "precustomized";
 
     const constructionResult = C.construct();
     const constructionResultImpl = implForWrapper(constructionResult);

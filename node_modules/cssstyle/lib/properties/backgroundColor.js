@@ -7,10 +7,7 @@ var parse = function parse(v) {
   if (parsed !== undefined) {
     return parsed;
   }
-  if (
-    parsers.valueType(v) === parsers.TYPES.KEYWORD &&
-    (v.toLowerCase() === 'transparent' || v.toLowerCase() === 'inherit')
-  ) {
+  if (parsers.valueType(v) === parsers.TYPES.KEYWORD && v.toLowerCase() === 'inherit') {
     return v;
   }
   return undefined;

@@ -34,4 +34,3 @@ export declare class FormattingElementList<T extends TreeAdapterTypeMap> {
     getElementEntry(element: T['element']): ElementEntry<T> | undefined;
 }
 export {};
-//# sourceMappingURL=formatting-element-list.d.ts.map

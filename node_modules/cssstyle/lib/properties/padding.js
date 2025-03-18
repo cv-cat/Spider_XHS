@@ -6,8 +6,10 @@ var TYPES = parsers.TYPES;
 var isValid = function (v) {
   var type = parsers.valueType(v);
   return (
+    type === TYPES.NULL_OR_EMPTY_STR ||
     type === TYPES.LENGTH ||
     type === TYPES.PERCENT ||
+    type === TYPES.CALC ||
     (type === TYPES.INTEGER && (v === '0' || v === 0))
   );
 };
@@ -32,6 +34,9 @@ module.exports.definition = {
   set: function (v) {
     if (typeof v === 'number') {
       v = String(v);
+    }
+    if (v === null) {
+      v = '';
     }
     if (typeof v !== 'string') {
       return;
