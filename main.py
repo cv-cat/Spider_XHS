@@ -107,6 +107,10 @@ class Data_Spider():
         return note_list, success, msg
 
 if __name__ == '__main__':
+    """
+        此文件为爬虫的入口文件，可以直接运行
+        apis/pc_apis.py 为爬虫的api文件，包含小红书的全部数据接口，可以继续封装，感谢star和follow
+    """
     cookies_str, base_path = init()
     data_spider = Data_Spider()
     # save_choice: all: 保存所有的信息, media: 保存视频和图片, excel: 保存到excel
