@@ -1,10 +1,11 @@
 <p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank" align="center" alt="Go to XHS_Spider Website">
     <picture>
-      <img width="800" src="https://github.com/user-attachments/assets/4834cc54-8d6e-477a-9dcb-6294afaa4c14" alt="Spider_XHS logo">
+      <img width="220" src="https://github.com/user-attachments/assets/b817a5d2-4ca6-49e9-b7b1-efb07a4fb325" alt="Spider_XHS logo">
     </picture>
   </a>
 </p>
+
 
 [![Python Version](https://img.shields.io/badge/python-3.7%2B-blue)](https://www.python.org/)
 [![Python Version](https://img.shields.io/badge/nodejs-18%2B-blue)](https://nodejs.org/zh-cn/)
