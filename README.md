@@ -8,11 +8,8 @@
 
 
 <div align="center">
-<img src="https://img.shields.io/badge/Python-3.7-red" alt="cvcat.site">
-<img src="https://img.shields.io/badge/Node.js-18.0-red" alt="cvcat.site">
-[![Python](https://img.shields.io/badge/Python-3.7-red)](https://www.python.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18.0-red)](https://nodejs.org/zh-cn/)
-
+[![Python Version](https://img.shields.io/badge/python-3.7%2B-blue)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/nodejs-18%2B-blue)](https://nodejs.org/zh-cn/)
 </div>
 
 
