@@ -8,13 +8,12 @@
 
 
 <div align="center">
-    <a href="https://www.python.org/">
-        <img src="https://img.shields.io/badge/python-3.6-red" alt="python 3.6+">
-    </a>
-    <a href="https://nodejs.org/zh-cn/">
-        <img src="https://img.shields.io/badge/nodejs-18.0-red" alt="NodeJS 18+">
-    </a>
+
+[![Python](https://img.shields.io/badge/Python-3.7-red?logo=python&logoColor=red)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.0-red?logo=node.js&logoColor=red)](https://nodejs.org/zh-cn/)
+
 </div>
+
 
 
 # Spider_XHS
