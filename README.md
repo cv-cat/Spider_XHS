@@ -6,12 +6,13 @@
   </a>
 </p>
 
+
 <div align="center">
     <a href="https://www.python.org/">
-        <img src="https://img.shields.io/badge/python-3.7-red" alt="https://www.python.org/">
+        <img src="https://img.shields.io/badge/python-3.6-red" alt="python 3.6+">
     </a>
     <a href="https://nodejs.org/zh-cn/">
-        <img src="https://img.shields.io/badge/nodejs-18%2B-red" alt="Node.js 18+">
+        <img src="https://img.shields.io/badge/nodejs-18.0-red" alt="NodeJS 18+">
     </a>
 </div>
 
