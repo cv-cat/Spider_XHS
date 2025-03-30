@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank" align="center" alt="Go to XHS_Spider Website">
     <picture>
-      <img width="200" src="https://github.com/user-attachments/assets/4834cc54-8d6e-477a-9dcb-6294afaa4c14" alt="Logto logo">
+      <img width="800" src="https://github.com/user-attachments/assets/4834cc54-8d6e-477a-9dcb-6294afaa4c14" alt="Spider_XHS logo">
     </picture>
   </a>
 </p>
