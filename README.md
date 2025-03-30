@@ -8,10 +8,10 @@
 
 <div align="center">
     <a href="https://cvcat.site">
-        <img src="https://img.shields.io/badge/python-3.7%2B-red" alt="https://www.python.org/">
+        <img src="https://img.shields.io/badge/python-3.7-red" alt="https://www.python.org/">
     </a>
     <a href="https://github.com/cv-cat">
-        <img src="https://img.shields.io/badge/nodejs-18%2B-red" alt="https://nodejs.org/zh-cn">
+        <img src="https://img.shields.io/badge/nodejs-18-red" alt="https://nodejs.org/zh-cn">
     </a>
 </div>
 
