@@ -8,9 +8,10 @@
 
 
 <div align="center">
-
-[![Python](https://img.shields.io/badge/Python-3.7-red?logo=python&logoColor=red)](https://www.python.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18.0-red?logo=node.js&logoColor=red)](https://nodejs.org/zh-cn/)
+<img src="https://img.shields.io/badge/Python-3.7-red" alt="cvcat.site">
+<img src="https://img.shields.io/badge/Node.js-18.0-red" alt="cvcat.site">
+[![Python](https://img.shields.io/badge/Python-3.7-red)](https://www.python.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.0-red)](https://nodejs.org/zh-cn/)
 
 </div>
 
