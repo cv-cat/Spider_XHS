@@ -3,8 +3,9 @@ import json
 import re
 import urllib
 import requests
-from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, get_common_headers
+from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, get_common_headers, sleep_random
 from loguru import logger
+
 
 """
     获小红书的api
@@ -174,7 +175,7 @@ class XHS_Apis():
         try:
             api = f"/api/sns/web/v1/user_posted"
             params = {
-                "num": "30",
+                "num": "15",
                 "cursor": cursor,
                 "user_id": user_id,
                 "image_formats": "jpg,webp,avif",
@@ -192,9 +193,9 @@ class XHS_Apis():
         return success, msg, res_json
 
 
-    def get_user_all_notes(self, user_url: str, cookies_str: str, proxies: dict = None):
+    def get_user_all_notes(self, user_url: str, cookies_str: str, proxies: dict = None, MAXIMUM_NOTES: int = 60):
         """
-           获取用户所有笔记
+           获取用户所有笔记简要列表，后续还需要进一步获取详细信息，并做过滤
            :param user_id: 你想要获取的用户的id
            :param cookies_str: 你的cookies
            返回用户的所有笔记
@@ -208,7 +209,8 @@ class XHS_Apis():
             kvDist = {kv.split('=')[0]: kv.split('=')[1] for kv in kvs}
             xsec_token = kvDist['xsec_token'] if 'xsec_token' in kvDist else ""
             xsec_source = kvDist['xsec_source'] if 'xsec_source' in kvDist else "pc_search"
-            while True:
+            while len(note_list) <= MAXIMUM_NOTES:
+                sleep_random(1,9)
                 success, msg, res_json = self.get_user_note_info(user_id, cursor, cookies_str, xsec_token, xsec_source, proxies)
                 if not success:
                     raise Exception(msg)

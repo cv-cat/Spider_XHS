@@ -4,3 +4,6 @@ loguru
 python-dotenv
 retry
 openpyxl
+pandas
+beautifulsoup4
+tqdm

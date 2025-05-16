@@ -6,6 +6,7 @@ import openpyxl
 import requests
 from loguru import logger
 from retry import retry
+import csv
 
 
 def norm_str(str):
@@ -62,7 +63,22 @@ def handle_user_info(data, user_id):
         'tags': tags,
     }
 
-def handle_note_info(data):
+def handle_note_info(data,controlTimeInterval_timestamp:tuple=(1743436800000, 1746028800000))->dict:
+    """
+    处理笔记信息，并根据控制时间区间（毫秒时间戳）过滤笔记
+    (1743436800000, 1746028800000): 2025-04-01 00:00:00 - 2025-05-01 00:00:00
+
+    若符合控制时间区间，则返回笔记信息列表，
+    否则返回None
+    """
+    upload_time_timeStamp_mseconds = data['note_card']['time']
+    if controlTimeInterval_timestamp[0] and controlTimeInterval_timestamp[1]:
+        if upload_time_timeStamp_mseconds < controlTimeInterval_timestamp[0] or upload_time_timeStamp_mseconds > controlTimeInterval_timestamp[1]:
+            logger.warning(f"笔记上传时间 {timestamp_to_str(upload_time_timeStamp_mseconds)} 不在控制时间区间内，跳过笔记: {data['id']}")
+            return None
+    upload_time = timestamp_to_str(data['note_card']['time'])
+    last_update_time = timestamp_to_str(data['note_card']['last_update_time'])
+
     note_id = data['id']
     note_url = data['url']
     note_type = data['note_card']['type']
@@ -105,7 +121,10 @@ def handle_note_info(data):
             tags.append(tag['name'])
         except:
             pass
-    upload_time = timestamp_to_str(data['note_card']['time'])
+    if tags: # if tags is not empty, also return the number of tags
+        n_tags = len(tags)
+    else:
+        n_tags = 0
     if 'ip_location' in data['note_card']:
         ip_location = data['note_card']['ip_location']
     else:
@@ -128,7 +147,9 @@ def handle_note_info(data):
         'video_addr': video_addr,
         'image_list': image_list,
         'tags': tags,
+        'tag_number': n_tags,
         'upload_time': upload_time,
+        'last_update_time': last_update_time,
         'ip_location': ip_location,
     }
 
@@ -179,7 +200,7 @@ def save_to_xlsx(datas, file_path, type='note'):
     wb = openpyxl.Workbook()
     ws = wb.active
     if type == 'note':
-        headers = ['笔记id', '笔记url', '笔记类型', '用户id', '用户主页url', '昵称', '头像url', '标题', '描述', '点赞数量', '收藏数量', '评论数量', '分享数量', '视频封面url', '视频地址url', '图片地址url列表', '标签', '上传时间', 'ip归属地']
+        headers = ['笔记id', '笔记url', '笔记类型', '用户id', '用户主页url', '昵称', '头像url', '标题', '描述', '点赞数量', '收藏数量', '评论数量', '分享数量', '视频封面url', '视频地址url', '图片地址url列表', '标签', '标签数量', '帖子上传时间', '帖子最后编辑时间', 'ip归属地']
     elif type == 'user':
         headers = ['用户id', '用户主页url', '用户名', '头像url', '小红书号', '性别', 'ip地址', '介绍', '关注数量', '粉丝数量', '作品被赞和收藏数量', '标签']
     else:
@@ -189,6 +210,22 @@ def save_to_xlsx(datas, file_path, type='note'):
         data = {k: norm_text(str(v)) for k, v in data.items()}
         ws.append(list(data.values()))
     wb.save(file_path)
+    logger.info(f'数据保存至 {file_path}')
+
+def save_to_csv(datas, file_path, type='note'):
+    if type == 'note':
+        headers = ['笔记id', '笔记url', '笔记类型', '用户id', '用户主页url', '昵称', '头像url', '标题', '描述', '点赞数量', '收藏数量', '评论数量', '分享数量', '视频封面url', '视频地址url', '图片地址url列表', '标签', '标签数量', '帖子上传时间', '帖子最后编辑时间', 'ip归属地']
+    elif type == 'user':
+        headers = ['用户id', '用户主页url', '用户名', '头像url', '小红书号', '性别', 'ip地址', '介绍', '关注数量', '粉丝数量', '作品被赞和收藏数量', '标签']
+    else:
+        headers = ['笔记id', '笔记url', '评论id', '用户id', '用户主页url', '昵称', '头像url', '评论内容', '评论标签', '点赞数量', '上传时间', 'ip归属地', '图片地址url列表']
+    
+    with open(file_path, 'w', newline='', encoding='utf-8-sig') as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for data in datas:
+            data = {k: norm_text(str(v)) for k, v in data.items()}
+            writer.writerow(list(data.values()))
     logger.info(f'数据保存至 {file_path}')
 
 def download_media(path, name, url, type):
@@ -274,3 +311,5 @@ def download_note(note_info, path):
 def check_and_create_path(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+

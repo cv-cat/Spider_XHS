@@ -1,3 +1,17 @@
+This is a branch from the original repo: [Spider_XHS](https://github.com/cv-cat/Spider_XHS)
+
+## Modifications:
+1. 保存指定区间内的笔记。Filter the time of the notes. Only the notes in a given interval ( defaultly it's `2025-04-01` to `2025-05-01`): using timestamp 
+
+2. 获取所有帖子和爬取详细帖子信息时，随机延迟(可以自行修改)。Randomly delay to fetch the posts. We modify the function `XHS_Apis.get_user_all_notes` and `Data_Spider.spider_some_note` to allow the spider to excute `time.sleep()` for a random numerical between $[1.000, 10.000]$ in default.
+
+3. 最后更新时间和tag数量也被保存到文件中。Saving the last updated time and the number of tags to the file.
+
+4. 支持以CSV保存。Enable saving as `.csv`.
+
+5. 限制爬取的帖子总数，在获取帖子列表时，设置了`MAXIMUM_NOTES=60`作为上限。Setting the upper bound of posts to fetch in `pc_apis.py`, using the parameter `MAXIMUM_NOTES=60`.
+
+---
 <p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank" align="center" alt="Go to XHS_Spider Website">
     <picture>

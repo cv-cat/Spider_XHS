@@ -2,8 +2,10 @@ import os
 from loguru import logger
 from apis.pc_apis import XHS_Apis
 from xhs_utils.common_utils import init
-from xhs_utils.data_util import handle_note_info, download_note, save_to_xlsx
-
+from xhs_utils.data_util import handle_note_info, download_note, save_to_xlsx, save_to_csv
+from tqdm import tqdm
+from time import sleep
+from random import uniform
 
 class Data_Spider():
     def __init__(self):
@@ -26,10 +28,10 @@ class Data_Spider():
         except Exception as e:
             success = False
             msg = e
-        logger.info(f'爬取笔记信息 {note_url}: {success}, msg: {msg}')
+        logger.info(f'爬取笔记信息 {note_url}: {success}')
         return success, msg, note_info
 
-    def spider_some_note(self, notes: list, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
+    def spider_some_note(self, notes: list, cookies_str: str, base_path: dict, save_choice: str, save_name: str = '', proxies=None):
         """
         爬取一些笔记的信息
         :param notes:
@@ -37,20 +39,26 @@ class Data_Spider():
         :param base_path:
         :return:
         """
-        if (save_choice == 'all' or save_choice == 'excel') and excel_name == '':
-            raise ValueError('excel_name 不能为空')
+        from xhs_utils.xhs_util import sleep_random
+
+        if (save_choice == 'all' or save_choice == 'excel' or save_choice == 'csv') and save_name == '':
+            raise ValueError('save_name 不能为空')
         note_list = []
         for note_url in notes:
+            sleep_random()
             success, msg, note_info = self.spider_note(note_url, cookies_str, proxies)
             if note_info is not None and success:
                 note_list.append(note_info)
         for note_info in note_list:
             if save_choice == 'all' or save_choice == 'media':
                 download_note(note_info, base_path['media'])
-        if save_choice == 'all' or save_choice == 'excel':
-            file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
-            save_to_xlsx(note_list, file_path)
 
+        if save_choice == 'all' or save_choice == 'excel':
+            file_path = os.path.abspath(os.path.join(base_path['excel'], f'{save_name}.xlsx'))
+            save_to_xlsx(note_list, file_path)
+        elif save_choice == 'csv':
+            file_path = os.path.abspath(os.path.join(base_path['excel'], f'{save_name}.csv'))
+            save_to_csv(note_list, file_path)
 
     def spider_user_all_note(self, user_url: str, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
         """
@@ -62,15 +70,17 @@ class Data_Spider():
         """
         note_list = []
         try:
-            success, msg, all_note_info = self.xhs_apis.get_user_all_notes(user_url, cookies_str, proxies)
+            success, msg, all_note_info = self.xhs_apis.get_user_all_notes(user_url, cookies_str, proxies, MAXIMUM_NOTES=60)
             if success:
                 logger.info(f'用户 {user_url} 作品数量: {len(all_note_info)}')
-                for simple_note_info in all_note_info:
+                for simple_note_info in tqdm(all_note_info, desc='整理笔记链接'):
                     note_url = f"https://www.xiaohongshu.com/explore/{simple_note_info['note_id']}?xsec_token={simple_note_info['xsec_token']}"
                     note_list.append(note_url)
-            if save_choice == 'all' or save_choice == 'excel':
-                excel_name = user_url.split('/')[-1].split('?')[0]
-            self.spider_some_note(note_list, cookies_str, base_path, save_choice, excel_name, proxies)
+                    
+            # 统一处理保存逻辑
+            save_name = user_url.split('/')[-1].split('?')[0]
+            self.spider_some_note(note_list, cookies_str, base_path, save_choice, save_name, proxies)
+            
         except Exception as e:
             success = False
             msg = e
@@ -111,6 +121,10 @@ if __name__ == '__main__':
         此文件为爬虫的入口文件，可以直接运行
         apis/pc_apis.py 为爬虫的api文件，包含小红书的全部数据接口，可以继续封装，感谢star和follow
     """
+
+    import time
+    time.sleep(5)
+
     cookies_str, base_path = init()
     data_spider = Data_Spider()
     # save_choice: all: 保存所有的信息, media: 保存视频和图片, excel: 保存到excel
@@ -119,15 +133,18 @@ if __name__ == '__main__':
     notes = [
         r'https://www.xiaohongshu.com/explore/67d7c713000000000900e391?xsec_token=AB1ACxbo5cevHxV_bWibTmK8R1DDz0NnAW1PbFZLABXtE=&xsec_source=pc_user',
     ]
-    data_spider.spider_some_note(notes, cookies_str, base_path, 'all', 'test')
+    # data_spider.spider_some_note(notes, cookies_str, base_path, 'all', 'test')
 
     # 2
-    user_url = 'https://www.xiaohongshu.com/user/profile/67a332a2000000000d008358?xsec_token=ABTf9yz4cLHhTycIlksF0jOi1yIZgfcaQ6IXNNGdKJ8xg=&xsec_source=pc_feed'
-    data_spider.spider_user_all_note(user_url, cookies_str, base_path, 'all')
+    # user_url = 'https://www.xiaohongshu.com/user/profile/67a332a2000000000d008358?xsec_token=ABTf9yz4cLHhTycIlksF0jOi1yIZgfcaQ6IXNNGdKJ8xg=&xsec_source=pc_feed'
+    # user_url = 'https://www.xiaohongshu.com/user/profile/5bb370f87d871100012f124a?xsec_token=ABWX915VCi8hbDizp6C0i0yW4X71s7dpUHYIYSIq7UCkY=&xsec_source=pc_feed'
+    # user_url = 'https://www.xiaohongshu.com/user/profile/5a8cc0aa11be107fd08dffc5?xsec_token=ABYLB0P1M-TRuepgUcMvKoun4w-OobVbzPUDj69KLfFXc=&xsec_source=pc_feed'
+    user_url = 'https://www.xiaohongshu.com/user/profile/64f57d7f00000000040240ab?xsec_token=AB72sECJPN4_Z985HpoOUggnYmuW-HcAuLCEthC32FZBs=&xsec_source=pc_note'
+    data_spider.spider_user_all_note(user_url, cookies_str, base_path, 'csv')
 
     # 3
-    query = "榴莲"
-    query_num = 10
-    sort = "general"
-    note_type = 0
-    data_spider.spider_some_search_note(query, query_num, cookies_str, base_path, 'all', sort, note_type)
+    # query = "榴莲"
+    # query_num = 10
+    # sort = "general"
+    # note_type = 0
+    # data_spider.spider_some_search_note(query, query_num, cookies_str, base_path, 'all', sort, note_type)

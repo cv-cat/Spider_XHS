@@ -3,7 +3,9 @@ import math
 import random
 import execjs
 from xhs_utils.cookie_util import trans_cookies
-
+from time import sleep
+from random import uniform
+from tqdm import tqdm
 try:
     js = execjs.compile(open(r'../static/xhs_xs_xsc_56.js', 'r', encoding='utf-8').read())
 except:
@@ -100,3 +102,8 @@ def splice_str(api, params):
         url += key + '=' + value + '&'
     return url[:-1]
 
+def sleep_random(min_seconds=1, max_seconds=10):
+    delay = round(uniform(min_seconds, max_seconds), 3)
+    # logger.info(f'随机等待 {delay} 秒')
+    tqdm.write(f'随机等待 {delay} 秒')
+    sleep(delay)
