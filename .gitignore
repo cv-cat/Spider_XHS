@@ -1,7 +1,9 @@
 __pycache__
+.vscode/
 node_modules/
 *.so
 .Python
+datas/
 build/
 develop-eggs/
 dist/
