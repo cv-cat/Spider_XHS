@@ -12,6 +12,7 @@ def norm_str(str):
     new_str = re.sub(r"|[\\/:*?\"<>| ]+", "", str).replace('\n', '').replace('\r', '')
     return new_str
 
+
 def norm_text(text):
     ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\010]|[\013-\014]|[\016-\037]')
     text = ILLEGAL_CHARACTERS_RE.sub(r'', text)
@@ -22,6 +23,7 @@ def timestamp_to_str(timestamp):
     time_local = time.localtime(timestamp / 1000)
     dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
     return dt
+
 
 def handle_user_info(data, user_id):
     home_url = f'https://www.xiaohongshu.com/user/profile/{user_id}'
@@ -61,6 +63,7 @@ def handle_user_info(data, user_id):
         'interaction': interaction,
         'tags': tags,
     }
+
 
 def handle_note_info(data):
     note_id = data['id']
@@ -132,6 +135,7 @@ def handle_note_info(data):
         'ip_location': ip_location,
     }
 
+
 def handle_comment_info(data):
     note_id = data['note_id']
     note_url = data['note_url']
@@ -175,6 +179,8 @@ def handle_comment_info(data):
         'ip_location': ip_location,
         'pictures': pictures,
     }
+
+
 def save_to_xlsx(datas, file_path, type='note'):
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -191,6 +197,7 @@ def save_to_xlsx(datas, file_path, type='note'):
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
+
 def download_media(path, name, url, type):
     if type == 'image':
         content = requests.get(url).content
@@ -204,6 +211,7 @@ def download_media(path, name, url, type):
             for data in res.iter_content(chunk_size=chunk_size):
                 f.write(data)
                 size += len(data)
+
 
 def save_user_detail(user, path):
     with open(f'{path}/detail.txt', mode="w", encoding="utf-8") as f:
@@ -220,6 +228,7 @@ def save_user_detail(user, path):
         f.write(f"粉丝数量: {user['fans']}\n")
         f.write(f"作品被赞和收藏数量: {user['interaction']}\n")
         f.write(f"标签: {user['tags']}\n")
+
 
 def save_note_detail(note, path):
     with open(f'{path}/detail.txt', mode="w", encoding="utf-8") as f:
