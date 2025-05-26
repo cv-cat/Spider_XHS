@@ -1,3 +1,8 @@
+# perso
+output/
+.env
+package-lock.json
+
 __pycache__
 node_modules/
 *.so

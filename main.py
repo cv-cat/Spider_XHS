@@ -23,11 +23,12 @@ class Data_Spider():
                 note_info = note_info['data']['items'][0]
                 note_info['url'] = note_url
                 note_info = handle_note_info(note_info)
+                logger.info(f'爬取笔记信息 {note_url}: {success}, msg: {msg}')
         except Exception as e:
             success = False
             msg = e
-        logger.info(f'爬取笔记信息 {note_url}: {success}, msg: {msg}')
         return success, msg, note_info
+
 
     def spider_some_note(self, notes: list, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
         """
@@ -44,12 +45,21 @@ class Data_Spider():
             success, msg, note_info = self.spider_note(note_url, cookies_str, proxies)
             if note_info is not None and success:
                 note_list.append(note_info)
-        for note_info in note_list:
-            if save_choice == 'all' or save_choice == 'media':
-                download_note(note_info, base_path['media'])
-        if save_choice == 'all' or save_choice == 'excel':
-            file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
-            save_to_xlsx(note_list, file_path)
+            else:
+                logger.error(f'爬取笔记失败: {note_url}, msg: {msg}')
+                break
+        total_note_count = len(note_list)
+        if total_note_count == 0:
+            logger.error('本次没有导出任何笔记。')
+        else:
+            logger.info(f'本次导出 {total_note_count} 个笔记。')
+            for note_info in note_list:
+                if save_choice == 'all' or save_choice == 'media':
+                    download_note(note_info, base_path['media'])
+            if save_choice == 'all' or save_choice == 'excel':
+                file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
+                save_to_xlsx(note_list, file_path)
+        
 
 
     def spider_user_all_note(self, user_url: str, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
@@ -77,6 +87,7 @@ class Data_Spider():
         logger.info(f'爬取用户所有视频 {user_url}: {success}, msg: {msg}')
         return note_list, success, msg
 
+
     def spider_some_search_note(self, query: str, require_num: int, cookies_str: str, base_path: dict, save_choice: str, sort="general", note_type=0,  excel_name: str = '', proxies=None):
         """
             指定数量搜索笔记，设置排序方式和笔记类型和笔记数量
@@ -93,17 +104,17 @@ class Data_Spider():
             success, msg, notes = self.xhs_apis.search_some_note(query, require_num, cookies_str, sort, note_type, proxies)
             if success:
                 notes = list(filter(lambda x: x['model_type'] == "note", notes))
-                logger.info(f'搜索关键词 {query} 笔记数量: {len(notes)}')
+                logger.info(f'开始搜索关键词「{query}」，笔记排序为 {sort}，预计笔记数量: {len(notes)}')
                 for note in notes:
                     note_url = f"https://www.xiaohongshu.com/explore/{note['id']}?xsec_token={note['xsec_token']}"
                     note_list.append(note_url)
             if save_choice == 'all' or save_choice == 'excel':
-                excel_name = query
+                excel_name =  query + '-' + sort
             self.spider_some_note(note_list, cookies_str, base_path, save_choice, excel_name, proxies)
+            logger.info(f'搜索关键词「{query}」完毕，笔记排序为 {sort}。')
         except Exception as e:
             success = False
             msg = e
-        logger.info(f'搜索关键词 {query} 笔记: {success}, msg: {msg}')
         return note_list, success, msg
 
 if __name__ == '__main__':
