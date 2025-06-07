@@ -251,9 +251,9 @@ def download_note(note_info, path, save_choice):
     note_id = note_info['note_id']
     user_id = note_info['user_id']
     title = note_info['title']
-    title = norm_str(title)
+    title = norm_str(title)[:40]
     nickname = note_info['nickname']
-    nickname = norm_str(nickname)
+    nickname = norm_str(nickname)[:20]
     if title.strip() == '':
         title = f'无标题'
     save_path = f'{path}/{nickname}_{user_id}/{title}_{note_id}'
