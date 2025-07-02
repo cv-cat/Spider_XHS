@@ -161,11 +161,11 @@ if __name__ == '__main__':
     notes = [
         r'https://www.xiaohongshu.com/explore/683fe17f0000000023017c6a?xsec_token=ABBr_cMzallQeLyKSRdPk9fwzA0torkbT_ubuQP1ayvKA=&xsec_source=pc_user',
     ]
-    # data_spider.spider_some_note(notes, cookies_str, base_path, 'all', 'test')
+    data_spider.spider_some_note(notes, cookies_str, base_path, 'all', 'test')
 
     # 2 爬取用户的所有笔记信息 用户链接 如下所示 注意此url会过期！
     user_url = 'https://www.xiaohongshu.com/user/profile/64c3f392000000002b009e45?xsec_token=AB-GhAToFu07JwNk_AMICHnp7bSTjVz2beVIDBwSyPwvM=&xsec_source=pc_feed'
-    # data_spider.spider_user_all_note(user_url, cookies_str, base_path, 'all')
+    data_spider.spider_user_all_note(user_url, cookies_str, base_path, 'all')
 
     # 3 搜索指定关键词的笔记
     query = "杭州 爬山 活动"
