@@ -110,7 +110,7 @@ class Data_Spider():
 
                     try:
                         if save_choice == 'all' or save_choice == 'content' or 'content' in save_choice:
-                            download_note_index(note_info, base_path['content'], save_choice, info, index)
+                            download_note_index(note_info, base_path['content'], save_choice,comment_note, comment_display, info, index)
                     except Exception as e:
                         print(f"Error downloading content for note {index}: {str(e)}")
 
@@ -220,6 +220,7 @@ if __name__ == '__main__':
     # 2 爬取用户的所有笔记信息 用户链接 如下所示 注意此url会过期！
     user_url_list = [
         # 'https://www.xiaohongshu.com/user/profile/64c3f392000000002b009e45?xsec_token=AB-GhAToFu07JwNk_AMICHnp7bSTjVz2beVIDBwSyPwvM=&xsec_source=pc_feed',
+                     # 'https://www.xiaohongshu.com/user/profile/61d3b6350000000021027741?xsec_token=ABWlrSYW7J43Qpk6nghpePOoWQiU7MdzZWw-50P6uzv4w%3D&xsec_source=pc_search',
                      'https://www.xiaohongshu.com/user/profile/658fbc1e0000000022012d90?xsec_token=AB3KOmCoVMCHstjRwG4RbwmUq_K0qE4vqQOo3ke2FLlDM%3D&xsec_source=pc_search',]
     data_spider.userHome(user_url_list, cookies_str, base_path, 'content')
 
