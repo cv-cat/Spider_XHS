@@ -191,12 +191,15 @@ def save_to_xlsx(datas, file_path, type='note'):
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
-def download_media(path, name, url, type):
+def download_media(path, name, url, type, info=''):
     if type == 'image':
+        print(f"{info}图片开始下载")
         content = requests.get(url).content
         with open(path + '/' + name + '.jpg', mode="wb") as f:
             f.write(content)
+            print(f"{info}图片下载完成")
     elif type == 'video':
+        print(f"{name}开始下载, {url}")
         res = requests.get(url, stream=True)
         size = 0
         chunk_size = 1024 * 1024
@@ -204,6 +207,7 @@ def download_media(path, name, url, type):
             for data in res.iter_content(chunk_size=chunk_size):
                 f.write(data)
                 size += len(data)
+        print(f"{name}下载完成")
 
 def save_user_detail(user, path):
     with open(f'{path}/detail.txt', mode="w", encoding="utf-8") as f:
@@ -244,10 +248,27 @@ def save_note_detail(note, path):
         f.write(f"上传时间: {note['upload_time']}\n")
         f.write(f"ip归属地: {note['ip_location']}\n")
 
+def save_custom_note_detail(note, path, index =0):
+    with open(path + '/' + 'detail.txt', mode="a", encoding="utf-8") as f:
+        # 逐行输出到txt里
+        f.write(f">>>>>>>>{index}_")
+        f.write(f"笔记url: {f'https://www.xiaohongshu.com/explore/{note['note_id']}'}\n")
+        # f.write(f'笔记类型: {note.note_type}\n')
+        f.write(f"笔记标题: {note['title']}\n")
+        f.write(f"笔记描述: {note['desc']}\n")
+        # f.write(f"笔记点赞数量: {note.liked_count}\n")
+        # f.write(f"笔记收藏数量: {note.collected_count}\n")
+        # f.write(f"笔记评论数量: {note.comment_count}\n")
+        # f.write(f"笔记分享数量: {note.share_count}\n")
+        f.write(f"笔记上传时间: {note['upload_time']}\n")
+        f.write(f"<<<<<<<<\n\n")
+        # f.write(f"笔记标签: {note.tag_list}\n")
+        # f.write(f"笔记ip归属地: {note.ip_location}\n")
+
 
 
 @retry(tries=3, delay=1)
-def download_note(note_info, path, save_choice):
+def download_note(note_info, path, save_choice, info='', index = 0):
     note_id = note_info['note_id']
     user_id = note_info['user_id']
     title = note_info['title']
@@ -268,6 +289,48 @@ def download_note(note_info, path, save_choice):
     elif note_type == '视频' and save_choice in ['media', 'media-video', 'all']:
         download_media(save_path, 'cover', note_info['video_cover'], 'image')
         download_media(save_path, 'video', note_info['video_addr'], 'video')
+    return save_path
+
+@retry(tries=3, delay=1)
+def download_note_index(note_info, path, save_choice, info='', index=0):
+    # 确保 path 是字符串
+    path = str(path)  # 防止 path 是整数
+
+    # 确保 note_id, user_id 是字符串
+    note_id = str(note_info['note_id'])
+    user_id = str(note_info['user_id'])
+    title = note_info['title']
+    title = norm_str(title)[:40]
+    nickname = note_info['nickname']
+    nickname = norm_str(nickname)[:20]
+
+    if title.strip() == '':
+        title = '无标题'
+    # 拼接路径（确保所有变量都是字符串）
+    # save_path = f"{path}/{nickname}_{user_id}/{title}_{note_id}"
+    save_path = f"{path}/{nickname}_{user_id}"  # /{title}_{note_id}"
+    check_and_create_path(save_path)
+
+    # 保存 info.json
+    with open(f'{save_path}/info.json', mode='w', encoding='utf-8') as f:
+        f.write(json.dumps(note_info) + '\n')
+
+    # 保存详细笔记信息
+    save_custom_note_detail(note_info, save_path, index)
+
+    # 下载图片或视频
+    note_type = note_info['note_type']
+    if note_type == '图集' and save_choice in ['media', 'media-image', 'all', 'content']:
+        for img_index, img_url in enumerate(note_info['image_list']):
+            download_media(save_path, f'{index}_{title}_{note_id}_{img_index}', img_url, 'image',
+                           f'第{index}_{img_index}张图片')
+    elif note_type == '视频' and save_choice in ['media', 'media-video', 'all', 'content']:
+        download_media(save_path, f'{index}_{title}_{note_id}_cover', note_info['video_cover'], 'image',
+                       '{index}_视频封面')
+        download_media(save_path, f'{index}_{title}_{note_id}_video', note_info['video_addr'], 'video', '{index}_video')
+
+    print(f'用户: {nickname}, {info}标题: {title} 笔记 {index} 保存成功')
+    print('===================================================================')
     return save_path
 
 
