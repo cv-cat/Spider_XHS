@@ -76,22 +76,43 @@ class Data_Spider():
             file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
             save_to_xlsx(note_list, file_path)
 
-    def spider_some_note_by_download(self, notes: list, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
+    def spider_some_note_by_download(self, notes: list, cookies_str: str, base_path: dict, save_choice: str,
+                                     excel_name: str = '', proxies=None, start: int = None, end: int = None):
         """
         爬取一些笔记的信息
-        :param notes:
-        :param cookies_str:
-        :param base_path:
+        :param notes: 笔记URL列表（最新的笔记在最前面）
+        :param cookies_str: cookies字符串
+        :param base_path: 保存路径字典
+        :param save_choice: 保存选项
+        :param excel_name: Excel文件名
+        :param proxies: 代理设置
+        :param start: 起始位置（从最新开始计数，1表示最新）
+        :param end: 结束位置
         :return:
         """
         if (save_choice == 'all' or save_choice == 'excel') and excel_name == '':
             raise ValueError('excel_name 不能为空')
         if save_choice == 'content' and excel_name != '':
             content_name = excel_name
+
+        # 确定处理范围
+        total_notes = len(notes)
+        if start is None and end is None:
+            # 默认处理所有笔记
+            notes_to_process = notes
+            start_index = total_notes
+        else:
+            # 处理指定范围的笔记
+            start = 1 if start is None else max(1, start)
+            end = total_notes if end is None else min(total_notes, end)
+            notes_to_process = notes[start - 1:end]
+            start_index = total_notes - start + 1
+
         note_list = []
-        index = 0
-        for note_url in notes:
-            index += 1
+        for i, note_url in enumerate(notes_to_process):
+            # 计算倒序索引
+            current_index = start_index - i
+
             try:
                 # Add delay between requests to avoid being blocked
                 time.sleep(4)  # 1 second delay, adjust as needed
@@ -100,22 +121,24 @@ class Data_Spider():
                 time.sleep(4)  # 4 second delay, adjust as needed
                 success, msg, comment_note, comment_display = self.spider_comment(note_url, cookies_str, proxies)
                 if note_info is not None and success:
-                    info = f'第{index}个笔记, '
+                    info = f'第{current_index}个笔记, '
                     note_list.append(note_info)
                     try:
                         if save_choice == 'all' or 'media' in save_choice:
-                            download_note_index(note_info, base_path['media'], save_choice,comment_note, comment_display, info, index)
+                            download_note_index(note_info, base_path['media'], save_choice, comment_note,
+                                                comment_display, info, current_index)
                     except Exception as e:
-                        print(f"Error downloading media for note {index}: {str(e)}")
+                        print(f"Error downloading media for note {current_index}: {str(e)}")
 
                     try:
                         if save_choice == 'all' or save_choice == 'content' or 'content' in save_choice:
-                            download_note_index(note_info, base_path['content'], save_choice,comment_note, comment_display, info, index)
+                            download_note_index(note_info, base_path['content'], save_choice, comment_note,
+                                                comment_display, info, current_index)
                     except Exception as e:
-                        print(f"Error downloading content for note {index}: {str(e)}")
+                        print(f"Error downloading content for note {current_index}: {str(e)}")
 
             except Exception as e:
-                print(f"Error processing note {index} ({note_url}): {str(e)}")
+                print(f"Error processing note {current_index} ({note_url}): {str(e)}")
                 continue  # Continue to next note even if this one fails
 
             if save_choice == 'all' or save_choice == 'excel':
@@ -125,8 +148,7 @@ class Data_Spider():
                 except Exception as e:
                     print(f"Error saving to Excel: {str(e)}")
 
-
-    def spider_user_all_note(self, user_url: str, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
+    def spider_user_all_note(self, user_url: str, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None, start: int = None, end: int = None):
         """
         爬取一个用户的所有笔记
         :param user_url:
@@ -144,7 +166,7 @@ class Data_Spider():
                     note_list.append(note_url)
             if save_choice == 'all' or save_choice == 'excel' or save_choice == 'content':
                 excel_name = user_url.split('/')[-1].split('?')[0]
-            self.spider_some_note_by_download(note_list, cookies_str, base_path, save_choice, excel_name, proxies)
+            self.spider_some_note_by_download(note_list, cookies_str, base_path, save_choice, excel_name, proxies,start, end)
         except Exception as e:
             success = False
             msg = e
@@ -183,14 +205,14 @@ class Data_Spider():
         logger.info(f'搜索关键词 {query} 笔记: {success}, msg: {msg}')
         return note_list, success, msg
 
-    def userHome(self, url_list, cookies_str: str, base_path: dict, save_choice: str,):
+    def userHome(self, url_list, cookies_str: str, base_path: dict, save_choice: str, start: int = None, end: int = None):
         # url_list = [
         #     'https://www.xiaohongshu.com/user/profile/6185ce66000000001000705b',
         #     'https://www.xiaohongshu.com/user/profile/6034d6f20000000001006fbb',
         # ]
         for user_url in url_list:
             try:
-                self.spider_user_all_note(user_url, cookies_str, base_path, 'content')
+                self.spider_user_all_note(user_url, cookies_str, base_path, 'content',  '', None,start, end)
             except:
                 print(f'用户 {user_url} 查询失败')
 
@@ -218,11 +240,13 @@ if __name__ == '__main__':
     # data_spider.spider_some_note_by_download(notes, cookies_str, base_path, 'all', 'test')
 
     # 2 爬取用户的所有笔记信息 用户链接 如下所示 注意此url会过期！
-    user_url_list = [
-        # 'https://www.xiaohongshu.com/user/profile/64c3f392000000002b009e45?xsec_token=AB-GhAToFu07JwNk_AMICHnp7bSTjVz2beVIDBwSyPwvM=&xsec_source=pc_feed',
-                     # 'https://www.xiaohongshu.com/user/profile/61d3b6350000000021027741?xsec_token=ABWlrSYW7J43Qpk6nghpePOoWQiU7MdzZWw-50P6uzv4w%3D&xsec_source=pc_search',
-                     'https://www.xiaohongshu.com/user/profile/658fbc1e0000000022012d90?xsec_token=AB3KOmCoVMCHstjRwG4RbwmUq_K0qE4vqQOo3ke2FLlDM%3D&xsec_source=pc_search',]
-    data_spider.userHome(user_url_list, cookies_str, base_path, 'content')
+    wendaChiyu = 'https://www.xiaohongshu.com/user/profile/61d3b6350000000021027741?xsec_token=ABcW5k7InQO-DxZIzLf9t9yZ-3CfvEK5ja0NG5zSPYa2c=&xsec_source=pc_note'
+    lvShaoJian = 'https://www.xiaohongshu.com/user/profile/658fbc1e0000000022012d90?xsec_token=AB3KOmCoVMCHstjRwG4RbwmUq_K0qE4vqQOo3ke2FLlDM%3D&xsec_source=pc_search',
+    user_url_list = [wendaChiyu
+        ]
+    start = 41 # None
+    end = None # 40
+    data_spider.userHome(user_url_list, cookies_str, base_path, 'content',start, end)
 
     # # 3 搜索指定关键词的笔记
     # query = "榴莲"
