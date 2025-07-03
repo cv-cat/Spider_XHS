@@ -175,6 +175,79 @@ def handle_comment_info(data):
         'ip_location': ip_location,
         'pictures': pictures,
     }
+
+def handle_comment_info_sub(comment_list):
+    comments = []
+    for data in comment_list:
+        note_id = data['note_id']
+        # note_url = data['note_url']
+        comment_id = data['id']
+        user_id = data['user_info']['user_id']
+        home_url = f'https://www.xiaohongshu.com/user/profile/{user_id}'
+        nickname = data['user_info']['nickname']
+        avatar = data['user_info']['image']
+        content = data['content']
+        show_tags = data['show_tags']
+        like_count = data['like_count']
+        upload_time = timestamp_to_str(data['create_time'])
+        try:
+            ip_location = data['ip_location']
+        except:
+            ip_location = '未知'
+        pictures = []
+        try:
+            pictures_temp = data['pictures']
+            for picture in pictures_temp:
+                try:
+                    pictures.append(picture['info_list'][1]['url'])
+                    # success, msg, img_url = XHS_Apis.get_note_no_water_img(picture['info_list'][1]['url'])
+                    # pictures.append(img_url)
+                except:
+                    pass
+        except:
+            pass
+        sub_comments = []
+        try:
+            sub_comments_temp = data['sub_comments']
+            if(sub_comments_temp != []):
+                comment0, comment_display0 = handle_comment_info_sub(sub_comments_temp)
+                sub_comments.append(comment_display0)
+        except:
+            pass
+        comment = {
+            'note_id': note_id,
+            # 'note_url': note_url,
+            'comment_id': comment_id,
+            'user_id': user_id,
+            'home_url': home_url,
+            'nickname': nickname,
+            'avatar': avatar,
+            'content': content,
+            'show_tags': show_tags,
+            'like_count': like_count,
+            'upload_time': upload_time,
+            'ip_location': ip_location,
+            'pictures': pictures,
+            'sub_comments': sub_comments,
+        }
+        comment_dp = {
+            'note_id': note_id,
+            # 'note_url': note_url,
+            'comment_id': comment_id,
+            'user_id': user_id,
+            # 'home_url': home_url,
+            'nickname': nickname,
+            # 'avatar': avatar,
+            'content': content,
+            'show_tags': show_tags,
+            # 'like_count': like_count,
+            'upload_time': upload_time,
+            # 'ip_location': ip_location,
+            # 'pictures': pictures,
+            'sub_comments': sub_comments,
+        }
+        comment_display = f"==={json.dumps(comment_dp, ensure_ascii=False)}\nwho: {comment_dp['show_tags']}_{comment_dp['nickname']}_{comment_dp['user_id']}\ncontent: {comment_dp['content']}\nsub_comments:{comment_dp['sub_comments']}\nupload_time: {comment_dp['upload_time']}\n<<<<<<<<"
+        return comment, comment_display
 def save_to_xlsx(datas, file_path, type='note'):
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -264,7 +337,25 @@ def save_custom_note_detail(note, path, index =0):
         f.write(f"<<<<<<<<\n\n")
         # f.write(f"笔记标签: {note.tag_list}\n")
         # f.write(f"笔记ip归属地: {note.ip_location}\n")
-
+def save_note_all_comment_detail(comment_display, path, index =0):
+    with open(path + '/' + 'detail.txt', mode="a", encoding="utf-8") as f:
+        # 逐行输出到txt里
+        f.write(f">>>>>>>>{index}_comment")
+        f.write(comment_display)
+        f.write("\n\n")
+        # f.write(f"笔记url: {f'https://www.xiaohongshu.com/explore/{note['note_id']}'}\n")
+        # f.write(f'笔记类型: {note.note_type}\n')
+        # f.write(f"==={json.dumps(comment_display, ensure_ascii=False)}\n")
+        # f.write(f"who: {comment_display['show_tags']}_{comment_display['nickname']}_{comment_display['user_id']}\n")
+        # f.write(f"content: {comment_display['content']}\n")
+        # f.write(f"笔记点赞数量: {note.liked_count}\n")
+        # f.write(f"笔记收藏数量: {note.collected_count}\n")
+        # f.write(f"笔记评论数量: {note.comment_count}\n")
+        # f.write(f"笔记分享数量: {note.share_count}\n")
+        # f.write(f"upload_time: {comment_display['upload_time']}\n")
+        # f.write(f"<<<<<<<<\n\n")
+        # f.write(f"笔记标签: {note.tag_list}\n")
+        # f.write(f"笔记ip归属地: {note.ip_location}\n")
 
 
 @retry(tries=3, delay=1)
@@ -292,7 +383,7 @@ def download_note(note_info, path, save_choice, info='', index = 0):
     return save_path
 
 @retry(tries=3, delay=1)
-def download_note_index(note_info, path, save_choice, info='', index=0):
+def download_note_index(note_info, path, save_choice, comment_note, comment_display, info='', index=0):
     # 确保 path 是字符串
     path = str(path)  # 防止 path 是整数
 
@@ -317,6 +408,7 @@ def download_note_index(note_info, path, save_choice, info='', index=0):
 
     # 保存详细笔记信息
     save_custom_note_detail(note_info, save_path, index)
+    save_note_all_comment_detail(comment_note, comment_display, save_path, index)
 
     # 下载图片或视频
     note_type = note_info['note_type']
@@ -328,6 +420,11 @@ def download_note_index(note_info, path, save_choice, info='', index=0):
         download_media(save_path, f'{index}_{title}_{note_id}_cover', note_info['video_cover'], 'image',
                        '{index}_视频封面')
         download_media(save_path, f'{index}_{title}_{note_id}_video', note_info['video_addr'], 'video', '{index}_video')
+
+    comment_pictures = comment_note['pictures']
+    for img_index, img_url in enumerate(comment_pictures):
+        download_media(save_path, f'{index}_{title}_{note_id}_comment_{comment_note['comment_id']}_{comment_note['nickname']}_{img_index}', img_url, 'image',
+                       f'第{index}_comment_{comment_note['comment_id']}_{img_index}张图片')
 
     print(f'用户: {nickname}, {info}标题: {title} 笔记 {index} 保存成功')
     print('===================================================================')

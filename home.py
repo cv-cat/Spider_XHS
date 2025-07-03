@@ -5,7 +5,7 @@ import time
 from loguru import logger
 from apis.xhs_pc_apis import XHS_Apis
 from xhs_utils.common_util import init
-from xhs_utils.data_util import handle_note_info,handle_comment_info, download_note, download_note_index, save_to_xlsx
+from xhs_utils.data_util import handle_note_info,handle_comment_info,handle_comment_info_sub, download_note, download_note_index, save_to_xlsx
 
 
 class Data_Spider():
@@ -39,19 +39,18 @@ class Data_Spider():
         :param cookies_str:
         :return:
         """
-        note_info = None
+        comment_note = None
+        comment_display = ''
         try:
             success, msg, note_all_comment = self.xhs_apis.get_note_all_comment(note_url, cookies_str)
             logger.info(f'获取笔记评论结果 {json.dumps(note_all_comment, ensure_ascii=False)}: {success}, msg: {msg}')
             if success:
-                note_all_comment = note_all_comment['data']['items'][0]
-                note_all_comment['url'] = note_url
-                note_all_comment = handle_comment_info(note_all_comment)
+                comment_note, comment_display = handle_comment_info_sub(note_all_comment)
         except Exception as e:
             success = False
             msg = e
         logger.info(f'爬取笔记信息 {note_url}: {success}, msg: {msg}')
-        return success, msg, note_all_comment
+        return success, msg, comment_note, comment_display
 
     def spider_some_note(self, notes: list, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
         """
@@ -98,12 +97,14 @@ class Data_Spider():
                 time.sleep(4)  # 1 second delay, adjust as needed
 
                 success, msg, note_info = self.spider_note(note_url, cookies_str, proxies)
+                time.sleep(4)  # 4 second delay, adjust as needed
+                success, msg, comment_note, comment_display = self.spider_comment(note_url, cookies_str, proxies)
                 if note_info is not None and success:
                     info = f'第{index}个笔记, '
                     note_list.append(note_info)
                     try:
                         if save_choice == 'all' or 'media' in save_choice:
-                            download_note_index(note_info, base_path['media'], save_choice, info, index)
+                            download_note_index(note_info, base_path['media'], save_choice,comment_note, comment_display, info, index)
                     except Exception as e:
                         print(f"Error downloading media for note {index}: {str(e)}")
 
