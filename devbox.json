@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
+  "packages": [
+    "python3@latest",
+    "nodejs@22",
+    "uv@latest"
+  ],
+  "shell": {
+    "init_hook": [
+    ],
+    "scripts": {
+      "install": [
+        "uv sync",
+        "npm install"
+      ],
+      "dev": [
+        "uv run main.py"
+      ]
+    }
+  }
+}

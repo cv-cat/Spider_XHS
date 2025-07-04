@@ -29,3 +29,5 @@ ENV/
 env.bak/
 venv.bak/
 
+datas/
+.DS_Store
