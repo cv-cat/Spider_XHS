@@ -5,7 +5,9 @@
     "init_hook": [],
     "scripts": {
       "install": ["uv sync", "npm install"],
-      "dev:backend": ["uv run fastapi dev backend/main.py"]
+      "dev:server": ["uv run fastapi dev backend/main.py"],
+      "format:server": ["uvx ruff format backend"],
+      "lint:server": ["uvx ruff check backend"]
     }
   }
 }
