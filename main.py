@@ -1,5 +1,6 @@
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from loguru import logger
 from apis.xhs_pc_apis import XHS_Apis
 from xhs_utils.common_util import init
@@ -41,10 +42,17 @@ class Data_Spider():
         if (save_choice == 'all' or save_choice == 'excel') and excel_name == '':
             raise ValueError('excel_name 不能为空')
         note_list = []
-        for note_url in notes:
-            success, msg, note_info = self.spider_note(note_url, cookies_str, proxies)
-            if note_info is not None and success:
-                note_list.append(note_info)
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_note = {executor.submit(self.spider_note, note_url, cookies_str, proxies): note_url for note_url in notes}
+            for future in as_completed(future_to_note):
+                note_url = future_to_note[future]
+                try:
+                    success, msg, note_info = future.result()
+                    if note_info is not None and success:
+                        note_list.append(note_info)
+                except Exception as exc:
+                    logger.error(f'{note_url} generated an exception: {exc}')
+
         for note_info in note_list:
             if save_choice == 'all' or 'media' in save_choice:
                 download_note(note_info, base_path['media'], save_choice)
