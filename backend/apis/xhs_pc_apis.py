@@ -6,7 +6,7 @@ import urllib
 import requests
 
 from utils.result import safe_json_response
-from models.xhs import UserData
+from models.xhs import HomefeedCategoryResponse, UserData
 from xhs_utils.xhs_util import (
     splice_str,
     generate_request_params,
@@ -32,19 +32,12 @@ class XHS_Apis:
         获取主页的所有频道
         返回主页的所有频道
         """
-        res_json = None
-        try:
-            api = "/api/sns/web/v1/homefeed/category"
-            headers, cookies, data = generate_request_params(cookies_str, api)
-            response = requests.get(
-                self.base_url + api, headers=headers, cookies=cookies, proxies=proxies
-            )
-            res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
-        except Exception as e:
-            success = False
-            msg = str(e)
-        return success, msg, res_json
+        api = "/api/sns/web/v1/homefeed/category"
+        headers, cookies, data = generate_request_params(cookies_str, api)
+        response = requests.get(
+            self.base_url + api, headers=headers, cookies=cookies, proxies=proxies
+        )
+        return safe_json_response(response, HomefeedCategoryResponse)
 
     def get_homefeed_recommend(
         self,

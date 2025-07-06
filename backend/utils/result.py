@@ -9,7 +9,7 @@ class SuccessResponse(BaseModel, Generic[ModelT]):
     """成功时的响应模型 (success=True)"""
 
     success: Literal[True]
-    msg: None = None
+    msg: str | None
     data: ModelT
 
 
@@ -21,7 +21,7 @@ class ErrorResponse(BaseModel):
     data: None = None
 
 
-DiscriminatedApiResponse = Annotated[
+type DiscriminatedApiResponse[ModelT: BaseModel] = Annotated[
     Union[SuccessResponse[ModelT], ErrorResponse],
     Field(discriminator="success"),
 ]

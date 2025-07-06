@@ -11,16 +11,9 @@ class UserData(BaseModel):
     nickname: str
     desc: str
 
+class Category(BaseModel):
+    id: str
+    name: str
 
-class UserResponse(BaseModel):
-    code: int
-    success: bool
-    msg: str
-    data: UserData
-
-
-class ApiResponse[T](BaseModel):
-    code: int
-    success: bool
-    msg: str | None
-    data: T | None
+class HomefeedCategoryResponse(BaseModel):
+    categories: list[Category]

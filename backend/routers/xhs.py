@@ -1,20 +1,17 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import Optional, Any
 
-from models.xhs import UserData
+from models.xhs import HomefeedCategoryResponse, UserData
 from models.error import ErrorResponse
 from services.cookie_manager import cookie_manager
 from apis.xhs_pc_apis import XHS_Apis
 from loguru import logger
 
-# 创建XHS_Apis实例
 xhs_apis = XHS_Apis()
 
-# 创建API路由
 router = APIRouter(prefix="/xhs", tags=["小红书API"])
 
 
-# 定义统一的Cookie获取函数
 def get_cookie_str(user_id: Optional[str], platform: str = "xhs_pc") -> str:
     """
     从Cookie管理器获取Cookie字符串
@@ -89,6 +86,28 @@ async def get_self_info_v2(user_id: Optional[str] = None) -> UserData:
         )
     result = xhs_apis.get_user_self_info2(cookies_str=cookie_str)
 
+    match result.success:
+        case True:
+            return result.data
+        case False:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"小红书API调用失败: {result.msg}",
+            )
+
+@router.get("/homefeed/category", summary="获取主页的所有频道", responses={
+        400: {"model": ErrorResponse},
+        401: {"model": ErrorResponse},
+    },
+)
+async def get_homefeed_category(user_id: Optional[str] = None) -> HomefeedCategoryResponse:
+    cookie_str = cookie_manager.get_cookie(user_id=user_id)
+    if not cookie_str:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Cookie不存在, 请先设置Cookie",
+        )
+    result = xhs_apis.get_homefeed_all_channel(cookies_str=cookie_str)
     match result.success:
         case True:
             return result.data
