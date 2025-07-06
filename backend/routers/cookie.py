@@ -10,7 +10,7 @@ from models.cookie import (
 from services.cookie_manager import cookie_manager
 from loguru import logger
 
-router = APIRouter(prefix="/api/v1/cookie", tags=["Cookie管理"])
+router = APIRouter(prefix="/cookie", tags=["Cookie管理"])
 
 
 @router.post("/set", response_model=CookieSetResponse, summary="设置Cookie") 

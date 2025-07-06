@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from scalar_fastapi import get_scalar_api_reference
-from routers.cookie import router as cookie_router
+from routers import cookie, xhs
 from loguru import logger
 import sys
 
@@ -11,6 +11,8 @@ import sys
 logger.remove()
 logger.add(sys.stdout, level="INFO", 
            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
+
+OPENAPI_URL = "/api/openapi.json"
 
 
 @asynccontextmanager
@@ -34,6 +36,7 @@ app = FastAPI(
     description="提供小红书数据采集和Cookie管理的HTTP API服务",
     version="1.0.0",
     lifespan=lifespan,
+    openapi_url=OPENAPI_URL,
 )
 
 # 配置CORS
@@ -46,13 +49,14 @@ app.add_middleware(
 )
 
 # 注册路由
-app.include_router(cookie_router)
+app.include_router(cookie.router)
+app.include_router(xhs.router)
 
 @app.get("/scalar", include_in_schema=False)
 async def scalar_html():
     """Scalar API文档界面"""
     return get_scalar_api_reference(
-        openapi_url=app.openapi_url,
+        openapi_url=OPENAPI_URL,
         title=app.title,
     )
 
