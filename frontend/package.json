@@ -1,0 +1,50 @@
+{
+  "name": "frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "start": "node .output/server/index.mjs",
+    "build": "vite build",
+    "serve": "vite preview",
+    "test": "vitest run",
+    "format": "biome format",
+    "lint": "biome lint",
+    "check": "biome check"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "@tailwindcss/vite": "^4.0.6",
+    "@tanstack/match-sorter-utils": "^8.19.4",
+    "@tanstack/react-form": "^1.0.0",
+    "@tanstack/react-query": "^5.66.5",
+    "@tanstack/react-query-devtools": "^5.66.5",
+    "@tanstack/react-router": "^1.121.2",
+    "@tanstack/react-router-devtools": "^1.121.2",
+    "@tanstack/react-router-with-query": "^1.121.2",
+    "@tanstack/react-start": "^1.121.2",
+    "@tanstack/react-store": "^0.7.0",
+    "@tanstack/react-table": "^8.21.2",
+    "@tanstack/router-plugin": "^1.121.2",
+    "@tanstack/store": "^0.7.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.6",
+    "vite": "^6.3.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5",
+    "web-vitals": "^4.2.4"
+  }
+}
