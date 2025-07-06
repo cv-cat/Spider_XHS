@@ -16,4 +16,11 @@ class UserResponse(BaseModel):
     code: int
     success: bool
     msg: str
-    data: UserData 
+    data: UserData
+
+
+class ApiResponse[T](BaseModel):
+    code: int
+    success: bool
+    msg: str | None
+    data: T | None

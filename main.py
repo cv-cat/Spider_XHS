@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Optional
 from loguru import logger
 from apis.xhs_pc_apis import XHS_Apis
 from xhs_utils.common_util import init
@@ -113,7 +114,7 @@ class Data_Spider:
         note_time=0,
         note_range=0,
         pos_distance=0,
-        geo: dict = None,
+        geo: Optional[dict] = None,
         excel_name: str = "",
         proxies=None,
     ):
