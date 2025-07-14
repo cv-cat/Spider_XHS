@@ -1,12 +1,12 @@
 import requests
 from xhs_utils.cookie_util import trans_cookies
-from xhs_utils.xhs_creator_util import get_common_headers, generate_xs
+from xhs_utils.xhs_creator_util import get_common_headers, generate_xs, splice_str
 from xhs_utils.xhs_util import generate_x_b3_traceid
 
 
 class XHS_Creator_Apis():
     def __init__(self):
-        self.base_url = "https://creator.xiaohongshu.com"
+        self.base_url = "https://edith.xiaohongshu.com"
 
 
     # page: 页数
@@ -15,19 +15,20 @@ class XHS_Creator_Apis():
         success = False
         msg = '成功'
         res_json = None
+
         try:
-            api = "/api/galaxy/creator/note/user/posted"
-            headers = get_common_headers()
-            cookies = trans_cookies(cookies_str)
-            xs, xt, _ = generate_xs(cookies['a1'], api, '')
-            headers['x-s'], headers['x-t'] = xs, str(xt)
-            headers['x-b3-traceid'] = generate_x_b3_traceid()
+            api = "/web_api/sns/v5/creator/note/user/posted"
             params = {
                 "tab": '0',
             }
-            if page:
+            if page >= 0:
                 params["page"] = str(page)
-            response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params)
+            splice_api = splice_str(api, params)
+            headers = get_common_headers()
+            cookies = trans_cookies(cookies_str)
+            xs, xt, _ = generate_xs(cookies['a1'], splice_api, '')
+            headers['x-s'], headers['x-t'] = xs, str(xt)
+            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, verify=False)
             res_json = response.json()
             success = res_json["success"]
         except Exception as e:

@@ -18,24 +18,24 @@ def generate_xs(a1, api, data=''):
 
 def get_common_headers():
     return {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
         "accept": "application/json, text/plain, */*",
-        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        "authorization;": "",
-        "cache-control": "no-cache",
-        "content-type": "application/json;charset=UTF-8",
-        "origin": "https://creator.xiaohongshu.com",
+        "Host": "edith.xiaohongshu.com",
         "pragma": "no-cache",
-        "priority": "u=1, i",
-        "referer": "https://creator.xiaohongshu.com/",
-        "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Microsoft Edge\";v=\"127\", \"Chromium\";v=\"127\"",
-        "sec-ch-ua-mobile": "?0",
+        "cache-control": "no-cache",
         "sec-ch-ua-platform": "\"Windows\"",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-site",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
+        "authorization": "",
+        "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Microsoft Edge\";v=\"138\"",
+        "sec-ch-ua-mobile": "?0",
+        "x-t": "",
         "x-s": "",
-        "x-t": ""
+        "origin": "https://creator.xiaohongshu.com",
+        "sec-fetch-site": "same-site",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-dest": "empty",
+        "referer": "https://creator.xiaohongshu.com/",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "priority": "u=1, i"
     }
 
 

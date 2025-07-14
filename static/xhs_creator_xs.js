@@ -1,6 +1,6 @@
 const crypto = require('crypto');
-let key = 'glt6h61ta7kisow7'
-let iv = '4hrivgw5s342f9b2'
+let key = '7cc4adla5ay0701v'
+let iv = '4uzjr7mbsibcaldp'
 key = Buffer.from(key);
 iv = Buffer.from(iv);
 var encrypt = function (data) {
@@ -27,7 +27,7 @@ function get_xs(api, data, a1) {
     let x = `x1=${x1};x2=${x2};x3=${x3};x4=${x4};`;
     let payload = encrypt(btoa(x));
     let encrypt_data = {
-        "signSvn":"55",
+        "signSvn":"56",
         "signType":"x2",
         "appId":"ugc",
         "signVersion":"1",
