@@ -1,9 +1,12 @@
 import json
 import os
+import asyncio
 from loguru import logger
 from apis.xhs_pc_apis import XHS_Apis
 from xhs_utils.common_util import init
-from xhs_utils.data_util import handle_note_info, download_note, save_to_xlsx
+from xhs_utils.data_util import handle_note_info
+from xhs_utils.storage.storage_manager import StorageManager
+from config.storage_config import STORAGE_OPTIONS
 
 # 配置日志输出
 logger.add("logs/spider_{time}.log", rotation="500 MB", encoding="utf-8", enqueue=True, retention="10 days")
@@ -11,6 +14,7 @@ logger.add("logs/spider_{time}.log", rotation="500 MB", encoding="utf-8", enqueu
 class Data_Spider():
     def __init__(self):
         self.xhs_apis = XHS_Apis()
+        self.storage_manager = StorageManager.create_default()
 
     def spider_note(self, note_url: str, cookies_str: str, proxies=None):
         """
@@ -32,90 +36,53 @@ class Data_Spider():
         logger.info(f'爬取笔记信息 {note_url}: {success}, msg: {msg}')
         return success, msg, note_info
 
-    def spider_some_note(self, notes: list, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
+    async def spider_some_note(self, notes: list, cookies_str: str,  storage_options: dict = None, excel_name: str = '', proxies=None):
         """
         爬取一些笔记的信息
-        :param notes:
-        :param cookies_str:
-        :param base_path:
-        :return:
+        :param notes: 笔记URL列表
+        :param cookies_str: cookies字符串
+        :param storage_options: 存储选项字典，格式如：
+            {
+                'save_choice': ['file', 'excel'],  # 使用的存储策略列表
+                'save_image': True,  # 是否保存图片
+                'save_video': True   # 是否保存视频
+            }
+        :param excel_name: Excel文件名（不含扩展名）
+        :param proxies: 代理设置
         """
-        if (save_choice == 'all' or save_choice == 'excel') and excel_name == '':
-            raise ValueError('excel_name 不能为空')
+        if 'excel' in (storage_options or {}).get('save_choice', []) and excel_name == '':
+            raise ValueError('使用Excel存储时，excel_name 不能为空')
+            
         note_list = []
-        
         for note_url in notes:
             success, msg, note_info = self.spider_note(note_url, cookies_str, proxies)
             if not success:
                 logger.error(f'爬取失败，停止继续爬取。失败原因: {msg}')
-                # 如果已经爬取到了一些数据，保存现有数据
-                if note_list:
-                    logger.info(f'保存已爬取的 {len(note_list)} 个笔记')
-                    if save_choice == 'all' or save_choice == 'excel':
-                        file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
-                        save_to_xlsx(note_list, file_path)
-                    if save_choice == 'all' or 'media' in save_choice:
-                        for note_info in note_list:
-                            try:
-                                save_path = download_note(note_info, base_path['media'], save_choice)
-                                logger.info(f'笔记 {note_info["note_id"]} 的媒体文件已保存到 {save_path}')
-                            except Exception as e:
-                                logger.error(f'下载笔记 {note_info["note_id"]} 的媒体文件失败: {str(e)}')
-                return False, msg, note_list
-            
+                break
+                
             if note_info is not None:
                 note_list.append(note_info)
                 logger.info(f'成功爬取笔记: {note_info["note_id"]}')
         
+                # 保存数据
+                await self.storage_manager.save_notes(note_list, storage_options, filename=excel_name)
+                
+                # 如果需要保存媒体文件
+                if storage_options and (storage_options['save_image'] or storage_options['save_video']):
+                    for note_info in note_list:
+                        await self.storage_manager.save_note_media(note_info, storage_options)
+            
         logger.info(f'成功爬取 {len(note_list)} 个笔记')
         
-        # 保存所有数据
-        if save_choice == 'all' or 'media' in save_choice:
-            for note_info in note_list:
-                try:
-                    save_path = download_note(note_info, base_path['media'], save_choice)
-                    logger.info(f'笔记 {note_info["note_id"]} 的媒体文件已保存到 {save_path}')
-                except Exception as e:
-                    logger.error(f'下载笔记 {note_info["note_id"]} 的媒体文件失败: {str(e)}')
-                    
-        if save_choice == 'all' or save_choice == 'excel':
-            file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
-            save_to_xlsx(note_list, file_path)
-            
         return True, "success", note_list
 
-    def spider_user_all_note(self, user_url: str, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
-        """
-        爬取一个用户的所有笔记
-        :param user_url:
-        :param cookies_str:
-        :param base_path:
-        :return:
-        """
-        note_list = []
-        try:
-            success, msg, all_note_info = self.xhs_apis.get_user_all_notes(user_url, cookies_str, proxies)
-            if success:
-                logger.info(f'用户 {user_url} 作品数量: {len(all_note_info)}')
-                for simple_note_info in all_note_info:
-                    note_url = f"https://www.xiaohongshu.com/explore/{simple_note_info['note_id']}?xsec_token={simple_note_info['xsec_token']}"
-                    note_list.append(note_url)
-            if save_choice == 'all' or save_choice == 'excel':
-                excel_name = user_url.split('/')[-1].split('?')[0]
-            self.spider_some_note(note_list, cookies_str, base_path, save_choice, excel_name, proxies)
-        except Exception as e:
-            success = False
-            msg = e
-        logger.info(f'爬取用户所有视频 {user_url}: {success}, msg: {msg}')
-        return note_list, success, msg
-
-    def spider_some_search_note(self, query: str, require_num: int, cookies_str: str, base_path: dict, save_choice: str, sort_type_choice=0, note_type=0, note_time=0, note_range=0, pos_distance=0, geo: dict = None,  excel_name: str = '', proxies=None):
+    async def spider_some_search_note(self, query: str, require_num: int, cookies_str: str, storage_options: dict, sort_type_choice=0, note_type=0, note_time=0, note_range=0, pos_distance=0, geo: dict = None, proxies=None):
         """
             指定数量搜索笔记，设置排序方式和笔记类型和笔记数量
             :param query 搜索的关键词
             :param require_num 搜索的数量
             :param cookies_str 你的cookies
-            :param base_path 保存路径
+            :param storage_manager 存储管理器
             :param sort_type_choice 排序方式 0 综合排序, 1 最新, 2 最多点赞, 3 最多评论, 4 最多收藏
             :param note_type 笔记类型 0 不限, 1 视频笔记, 2 普通笔记
             :param note_time 笔记时间 0 不限, 1 一天内, 2 一周内天, 3 半年内
@@ -124,6 +91,10 @@ class Data_Spider():
             返回搜索的结果
         """
         note_list = []
+        success = False
+        msg = ""
+        excel_name = query  # 初始化excel_name
+        
         try:
             success, msg, notes = self.xhs_apis.search_some_note(query, require_num, cookies_str, sort_type_choice, note_type, note_time, note_range, pos_distance, geo, proxies)
             if success:
@@ -132,47 +103,45 @@ class Data_Spider():
                 for note in notes:
                     note_url = f"https://www.xiaohongshu.com/explore/{note['id']}?xsec_token={note['xsec_token']}"
                     note_list.append(note_url)
-            if save_choice == 'all' or save_choice == 'excel':
-                excel_name = query
-            self.spider_some_note(note_list, cookies_str, base_path, save_choice, excel_name, proxies)
+                if note_list:  # 只有在有笔记时才调用spider_some_note
+                    return await self.spider_some_note(note_list, cookies_str, storage_options, excel_name, proxies)
         except Exception as e:
             success = False
-            msg = e
+            msg = str(e)
+            
         logger.info(f'搜索关键词 {query} 笔记: {success}, msg: {msg}')
-        return note_list, success, msg
+        return False, msg, note_list
 
-if __name__ == '__main__':
+async def main():
     """
-        此文件为爬虫的入口文件，可以直接运行
-        apis/xhs_pc_apis.py 为爬虫的api文件，包含小红书的全部数据接口，可以继续封装
-        apis/xhs_creator_apis.py 为小红书创作者中心的api文件
-        感谢star和follow
+    此文件为爬虫的入口文件，可以直接运行
+    apis/xhs_pc_apis.py 为爬虫的api文件，包含小红书的全部数据接口，可以继续封装
+    apis/xhs_creator_apis.py 为小红书创作者中心的api文件
+    感谢star和follow
     """
-
-    cookies_str, base_path = init()
+    cookies_str, _ = init()  # 不再使用base_path
     data_spider = Data_Spider()
-    """
-        save_choice: all: 保存所有的信息, media: 保存视频和图片（media-video只下载视频, media-image只下载图片，media都下载）, excel: 保存到excel
-        save_choice 为 excel 或者 all 时，excel_name 不能为空
-    """
-
-
-    # 1 爬取列表的所有笔记信息 笔记链接 如下所示 注意此url会过期！
-    notes = [
-        r'https://www.xiaohongshu.com/explore/683fe17f0000000023017c6a?xsec_token=ABBr_cMzallQeLyKSRdPk9fwzA0torkbT_ubuQP1ayvKA=&xsec_source=pc_user',
-    ]
-    data_spider.spider_some_note(notes, cookies_str, base_path, 'all', 'test')
-
-    # 2 爬取用户的所有笔记信息 用户链接 如下所示 注意此url会过期！
-    user_url = 'https://www.xiaohongshu.com/user/profile/64c3f392000000002b009e45?xsec_token=AB-GhAToFu07JwNk_AMICHnp7bSTjVz2beVIDBwSyPwvM=&xsec_source=pc_feed'
-    data_spider.spider_user_all_note(user_url, cookies_str, base_path, 'all')
 
     # 3 搜索指定关键词的笔记
-    query = "杭州 爬山 活动"
+    # queries = [
+    #     "杭州 博物馆", 
+    #     "杭州 音乐会 活动",
+    #     "杭州 展览 活动",
+    #     "杭州 读书会 活动",]
+    # query_num = 10
+    # sort_type_choice = 0  # 0 综合排序, 1 最新, 2 最多点赞, 3 最多评论, 4 最多收藏
+    # note_type = 2 # 0 不限, 1 视频笔记, 2 普通笔记
+    # note_time = 2  # 0 不限, 1 一天内, 2 一周内天, 3 半年内
+    # note_range = 2  # 0 不限, 1 已看过, 2 未看过, 3 已关注
+    # pos_distance = 0  # 0 不限, 1 同城, 2 附近 指定这个1或2必须要指定 geo
+
+    queries = [
+        "杭州 饭店 地道 本地人",]
+        # "杭州 必去 景点",]
     query_num = 10
     sort_type_choice = 0  # 0 综合排序, 1 最新, 2 最多点赞, 3 最多评论, 4 最多收藏
-    note_type = 0 # 0 不限, 1 视频笔记, 2 普通笔记
-    note_time = 0  # 0 不限, 1 一天内, 2 一周内天, 3 半年内
+    note_type = 2 # 0 不限, 1 视频笔记, 2 普通笔记
+    note_time = 3  # 0 不限, 1 一天内, 2 一周内天, 3 半年内
     note_range = 0  # 0 不限, 1 已看过, 2 未看过, 3 已关注
     pos_distance = 0  # 0 不限, 1 同城, 2 附近 指定这个1或2必须要指定 geo
     # geo = {
@@ -180,4 +149,10 @@ if __name__ == '__main__':
     #     "latitude": 39.9725,
     #     "longitude": 116.4207
     # }
-    data_spider.spider_some_search_note(query, query_num, cookies_str, base_path, 'all', sort_type_choice, note_type, note_time, note_range, pos_distance, geo=None)
+    # 使用默认存储选项
+    for query in queries:
+        await data_spider.spider_some_search_note(query, query_num, cookies_str, STORAGE_OPTIONS, sort_type_choice, note_type, note_time, note_range, pos_distance, geo=None)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+

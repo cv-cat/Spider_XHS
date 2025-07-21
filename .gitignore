@@ -30,3 +30,4 @@ env.bak/
 venv.bak/
 .env
 /datas
+.DS_Store

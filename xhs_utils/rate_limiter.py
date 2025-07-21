@@ -2,43 +2,29 @@ import time
 import random
 from threading import Lock
 from loguru import logger
-from xhs_utils.common_util import load_rate_limit_config
+from config.config import Config
 
 class RateLimiter:
     """
     使用令牌桶算法实现的请求速率限制器，带有随机延迟以模拟人类行为
     支持通过环境变量配置和完全禁用
     """
-    def __init__(self, max_requests: int = None, time_window: int = None, 
-                 min_delay: float = None, max_delay: float = None):
-        """
-        初始化速率限制器
-        所有参数都可选，默认从.env配置文件读取
-        如果在.env中设置RATE_LIMIT_ENABLED=false，则完全禁用速率限制
-        
-        :param max_requests: 在时间窗口内允许的最大请求数，默认从配置文件读取
-        :param time_window: 时间窗口大小(秒)，默认从配置文件读取
-        :param min_delay: 最小延迟时间(秒)，用于在基础延迟上增加随机波动，默认从配置文件读取
-        :param max_delay: 最大延迟时间(秒)，用于在基础延迟上增加随机波动，默认从配置文件读取
-        """
-        # 加载配置
-        config = load_rate_limit_config()
+    def __init__(self):
+        config = Config.get_rate_limiter_config()
+        self.max_requests = config['max_requests']  # 在时间窗口内允许的最大请求数
+        self.time_window = config['time_window']    # 时间窗口大小(秒)
+        self.min_delay = config['min_delay']        # 随机延迟的最小值(秒)
+        self.max_delay = config['max_delay']        # 随机延迟的最大值(秒)
+        self.request_times = []                     # 请求时间列表
         self.enabled = config['enabled']
         
         # 如果禁用了速率限制，直接返回
         if not self.enabled:
             return
             
-        # 从配置文件读取默认值，如果有传入参数则使用传入的值
-        self.max_requests = max_requests if max_requests is not None else config['max_requests']
-        self.time_window = time_window if time_window is not None else config['time_window']
         self.tokens = self.max_requests
         self.last_update = time.time()
         self.lock = Lock()
-        
-        # 延迟波动范围
-        self.min_delay = min_delay if min_delay is not None else config['min_delay']
-        self.max_delay = max_delay if max_delay is not None else config['max_delay']
         
         # 计算基础等待时间（每个请求的标准间隔）
         self.base_wait_time = self.time_window / self.max_requests
@@ -74,40 +60,32 @@ class RateLimiter:
         
         return total_delay
 
-    def acquire(self, block: bool = True) -> bool:
+    def _clean_old_requests(self):
+        """清理时间窗口外的请求记录"""
+        current_time = time.time()
+        self.request_times = [t for t in self.request_times 
+                            if current_time - t < self.time_window]
+        
+    def acquire(self):
         """
-        获取一个令牌
-        :param block: 如果为True，则在没有令牌时阻塞等待；如果为False，则立即返回结果
-        :return: 是否成功获取令牌
+        获取执行权限
+        如果当前请求数超过限制，会等待随机时间
         """
-        # 如果速率限制被禁用，直接返回成功
         if not self.enabled:
-            return True
+            return
             
         with self.lock:
-            self._update_tokens()
+            self._clean_old_requests()
             
-            if self.tokens > 0:
-                self.tokens -= 1
-                # 即使有令牌，也添加一个小的随机延迟
-                delay = self._get_random_delay()
-                if delay > 0:
-                    time.sleep(delay)
-                return True
-            
-            if not block:
-                return False
-            
-            # 计算需要等待的时间
-            base_wait_time = self.base_wait_time * (1 - self.tokens)
-            
-            # 在基础等待时间上增加随机波动
-            actual_wait_time = self._get_random_delay(base_wait_time)
-            time.sleep(actual_wait_time)
-            
-            self.tokens = self.max_requests - 1
-            self.last_update = time.time()
-            return True
+            while len(self.request_times) >= self.max_requests:
+                # 如果请求数达到上限，随机等待一段时间
+                delay = random.uniform(self.min_delay, self.max_delay)
+                logger.info(f'请求数达到限制，等待 {delay:.2f} 秒')
+                time.sleep(delay)
+                self._clean_old_requests()
+                
+            # 记录当前请求时间
+            self.request_times.append(time.time())
 
     def __call__(self, func):
         """装饰器方法，可以直接用于装饰需要限制速率的函数"""

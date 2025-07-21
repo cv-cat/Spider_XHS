@@ -62,6 +62,26 @@ def handle_user_info(data, user_id):
         'tags': tags,
     }
 
+def convert_chinese_number(number_str: str) -> int:
+    """
+    将带中文单位的数字字符串转换为整数
+    例如：'1万' -> 10000, '2.3万' -> 23000
+    """
+    try:
+        # 如果是纯数字，直接转换
+        return int(number_str)
+    except ValueError:
+        # 处理带单位的数字
+        if '万' in number_str:
+            try:
+                # 移除'万'并转换为浮点数
+                num = float(number_str.replace('万', ''))
+                # 乘以10000并转换为整数
+                return int(num * 10000)
+            except ValueError:
+                return 0
+        return 0
+
 def handle_note_info(data):
     note_id = data['id']
     note_url = data['url']
@@ -78,23 +98,20 @@ def handle_note_info(data):
     if title.strip() == '':
         title = f'无标题'
     desc = data['note_card']['desc']
-    liked_count = data['note_card']['interact_info']['liked_count']
-    collected_count = data['note_card']['interact_info']['collected_count']
-    comment_count = data['note_card']['interact_info']['comment_count']
-    share_count = data['note_card']['interact_info']['share_count']
+    liked_count = convert_chinese_number(data['note_card']['interact_info']['liked_count'])
+    collected_count = convert_chinese_number(data['note_card']['interact_info']['collected_count'])
+    comment_count = convert_chinese_number(data['note_card']['interact_info']['comment_count'])
+    share_count = convert_chinese_number(data['note_card']['interact_info']['share_count'])
     image_list_temp = data['note_card']['image_list']
     image_list = []
     for image in image_list_temp:
         try:
             image_list.append(image['info_list'][1]['url'])
-            # success, msg, img_url = XHS_Apis.get_note_no_water_img(image['info_list'][1]['url'])
-            # image_list.append(img_url)
         except:
             pass
     if note_type == '视频':
         video_cover = image_list[0]
         video_addr = 'https://sns-video-bd.xhscdn.com/' + data['note_card']['video']['consumer']['origin_video_key']
-        # success, msg, video_addr = XHS_Apis.get_note_no_water_video(note_id)
     else:
         video_cover = None
         video_addr = None
@@ -154,8 +171,6 @@ def handle_comment_info(data):
         for picture in pictures_temp:
             try:
                 pictures.append(picture['info_list'][1]['url'])
-                # success, msg, img_url = XHS_Apis.get_note_no_water_img(picture['info_list'][1]['url'])
-                # pictures.append(img_url)
             except:
                 pass
     except:

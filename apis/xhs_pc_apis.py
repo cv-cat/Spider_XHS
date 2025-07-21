@@ -12,20 +12,16 @@ from loguru import logger
     :param cookies_str: 你的cookies
 """
 class XHS_Apis():
-    def __init__(self, max_requests_per_second: int = 2,
-                 min_delay: float = 0.5, max_delay: float = 2.0):
+    def __init__(self):
         """
         初始化API客户端
-        :param max_requests_per_second: 每秒最大请求数，默认2次/秒
-        :param min_delay: 随机延迟的最小值(秒)，默认0.5秒
-        :param max_delay: 随机延迟的最大值(秒)，默认2秒
+        速率限制配置现在通过环境变量控制:
+        - RATE_LIMITER_MAX_REQUESTS: 每秒最大请求数，默认2次/秒
+        - RATE_LIMITER_MIN_DELAY: 随机延迟的最小值(秒)，默认0.5秒
+        - RATE_LIMITER_MAX_DELAY: 随机延迟的最大值(秒)，默认2秒
         """
         self.base_url = "https://edith.xiaohongshu.com"
-        self.rate_limiter = RateLimiter(
-            max_requests=max_requests_per_second,
-            min_delay=min_delay,
-            max_delay=max_delay,
-        )
+        self.rate_limiter = RateLimiter()
 
     def _make_request(self, method: str, url: str, **kwargs):
         """
