@@ -5,6 +5,8 @@ from apis.xhs_pc_apis import XHS_Apis
 from xhs_utils.common_util import init
 from xhs_utils.data_util import handle_note_info, download_note, save_to_xlsx
 
+# 配置日志输出
+logger.add("logs/spider_{time}.log", rotation="500 MB", encoding="utf-8", enqueue=True, retention="10 days")
 
 class Data_Spider():
     def __init__(self):
@@ -41,17 +43,46 @@ class Data_Spider():
         if (save_choice == 'all' or save_choice == 'excel') and excel_name == '':
             raise ValueError('excel_name 不能为空')
         note_list = []
+        
         for note_url in notes:
             success, msg, note_info = self.spider_note(note_url, cookies_str, proxies)
-            if note_info is not None and success:
+            if not success:
+                logger.error(f'爬取失败，停止继续爬取。失败原因: {msg}')
+                # 如果已经爬取到了一些数据，保存现有数据
+                if note_list:
+                    logger.info(f'保存已爬取的 {len(note_list)} 个笔记')
+                    if save_choice == 'all' or save_choice == 'excel':
+                        file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
+                        save_to_xlsx(note_list, file_path)
+                    if save_choice == 'all' or 'media' in save_choice:
+                        for note_info in note_list:
+                            try:
+                                save_path = download_note(note_info, base_path['media'], save_choice)
+                                logger.info(f'笔记 {note_info["note_id"]} 的媒体文件已保存到 {save_path}')
+                            except Exception as e:
+                                logger.error(f'下载笔记 {note_info["note_id"]} 的媒体文件失败: {str(e)}')
+                return False, msg, note_list
+            
+            if note_info is not None:
                 note_list.append(note_info)
-        for note_info in note_list:
-            if save_choice == 'all' or 'media' in save_choice:
-                download_note(note_info, base_path['media'], save_choice)
+                logger.info(f'成功爬取笔记: {note_info["note_id"]}')
+        
+        logger.info(f'成功爬取 {len(note_list)} 个笔记')
+        
+        # 保存所有数据
+        if save_choice == 'all' or 'media' in save_choice:
+            for note_info in note_list:
+                try:
+                    save_path = download_note(note_info, base_path['media'], save_choice)
+                    logger.info(f'笔记 {note_info["note_id"]} 的媒体文件已保存到 {save_path}')
+                except Exception as e:
+                    logger.error(f'下载笔记 {note_info["note_id"]} 的媒体文件失败: {str(e)}')
+                    
         if save_choice == 'all' or save_choice == 'excel':
             file_path = os.path.abspath(os.path.join(base_path['excel'], f'{excel_name}.xlsx'))
             save_to_xlsx(note_list, file_path)
-
+            
+        return True, "success", note_list
 
     def spider_user_all_note(self, user_url: str, cookies_str: str, base_path: dict, save_choice: str, excel_name: str = '', proxies=None):
         """
@@ -137,7 +168,7 @@ if __name__ == '__main__':
     data_spider.spider_user_all_note(user_url, cookies_str, base_path, 'all')
 
     # 3 搜索指定关键词的笔记
-    query = "榴莲"
+    query = "杭州 爬山 活动"
     query_num = 10
     sort_type_choice = 0  # 0 综合排序, 1 最新, 2 最多点赞, 3 最多评论, 4 最多收藏
     note_type = 0 # 0 不限, 1 视频笔记, 2 普通笔记
