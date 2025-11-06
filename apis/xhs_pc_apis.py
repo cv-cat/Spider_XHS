@@ -4,6 +4,7 @@ import re
 import urllib
 import requests
 from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, get_common_headers
+from xhs_utils.rate_limiter import RateLimiter
 from loguru import logger
 
 """
@@ -11,8 +12,31 @@ from loguru import logger
     :param cookies_str: 你的cookies
 """
 class XHS_Apis():
-    def __init__(self):
+    def __init__(self, max_requests_per_second: int = 2,
+                 min_delay: float = 0.5, max_delay: float = 2.0):
+        """
+        初始化API客户端
+        :param max_requests_per_second: 每秒最大请求数，默认2次/秒
+        :param min_delay: 随机延迟的最小值(秒)，默认0.5秒
+        :param max_delay: 随机延迟的最大值(秒)，默认2秒
+        """
         self.base_url = "https://edith.xiaohongshu.com"
+        self.rate_limiter = RateLimiter(
+            max_requests=max_requests_per_second,
+            min_delay=min_delay,
+            max_delay=max_delay,
+        )
+
+    def _make_request(self, method: str, url: str, **kwargs):
+        """
+        发送请求的通用方法，带有速率限制
+        :param method: 请求方法 ('GET' 或 'POST')
+        :param url: 请求URL
+        :param kwargs: 请求参数
+        :return: 响应对象
+        """
+        self.rate_limiter.acquire()
+        return requests.request(method, url, **kwargs)
 
     def get_homefeed_all_channel(self, cookies_str: str, proxies: dict = None):
         """
@@ -23,7 +47,7 @@ class XHS_Apis():
         try:
             api = "/api/sns/web/v1/homefeed/category"
             headers, cookies, data = generate_request_params(cookies_str, api)
-            response = requests.get(self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -63,7 +87,7 @@ class XHS_Apis():
                 "need_filter_image": False
             }
             headers, cookies, trans_data = generate_request_params(cookies_str, api, data)
-            response = requests.post(self.base_url + api, headers=headers, data=trans_data, cookies=cookies, proxies=proxies)
+            response = self._make_request('POST', self.base_url + api, headers=headers, data=trans_data, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -117,7 +141,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -135,7 +159,7 @@ class XHS_Apis():
         try:
             api = f"/api/sns/web/v1/user/selfinfo"
             headers, cookies, data = generate_request_params(cookies_str, api)
-            response = requests.get(self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -154,7 +178,7 @@ class XHS_Apis():
         try:
             api = f"/api/sns/web/v2/user/me"
             headers, cookies, data = generate_request_params(cookies_str, api)
-            response = requests.get(self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -183,7 +207,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -246,7 +270,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -309,7 +333,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -380,7 +404,7 @@ class XHS_Apis():
                 "xsec_token": kvDist['xsec_token']
             }
             headers, cookies, data = generate_request_params(cookies_str, api, data)
-            response = requests.post(self.base_url + api, headers=headers, data=data, cookies=cookies, proxies=proxies)
+            response = self._make_request('POST', self.base_url + api, headers=headers, data=data, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -404,7 +428,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -511,7 +535,7 @@ class XHS_Apis():
                 ]
             }
             headers, cookies, data = generate_request_params(cookies_str, api, data)
-            response = requests.post(self.base_url + api, headers=headers, data=data.encode('utf-8'), cookies=cookies, proxies=proxies)
+            response = self._make_request('POST', self.base_url + api, headers=headers, data=data.encode('utf-8'), cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -576,7 +600,7 @@ class XHS_Apis():
                 }
             }
             headers, cookies, data = generate_request_params(cookies_str, api, data)
-            response = requests.post(self.base_url + api, headers=headers, data=data.encode('utf-8'), cookies=cookies, proxies=proxies)
+            response = self._make_request('POST', self.base_url + api, headers=headers, data=data.encode('utf-8'), cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -633,7 +657,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -690,7 +714,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -763,7 +787,7 @@ class XHS_Apis():
         try:
             api = "/api/sns/web/unread_count"
             headers, cookies, data = generate_request_params(cookies_str, api)
-            response = requests.get(self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -787,7 +811,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -837,7 +861,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
@@ -887,7 +911,7 @@ class XHS_Apis():
             }
             splice_api = splice_str(api, params)
             headers, cookies, data = generate_request_params(cookies_str, splice_api)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
+            response = self._make_request('GET', self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
