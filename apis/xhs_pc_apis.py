@@ -4,6 +4,7 @@ import re
 import urllib
 import requests
 from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, get_common_headers
+from xhs_utils.request_delay import delay_manager
 from loguru import logger
 
 """
@@ -93,6 +94,7 @@ class XHS_Apis():
                 cursor_score = res_json["data"]["cursor_score"]
                 refresh_type = 3
                 note_index += 20
+                delay_manager.apply_delay()
                 if len(note_list) > require_num:
                     break
         except Exception as e:
@@ -218,6 +220,7 @@ class XHS_Apis():
                 else:
                     break
                 note_list.extend(notes)
+                delay_manager.apply_delay()
                 if len(notes) == 0 or not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -281,6 +284,7 @@ class XHS_Apis():
                 else:
                     break
                 note_list.extend(notes)
+                delay_manager.apply_delay()
                 if len(notes) == 0 or not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -344,6 +348,7 @@ class XHS_Apis():
                 else:
                     break
                 note_list.extend(notes)
+                delay_manager.apply_delay()
                 if len(notes) == 0 or not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -545,6 +550,7 @@ class XHS_Apis():
                 notes = res_json["data"]["items"]
                 note_list.extend(notes)
                 page += 1
+                delay_manager.apply_delay()
                 if len(note_list) >= require_num or not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -604,6 +610,7 @@ class XHS_Apis():
                 users = res_json["data"]["users"]
                 user_list.extend(users)
                 page += 1
+                delay_manager.apply_delay()
                 if len(user_list) >= require_num or not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -661,6 +668,7 @@ class XHS_Apis():
                 else:
                     break
                 note_out_comment_list.extend(comments)
+                delay_manager.apply_delay()
                 if len(note_out_comment_list) == 0 or not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -720,6 +728,7 @@ class XHS_Apis():
                 else:
                     break
                 inner_comment_list.extend(comments)
+                delay_manager.apply_delay()
                 if not res_json["data"]["has_more"]:
                     break
             comment['sub_comments'].extend(inner_comment_list)
@@ -814,6 +823,7 @@ class XHS_Apis():
                 else:
                     break
                 metions_list.extend(metions)
+                delay_manager.apply_delay()
                 if not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -864,6 +874,7 @@ class XHS_Apis():
                 else:
                     break
                 likesAndcollects_list.extend(likesAndcollects)
+                delay_manager.apply_delay()
                 if not res_json["data"]["has_more"]:
                     break
         except Exception as e:
@@ -914,6 +925,7 @@ class XHS_Apis():
                 else:
                     break
                 connections_list.extend(connections)
+                delay_manager.apply_delay()
                 if not res_json["data"]["has_more"]:
                     break
         except Exception as e:
