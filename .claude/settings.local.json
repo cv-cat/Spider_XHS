@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(dir /s /b *.json *.txt *.md *.yml *.yaml)"
     ],
     "deny": []
   }

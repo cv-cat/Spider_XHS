@@ -7,16 +7,22 @@
 
 import os
 import sys
+import io
+import json
+import tempfile
+import zipfile
+import shutil
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, HttpUrl
 from dotenv import load_dotenv
 from loguru import logger
 import uvicorn
+import requests
 
 from apis.xhs_pc_apis import XHS_Apis
-from xhs_utils.data_util import handle_note_info
+from xhs_utils.data_util import handle_note_info, norm_str
 
 # 加载环境变量
 load_dotenv()
@@ -295,6 +301,121 @@ async def get_batch_posts(urls: list[str], cookies: Optional[str] = None):
         "message": f"批量处理完成: 成功 {len(results['success'])}, 失败 {len(results['failed'])}",
         "results": results
     }
+
+
+@app.get("/api/download")
+async def download_post(
+    url: str = Query(..., description="小红书帖子URL"),
+    cookies: Optional[str] = Query(None, description="可选的cookies字符串")
+):
+    """
+    下载小红书帖子为ZIP压缩包（精简版）
+
+    输入帖子链接，返回包含标题、文本、媒体的ZIP包。
+
+    ZIP包内容:
+        - metadata.json: {title, content, type}
+        - 1.jpg, 2.jpg, ...: 图片文件 (图集类型)
+        - video.mp4: 视频文件 (视频类型)
+    """
+    try:
+        cookies_to_use = cookies if cookies else COOKIES_STR
+
+        if not cookies_to_use:
+            raise HTTPException(
+                status_code=400,
+                detail="未提供cookies,请在请求中提供或在环境变量中配置XHS_COOKIES"
+            )
+
+        # 获取帖子信息
+        logger.info(f"正在获取帖子信息: {url}")
+        success, msg, note_info = xhs_apis.get_note_info(url, cookies_to_use, proxies)
+
+        if not success:
+            raise HTTPException(status_code=500, detail=f"获取帖子失败: {msg}")
+
+        if not note_info or 'data' not in note_info or 'items' not in note_info['data']:
+            raise HTTPException(status_code=500, detail="帖子数据格式错误")
+
+        items = note_info['data']['items']
+        if len(items) == 0:
+            raise HTTPException(status_code=404, detail="未找到帖子数据")
+
+        # 处理帖子信息
+        post_data = items[0]
+        post_data['url'] = url
+        processed_data = handle_note_info(post_data)
+
+        # 创建临时目录
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            # 保存精简的 metadata.json（只包含标题、文本、类型）
+            metadata = {
+                "title": processed_data['title'],
+                "content": processed_data['desc'],
+                "type": "image" if processed_data['note_type'] == '图集' else "video"
+            }
+            with open(os.path.join(temp_dir, 'metadata.json'), 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=2)
+
+            # 下载媒体文件
+            if processed_data['note_type'] == '图集':
+                for idx, img_url in enumerate(processed_data['image_list']):
+                    try:
+                        response = requests.get(img_url, timeout=30)
+                        if response.status_code == 200:
+                            with open(os.path.join(temp_dir, f'{idx + 1}.jpg'), 'wb') as f:
+                                f.write(response.content)
+                            logger.info(f"下载图片 {idx + 1}/{len(processed_data['image_list'])}")
+                    except Exception as e:
+                        logger.warning(f"下载图片失败: {e}")
+
+            elif processed_data['note_type'] == '视频':
+                # 下载视频
+                if processed_data['video_addr']:
+                    try:
+                        response = requests.get(processed_data['video_addr'], stream=True, timeout=120)
+                        if response.status_code == 200:
+                            with open(os.path.join(temp_dir, 'video.mp4'), 'wb') as f:
+                                for chunk in response.iter_content(chunk_size=1024 * 1024):
+                                    f.write(chunk)
+                            logger.info("下载视频完成")
+                    except Exception as e:
+                        logger.warning(f"下载视频失败: {e}")
+
+            # 创建ZIP文件
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for file_name in os.listdir(temp_dir):
+                    file_path = os.path.join(temp_dir, file_name)
+                    zip_file.write(file_path, file_name)
+
+            zip_buffer.seek(0)
+
+            # 生成文件名
+            note_id = processed_data['note_id']
+            file_name = f"{note_id}.zip"
+
+            logger.success(f"成功打包帖子: {processed_data['title']}")
+
+            return StreamingResponse(
+                zip_buffer,
+                media_type="application/zip",
+                headers={
+                    "Content-Disposition": f"attachment; filename={file_name}"
+                }
+            )
+
+        finally:
+            # 清理临时目录
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"下载帖子时发生错误: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"服务器内部错误: {str(e)}")
 
 
 @app.exception_handler(Exception)
