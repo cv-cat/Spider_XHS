@@ -954,26 +954,22 @@ class XHS_Apis():
         msg = '成功'
         new_url = None
         try:
-            # https://sns-webpic-qc.xhscdn.com/202403211626/c4fcecea4bd012a1fe8d2f1968d6aa91/110/0/01e50c1c135e8c010010000000018ab74db332_0.jpg!nd_dft_wlteh_webp_3
-            if '.jpg' in img_url:
-                img_id = '/'.join([split for split in img_url.split('/')[-3:]]).split('!')[0]
-                # return f"http://ci.xiaohongshu.com/{img_id}?imageview2/2/w/1920/format/png"
-                # return f"http://ci.xiaohongshu.com/{img_id}?imageview2/2/w/format/png"
-                # return f'https://sns-img-hw.xhscdn.com/{img_id}'
-                new_url = f'https://sns-img-qc.xhscdn.com/{img_id}'
-
-            # 'https://sns-webpic-qc.xhscdn.com/202403231640/ea961053c4e0e467df1cc93afdabd630/spectrum/1000g0k0200n7mj8fq0005n7ikbllol6q50oniuo!nd_dft_wgth_webp_3'
+            # 新版图片资源优先保留 notes_pre_post token，使用 ci.xiaohongshu.com 输出 JPEG。
+            # 例：
+            # https://sns-webpic-qc.xhscdn.com/<time>/<hash>/notes_pre_post/<img_id>!nd_dft_wlteh_webp_3
+            # -> https://ci.xiaohongshu.com/notes_pre_post/<img_id>?imageView2/format/jpeg
+            if 'notes_pre_post/' in img_url:
+                token = 'notes_pre_post/' + img_url.split('notes_pre_post/', 1)[1].split('!', 1)[0].split('?', 1)[0]
+                new_url = f'https://ci.xiaohongshu.com/{token}?imageView2/format/jpeg'
             elif 'spectrum' in img_url:
-                img_id = '/'.join(img_url.split('/')[-2:]).split('!')[0]
-                # return f'http://sns-webpic.xhscdn.com/{img_id}?imageView2/2/w/1920/format/jpg'
-                new_url = f'http://sns-webpic.xhscdn.com/{img_id}?imageView2/2/w/format/jpg'
+                token = '/'.join(img_url.split('/')[-2:]).split('!', 1)[0].split('?', 1)[0]
+                new_url = f'https://ci.xiaohongshu.com/{token}?imageView2/format/jpeg'
+            elif '.jpg' in img_url:
+                token = '/'.join([split for split in img_url.split('/')[-3:]]).split('!', 1)[0].split('?', 1)[0]
+                new_url = f'https://ci.xiaohongshu.com/{token}?imageView2/format/jpeg'
             else:
-                # 'http://sns-webpic-qc.xhscdn.com/202403181511/64ad2ea67ce04159170c686a941354f5/1040g008310cs1hii6g6g5ngacg208q5rlf1gld8!nd_dft_wlteh_webp_3'
-                img_id = img_url.split('/')[-1].split('!')[0]
-                # return f"http://ci.xiaohongshu.com/{img_id}?imageview2/2/w/1920/format/png"
-                # return f"http://ci.xiaohongshu.com/{img_id}?imageview2/2/w/format/png"
-                # return f'https://sns-img-hw.xhscdn.com/{img_id}'
-                new_url = f'https://sns-img-qc.xhscdn.com/{img_id}'
+                token = img_url.split('/')[-1].split('!', 1)[0].split('?', 1)[0]
+                new_url = f'https://ci.xiaohongshu.com/{token}?imageView2/format/jpeg'
         except Exception as e:
             success = False
             msg = str(e)
