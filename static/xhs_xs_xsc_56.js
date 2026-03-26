@@ -142,11 +142,11 @@ globalThis.XMLHttpRequest = function (tagName) {
     console.log(`特殊检测: XMLHttpRequest 被调用 (对象: ${tagName})`);
 
 }
-globalThis.Ιnfinity = function (tagName){
+globalThis.infinity_stub = function (tagName){
     console.log(`特殊检测: Infinity 被调用 (对象: ${tagName})`);
 }
-globalThis.Ιnk = function (tagName){
-    console.log(`特殊检测: Ιnk 被调用 (对象: ${tagName})`);
+globalThis.link_stub = function (tagName){
+    console.log(`特殊检测: link_stub 被调用 (对象: ${tagName})`);
 }
 globalThis.DeviceOrientationEvent = function (tagName){
     console.log(`特殊检测: DeviceOrientationEvent 被调用 (对象: ${tagName})`);
@@ -341,9 +341,9 @@ function seccore_signv2(url_param, json_data) {
     // 拼接完整字符串
     var fullStr = url_param + dataStr;
     
-    // 计算MD5
+    // 4.3.2: mnsv2 第三个参数改为 md5(uri)
     var c = MD5(fullStr);
-    var d = MD5(fullStr);
+    var d = MD5(url_param);
     
     // 调用mnsv2生成签名
     var s = window.mnsv2(fullStr, c, d);
@@ -388,10 +388,19 @@ var gens9 = (function() {
     };
 })();
 
+function hexToBytes(hexStr) {
+    var bytes = [];
+    for (var i = 0; i < hexStr.length; i += 2) {
+        bytes.push(parseInt(hexStr.substr(i, 2), 16));
+    }
+    return bytes;
+}
+
 // xs_common签名数据
 var fff = "I38rHdgsjopgIvesdVwgIC+oIELmBZ5e3VwXLgFTIxS3bqwErFeexd0ekncAzMFYnqthIhJeSfMDKutRI3KsYorWHPtGrbV0P9WfIi/eWc6eYqtyQApPI37ekmR6QL+5Ii6sdneeSfqYHqwl2qt5B0DBIx+PGDi/sVtkIxdsxuwr4qtiIhuaIE3e3LV0I3VTIC7e0utl2ADmsLveDSKsSPw5IEvsiVtJOqw8BuwfPpdeTFWOIx4TIiu6ZPwrPut5IvlaLbgs3qtxIxes1VwHIkumIkIyejgsY/WTge7eSqte/D7sDcpipedeYrDtIC6eDVw2IENsSqtlnlSuNjVtIvoekqt3cZ7sVo4gIESyIhE2HBquIxhnqz8gIkIfoqwkICqWGg3sdlOeVPw3IvAe0fged0lGIi5s3Mkf2utAIiKsidvekZNeTPt4nAOeWPwEIvkazA6efuwApfosDqw+I3SrIxE5Luwwaqw+reibqrOeYjgskqtgIkdeYg0exWbxIhgsfMes6jclIkAe3PtTIirdQqwJ8ut9I36e3PtVIiNe1PtlIi5efVwAHutMGqwxI3QUICEeJaPAGl/siqtMIhVtIieeYuwoeWccpj6sDskuIkGyGuwbmPwvICdekVtUQpdeipJs1LELIhvs6ege1VwmrqttIi0sDqtXIENs1SptIi3sfWdeDPw5IxAsVPwx+/GYIEmgIvNs1Y0eV7vsWI==";
 
 function XsCommon(a1, xs, xt) {
+    var md5_url2 = MD5(xt.toString() + xs + fff);
     var d = {
         s0: 5,
         s1: "",
@@ -404,7 +413,7 @@ function XsCommon(a1, xs, xt) {
         x6: xt,
         x7: xs,
         x8: fff,
-        x9: gens9(xt.toString() + xs + fff),
+        x9: gens9(hexToBytes(md5_url2)),
         x10: 0,
         x11: "normal",
     };
@@ -472,7 +481,7 @@ if (typeof module !== "undefined") {
 // 测试输出
 if (require.main === module) {
     var result = get_x_s();
-    console.log('=== X-S签名测试结果 (4.3.1版本) ===');
+    console.log('=== X-S签名测试结果 (4.3.2版本) ===');
     console.log('xs:', result.xs);
     console.log('xs长度:', result.xs.length);
     console.log('xt:', result.xt);
