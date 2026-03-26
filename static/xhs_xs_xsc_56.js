@@ -322,7 +322,7 @@ function MD5(e) {
 }
 
 /**
- * 核心签名函数 - 4.3.1版本
+ * 核心签名函数 - 4.3.2版本
  * @param {string} url_param - API路径
  * @param {string|object} json_data - 请求数据
  * @returns {string} X-S签名
@@ -350,7 +350,7 @@ function seccore_signv2(url_param, json_data) {
     
     // 构建签名对象
     var signObj = {
-        x0: "4.3.1",
+        x0: "4.3.2",
         x1: "xhs-pc-web",
         x2: "Windows",
         x3: s,
@@ -405,7 +405,7 @@ function XsCommon(a1, xs, xt) {
         s0: 5,
         s1: "",
         x0: "1",
-        x1: "4.3.1",
+        x1: "4.3.2",
         x2: "Windows",
         x3: "xhs-pc-web",
         x4: "4.84.1",
