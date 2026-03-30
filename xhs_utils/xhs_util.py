@@ -1,18 +1,25 @@
 import json
 import math
 import random
+from pathlib import Path
+
 import execjs
 from xhs_utils.cookie_util import trans_cookies
 
-try:
-    js = execjs.compile(open(r'../static/xhs_xs_xsc_56.js', 'r', encoding='utf-8').read())
-except:
-    js = execjs.compile(open(r'static/xhs_xs_xsc_56.js', 'r', encoding='utf-8').read())
+_HERE = Path(__file__).resolve().parent
+_REPO_ROOT = _HERE.parent
 
-try:
-    xray_js = execjs.compile(open(r'../static/xhs_xray.js', 'r', encoding='utf-8').read())
-except:
-    xray_js = execjs.compile(open(r'static/xhs_xray.js', 'r', encoding='utf-8').read())
+
+def _compile_script(*relative_candidates: str):
+    for relative_path in relative_candidates:
+        script_path = (_REPO_ROOT / relative_path).resolve()
+        if script_path.exists():
+            return execjs.compile(script_path.read_text(encoding='utf-8'))
+    raise FileNotFoundError(f"Unable to locate JS runtime asset in: {relative_candidates}")
+
+
+js = _compile_script("static/xhs_xs_xsc_56.js")
+xray_js = _compile_script("static/xhs_xray.js")
 
 def generate_x_b3_traceid(len=16):
     x_b3_traceid = ""
@@ -100,4 +107,3 @@ def splice_str(api, params):
             value = ''
         url += key + '=' + value + '&'
     return url[:-1]
-

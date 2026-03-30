@@ -1,10 +1,17 @@
 import os
+from pathlib import Path
+
 from loguru import logger
 from dotenv import load_dotenv
 
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
 def load_env():
-    load_dotenv()
-    cookies_str = os.getenv('COOKIES')
+    load_dotenv(REPO_ROOT / '.env')
+    load_dotenv(REPO_ROOT / '.env.local', override=True)
+    cookies_str = os.getenv('XHS_COOKIE') or os.getenv('COOKIES')
     return cookies_str
 
 def init():
