@@ -10,8 +10,9 @@
 
 # Spider_XHS
 
-**专业的小红书数据采集 & 全域运营解决方案**
+**专业的小红书数据采集 & 全域运营解决方案 & Agent Skills**
 
+[![Skills](https://img.shields.io/badge/skills-supported-success)](https://github.com/cv-cat/XhsSkills)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/nodejs-20%2B-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-orange)](LICENSE)
@@ -114,6 +115,14 @@ pgy = PuGongYingAPI()
 kol_list = pgy.get_some_user(num=50, cookies=cookies)
 best_kols = your_ai_agent(kol_list, brand_profile)
 ```
+
+---
+
+## 🧩 Skills 支持
+
+当前项目已经支持基于 skills 的能力接入，既可以直接作为 `Spider_XHS` 的底层能力仓库使用，也可以通过标准化 skills 方式被上层 Agent 工具链引入。
+
+如果你希望直接复用已经封装好的 skills，可以查看 [XhsSkills](https://github.com/cv-cat/XhsSkills)。该仓库专门用于存放基于 `Spider_XHS` 封装的 Agent Skills，目前可被 `Clawbot`、`Claude Code`、`Codex` 等支持 skills 的工具直接引入与集成。
 
 ---
 
