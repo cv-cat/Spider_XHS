@@ -147,7 +147,7 @@ if __name__ == '__main__':
         fans_history = pugongying_api.get_user_fans_history(user_id, cookies)
         notes_detail = pugongying_api.get_user_notes_detail(user_id, cookies)
         # 期望发布时间 产品名称，【开始时间，结束时间】，合作内容介绍，联系方式
-        invite_res = pugongying_api.send_invite(user_id, cookies, "测试", ["2021-10-01", "2021-10-01"], "测试", "15911100251")
+        invite_res = pugongying_api.send_invite(user_id, cookies, "测试", ["2021-10-01", "2021-10-01"], "测试", "")
         print(user_detail)
         print(fans_detail)
         print(fans_history)

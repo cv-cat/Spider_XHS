@@ -365,7 +365,7 @@ class XHS_Creator_Apis():
 if __name__ == '__main__':
     xhs_creator_apis = XHS_Creator_Apis()
     # 创作者平台 https://creator.xiaohongshu.com/login 的cookie
-    cookies_str = r'ets=1775892144046; xsecappid=ugc; a1=19d7b6ba0c37ccgjxgzwzl4dpfszcfbeb37ywdiig50000373956; webId=602137750f48d5a0d5299a4dbccb7a59; websectiga=29098a4cf41f76ee3f8db19051aaa60c0fc7c5e305572fec762da32d457d76ae; sec_poison_id=c91cc282-da17-4026-82e1-b4862231f46e; gid=yjfWDKDDJYDKyjfWDKD08qf3SqWSSkVCkuEuW3k14fUiMv28uSiDdE888qWqj2K80YWd4S8K; customer-sso-sid=68c517627398765767720964wkhcnopnkb8e7dcd; x-user-id-creator.xiaohongshu.com=632fb88d00000000230398a1; customerClientId=665049190321028; access-token-creator.xiaohongshu.com=customer.creator.AT-68c517627398765767720965o9kbby1x1lijsyef; galaxy_creator_session_id=xXhHUWEE5YfcZRCgZrwv3ubCxhb8SR6o7zsc; galaxy.creator.beaker.session.id=1775892164392086204857; loadts=1775892168029'
+    cookies_str = r''
     noteInfos = [
         {
             # 标题
