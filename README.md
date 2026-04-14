@@ -280,6 +280,6 @@ Spider_XHS/
 
 如果你对爬虫和 AI Agent 感兴趣，请加作者主页 wx 通过邀请加入群聊
 
-ps: 请加群5，人满或者过期 issue | wx 提醒
+ps: 请加群6，人满或者过期 issue | wx 提醒
 
-![group5](https://github.com/cv-cat/Spider_XHS/blob/master/author/group5.jpg)
+![group5](https://github.com/cv-cat/Spider_XHS/blob/master/author/group6.jpg)
