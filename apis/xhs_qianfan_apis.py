@@ -1,5 +1,6 @@
 import json
 import requests
+from loguru import logger
 from xhs_utils.cookie_util import trans_cookies
 from xhs_utils.xhs_qianfan_util import get_qianfan_headers_template, generate_qianfan_data, get_qianfan_userDetail_headers_template
 
@@ -17,9 +18,9 @@ class QianFanAPI:
     def choose_categories(self, cookies):
         distribution_category = self.get_all_categories(cookies)
         for first_index, first_category_temp in enumerate(distribution_category):
-            print(f'{first_index}: {first_category_temp["first_category"]}')
+            logger.info(f'{first_index}: {first_category_temp["first_category"]}')
             for second_index, second_category_temp in enumerate(first_category_temp["second_category"]):
-                print(f'---- {second_index}: {second_category_temp}')
+                logger.info(f'---- {second_index}: {second_category_temp}')
         choice = input(
             "请选择您的类目：如果输入-1则为全部类目，输入1-2-4代表整个美妆/个护，服饰鞋包，母婴用品类目，输入1(1,3,4)-2代表美妆/个护类目下的1,3,4子类目和服饰鞋的全部\n")
         return choice, distribution_category
@@ -128,11 +129,11 @@ if __name__ == '__main__':
         user_shop = qianfan_api.get_user_shop(user_id, cookies)
         user_item = qianfan_api.get_user_item(user_id, cookies)
         user_fans = qianfan_api.get_user_fans(user_id, cookies)
-        print(user)
-        print(user_detail)
-        print(user_cooperation)
-        print(user_shop)
-        print(user_item)
-        print(user_fans)
-        print(f'url: https://www.xiaohongshu.com/user/profile/{user_id}')
-        print(f'qianfan_url: https://pgy.xiaohongshu.com/microapp/distribution/live-blogger-info/{user_id}?source=square')
+        logger.debug(user)
+        logger.debug(user_detail)
+        logger.debug(user_cooperation)
+        logger.debug(user_shop)
+        logger.debug(user_item)
+        logger.debug(user_fans)
+        logger.info(f'url: https://www.xiaohongshu.com/user/profile/{user_id}')
+        logger.info(f'qianfan_url: https://pgy.xiaohongshu.com/microapp/distribution/live-blogger-info/{user_id}?source=square')

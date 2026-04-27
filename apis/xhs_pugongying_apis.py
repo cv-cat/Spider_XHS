@@ -1,5 +1,6 @@
 import json
 import requests
+from loguru import logger
 from xhs_utils.cookie_util import trans_cookies
 from xhs_utils.xhs_pugongying_util import generate_pugongying_headers, get_pugongying_bozhu_data, generate_pugongying_data
 from xhs_utils.xhs_util import get_request_headers_template
@@ -19,9 +20,9 @@ class PuGongYingAPI:
     def choose_categories(self, cookies):
         distribution_category = self.get_all_categories(cookies)
         for first_index, first_category_temp in enumerate(distribution_category):
-            print(f'{first_index}: {first_category_temp["taxonomy1Tag"]}')
+            logger.info(f'{first_index}: {first_category_temp["taxonomy1Tag"]}')
             for second_index, second_category_temp in enumerate(first_category_temp["taxonomy2Tags"]):
-                print(f'---- {second_index}: {second_category_temp}')
+                logger.info(f'---- {second_index}: {second_category_temp}')
         choice = input("请选择您的类目：如果输入-1则为全部类目，输入1-2-4代表整个美妆/个护，服饰鞋包，母婴用品类目，输入1(1,3,4)-2代表美妆/个护类目下的1,3,4子类目和服饰鞋的全部\n")
         contentTag = generate_pugongying_data(choice, distribution_category)
         return contentTag, distribution_category
@@ -148,10 +149,10 @@ if __name__ == '__main__':
         notes_detail = pugongying_api.get_user_notes_detail(user_id, cookies)
         # 期望发布时间 产品名称，【开始时间，结束时间】，合作内容介绍，联系方式
         invite_res = pugongying_api.send_invite(user_id, cookies, "测试", ["2021-10-01", "2021-10-01"], "测试", "")
-        print(user_detail)
-        print(fans_detail)
-        print(fans_history)
-        print(notes_detail)
-        print(invite_res)
-        print(f'url: https://www.xiaohongshu.com/user/profile/{user_id}')
-        print('===========================')
+        logger.debug(user_detail)
+        logger.debug(fans_detail)
+        logger.debug(fans_history)
+        logger.debug(notes_detail)
+        logger.debug(invite_res)
+        logger.info(f'url: https://www.xiaohongshu.com/user/profile/{user_id}')
+        logger.info('===========================')

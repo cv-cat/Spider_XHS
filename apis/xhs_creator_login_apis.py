@@ -1,115 +1,25 @@
 import json
 import time
 import random
-import hashlib
-import binascii
-import os
 
-import execjs
 import requests
 import qrcode
+from loguru import logger
 
-from xhs_utils.xhs_creator_util import generate_xsc, generate_xs, splice_str
-
-_STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static')
-_WEBSECTIGA_ENV_PATH = os.path.join(_STATIC_DIR, 'xhs_websectiga_env.js')
-
-
-def _load_websectiga_env():
-    try:
-        return open(_WEBSECTIGA_ENV_PATH, 'r', encoding='utf-8').read()
-    except FileNotFoundError:
-        return None
-
-CHARSET = 'abcdefghijklmnopqrstuvwxyz1234567890'
+from apis.xhs_creator_apis import XHS_Creator_Apis
+from xhs_utils.xhs_creator_util import generate_xsc, splice_str
+from xhs_utils.common_util import generate_a1, generate_web_id, fetch_sec_cookies, fetch_gid
 
 
 class XHSCreatorLoginApi:
     def __init__(self):
         self.customer_url = "https://customer.xiaohongshu.com"
         self.creator_url = "https://creator.xiaohongshu.com"
-        self.as_url = "https://as.xiaohongshu.com"
-
-    @staticmethod
-    def _generate_a1():
-        ts_hex = hex(int(time.time() * 1000))[2:]
-        random_str = ''.join(random.choices(CHARSET, k=30))
-        platform_code = '5'
-        a_part = ts_hex + random_str + platform_code + '0' + '000'
-        crc = binascii.crc32(a_part.encode()) & 0xFFFFFFFF
-        return (a_part + str(crc))[:52]
-
-    @staticmethod
-    def _generate_web_id(a1):
-        return hashlib.md5(a1.encode()).hexdigest()
-
-    def _get_gid(self, cookies):
-        api = '/api/sec/v1/shield/webprofile'
-        data = {
-            "platform": "Windows",
-            "sdkVersion": "4.3.5",
-            "svn": "2",
-            "profileData": ""
-        }
-        headers = self._get_request_headers()
-        headers['content-type'] = 'application/json'
-        sign_h = generate_xsc(cookies['a1'], api, data)
-        headers.update(sign_h)
-        data_str = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-        try:
-            resp = requests.post(
-                self.as_url + api,
-                headers=headers,
-                cookies=cookies,
-                data=data_str.encode('utf-8')
-            )
-            for key, value in resp.cookies.items():
-                cookies[key] = value
-            if 'gid' in cookies:
-                return cookies['gid']
-        except Exception:
-            pass
-        return None
-
-    def _get_websectiga(self, cookies):
-        api = '/api/sec/v1/scripting'
-        data = {"callFrom": "web", "callback": "seccallback"}
-        headers = self._get_request_headers()
-        headers['content-type'] = 'application/json;charset=UTF-8'
-        sign_h = generate_xsc(cookies['a1'], api, data)
-        headers.update(sign_h)
-        data_str = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-        sec_poison_id = None
-        websectiga = None
-        try:
-            resp = requests.post(
-                self.as_url + api,
-                headers=headers,
-                cookies=cookies,
-                data=data_str.encode('utf-8')
-            )
-            res = resp.json()
-            sec_poison_id = res.get('data', {}).get('secPoisonId')
-            jsvmp_code = res.get('data', {}).get('data', '')
-            if jsvmp_code:
-                env = _load_websectiga_env()
-                if env:
-                    try:
-                        js_code = env + '\n' + jsvmp_code + '\nvar __result = _websectiga_result;'
-                        ctx = execjs.compile(js_code)
-                        websectiga = ctx.eval('__result')
-                        if not websectiga:
-                            websectiga = None
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-        return sec_poison_id, websectiga
 
     def generate_init_cookies(self):
         ts = int(time.time() * 1000)
-        a1 = self._generate_a1()
-        web_id = self._generate_web_id(a1)
+        a1 = generate_a1()
+        web_id = generate_web_id(a1)
         cookies = {
             'ets': str(ts),
             'xsecappid': 'ugc',
@@ -131,11 +41,13 @@ class XHSCreatorLoginApi:
         for key, value in resp.cookies.items():
             cookies[key] = value
 
-        sec_poison_id, websectiga = self._get_websectiga(cookies)
+        req_headers = self._get_request_headers()
+
+        sec_poison_id, websectiga = fetch_sec_cookies(cookies, req_headers)
         if sec_poison_id:
             cookies['sec_poison_id'] = sec_poison_id
 
-        gid = self._get_gid(cookies)
+        gid = fetch_gid(cookies, req_headers)
         if gid:
             cookies['gid'] = gid
 
@@ -190,6 +102,29 @@ class XHSCreatorLoginApi:
             'qr_url': res['data']['url'],
         }
 
+    def check_session(self, cookies):
+        api = '/api/cas/customer/web/service-ticket'
+        data = {"service": "https://creator.xiaohongshu.com", "source": "", "type": "tgt"}
+
+        headers = self._get_request_headers()
+        headers['content-type'] = 'application/json'
+        sign_h = generate_xsc(cookies['a1'], api, data)
+        headers.update(sign_h)
+
+        data_str = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+        resp = requests.post(
+            self.customer_url + api,
+            headers=headers,
+            cookies=cookies,
+            data=data_str.encode('utf-8')
+        )
+        for key, value in resp.cookies.items():
+            cookies[key] = value
+
+        res = resp.json()
+        has_session = res.get('data') is not None
+        return has_session, cookies
+
     def check_qrcode_status(self, qr_id, cookies):
         api = '/api/cas/customer/web/qr-code'
         params = {
@@ -200,7 +135,7 @@ class XHSCreatorLoginApi:
         splice_api = splice_str(api, params)
 
         headers = self._get_request_headers()
-        sign_h = generate_xsc(cookies['a1'], api)
+        sign_h = generate_xsc(cookies['a1'], splice_api)
         headers.update(sign_h)
 
         resp = requests.get(
@@ -213,7 +148,6 @@ class XHSCreatorLoginApi:
 
         res = resp.json()
         status = res['data']['status']
-        ticket = res['data'].get('ticket')
 
         status_map = {
             1: (True, '验证成功'),
@@ -222,46 +156,17 @@ class XHSCreatorLoginApi:
             -1: (False, '二维码已过期'),
         }
         success, msg = status_map.get(status, (False, f'未知状态: {status}'))
-        return success, msg, {'cookies': cookies, 'ticket': ticket}
+        return success, msg, cookies
 
-    def login_step1(self, ticket, cookies):
-        api = '/sso/customer_login'
-        data = {
-            "ticket": ticket,
-            "login_service": "https://creator.xiaohongshu.com",
-            "subsystem_alias": "creator",
-            "set_global_domain": True
-        }
+    def get_user_info(self, cookies):
+        api = '/api/galaxy/user/info'
 
         headers = self._get_request_headers()
-        headers['content-type'] = 'application/json;charset=UTF-8'
-        sign_h = generate_xsc(cookies['a1'], api, data)
-        headers.update(sign_h)
-
-        data_str = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-        resp = requests.post(
-            self.creator_url + api,
-            headers=headers,
-            cookies=cookies,
-            data=data_str.encode('utf-8')
-        )
-        for key, value in resp.cookies.items():
-            cookies[key] = value
-
-        res = resp.json()
-        return res.get('success', False), res.get('msg', ''), {
-            'cookies': cookies,
-            'userInfo': res
-        }
-
-    def login_step2(self, cookies):
-        api = '/api/galaxy/user/cas/login'
-
-        headers = self._get_request_headers()
+        headers['sec-fetch-site'] = 'same-origin'
         sign_h = generate_xsc(cookies['a1'], api)
         headers.update(sign_h)
 
-        resp = requests.post(
+        resp = requests.get(
             self.creator_url + api,
             headers=headers,
             cookies=cookies
@@ -270,7 +175,7 @@ class XHSCreatorLoginApi:
             cookies[key] = value
 
         res = resp.json()
-        return res.get('success', False), res.get('msg', ''), cookies
+        return res.get('success', False), res.get('data', {}), cookies
 
     def send_phone_code(self, phone, cookies, zone='86'):
         api = '/api/cas/customer/web/verify-code'
@@ -347,86 +252,122 @@ class XHSCreatorLoginApi:
         img.show()
 
     def qrcode_login(self, show_in_terminal=True):
-        print('[1/4] 正在生成初始cookies...')
+        logger.info('[1/4] 正在生成初始cookies...')
         cookies = self.generate_init_cookies()
-        print(f'  a1={cookies["a1"]}')
+        logger.info(f'a1={cookies["a1"]}')
 
-        print('[2/4] 正在获取二维码...')
+        logger.info('[2/4] 正在获取二维码...')
+        has_session, cookies = self.check_session(cookies)
+        if has_session:
+            logger.info('检测到已有会话，继续获取二维码...')
+
         success, msg, qr_data = self.generate_qrcode(cookies)
         if not success:
-            print(f'  失败: {msg}')
+            logger.error(f'获取二维码失败: {msg}')
             return None
         cookies = qr_data['cookies']
 
-        print('  请使用小红书APP扫描以下二维码:')
+        logger.info('请使用小红书APP扫描以下二维码:')
         if show_in_terminal:
             self.show_qrcode_terminal(qr_data['qr_url'])
         else:
             self.show_qrcode_image(qr_data['qr_url'])
 
-        print('[3/4] 等待扫码...')
+        logger.info('[3/4] 等待扫码...')
         while True:
-            success, msg, result = self.check_qrcode_status(qr_data['qr_id'], cookies)
-            cookies = result['cookies']
+            success, msg, cookies = self.check_qrcode_status(qr_data['qr_id'], cookies)
 
             if success:
-                print(f'  {msg}')
-                ticket = result['ticket']
+                logger.info(msg)
                 break
             if msg == '二维码已过期':
-                print(f'  {msg}')
+                logger.error(msg)
                 return None
-            time.sleep(3)
+            time.sleep(1)
 
-        print('[4/4] 正在完成登录...')
-        if ticket:
-            success, msg, result = self.login_step1(ticket, cookies)
-            if not success:
-                print(f'  step1失败: {msg}')
-                return None
-            cookies = result['cookies']
-
-            success, msg, cookies = self.login_step2(cookies)
-            if not success:
-                print(f'  step2失败: {msg}')
-                return None
+        logger.info('[4/4] 验证登录状态...')
+        success, user_info, cookies = self.get_user_info(cookies)
+        if success:
+            logger.info(f'用户: {user_info.get("userName", "未知")} (RedID: {user_info.get("redId", "未知")})')
+        else:
+            logger.warning('获取用户信息失败，但cookies可能仍有效')
 
         cookies_str = self.cookies_to_str(cookies)
-        print(f'\n登录成功!\ncookies:\n{cookies_str}')
+        logger.success(f'登录成功!\ncookies:\n{cookies_str}')
         return cookies_str
 
     def phone_login(self):
-        print('[1/4] 正在生成初始cookies...')
+        logger.info('[1/4] 正在生成初始cookies...')
         cookies = self.generate_init_cookies()
-        print(f'  a1={cookies["a1"]}')
+        logger.info(f'a1={cookies["a1"]}')
 
         phone = input('请输入手机号: ')
-        print('[2/4] 正在发送验证码...')
+        logger.info('[2/4] 正在发送验证码...')
         success, msg, _ = self.send_phone_code(phone, cookies)
         if not success:
-            print(f'  发送失败: {msg}')
+            logger.error(f'发送失败: {msg}')
             return None
-        print('  验证码已发送')
+        logger.info('验证码已发送')
 
         code = input('请输入验证码: ')
-        print('[3/4] 正在验证...')
+        logger.info('[3/4] 正在验证...')
         success, msg, result = self.login_by_phone(phone, code, cookies)
         if not success:
-            print(f'  验证失败: {msg}')
+            logger.error(f'验证失败: {msg}')
             return None
         cookies = result['cookies']
 
-        print('[4/4] 正在完成登录...')
-        success, msg, cookies = self.login_step2(cookies)
-        if not success:
-            print(f'  登录失败: {msg}')
-            return None
+        logger.info('[4/4] 验证登录状态...')
+        success, user_info, cookies = self.get_user_info(cookies)
+        if success:
+            logger.info(f'用户: {user_info.get("userName", "未知")} (RedID: {user_info.get("redId", "未知")})')
 
         cookies_str = self.cookies_to_str(cookies)
-        print(f'\n登录成功!\ncookies:\n{cookies_str}')
+        logger.success(f'登录成功!\ncookies:\n{cookies_str}')
         return cookies_str
 
 
 if __name__ == '__main__':
     login_api = XHSCreatorLoginApi()
-    login_api.qrcode_login(show_in_terminal=True)
+    # cookies_str = login_api.qrcode_login(show_in_terminal=True)
+    cookies_str = login_api.phone_login()
+    xhs_creator_apis = XHS_Creator_Apis()
+    # 创作者平台 https://creator.xiaohongshu.com/login 的cookie
+    noteInfos = [
+        {
+            # 标题
+            "title": "21121121212",
+            # 描述
+            "desc": "dwadaw最后一把直接神之一手直接立直后第一轮就胡牌了，最近吃点好的，哈哈",
+            # 13位时间戳 数字类型
+            "postTime": None,
+            # 设置地点 "河海大学"
+            "location": '南京',
+            # 0:公开 1:私密
+            "type": 1,
+            "media_type": "image",
+            # 设置话题
+            # "topics": ["雀魂", "麻将"],
+            "topics": [],
+            # 图片路径 最多15张
+            "images": [
+                open(r"D:\Desktop\签名\QQ图片20240903150607.jpg", 'rb').read(),
+            ],
+        },
+        {
+            "title": "test2",
+            "desc": "dwadawd20240815",
+            "postTime": None,
+            "location": '河海大学',
+            "topics": ["北京"],
+            # "topics": [],
+            "type": 1,
+            "media_type": "video",
+            "video": open(r"D:\data\Videos\2024-05-02 21-14-45.mkv", 'rb').read(),
+        }
+    ]
+    for noteInfo in noteInfos:
+        success, msg, info = xhs_creator_apis.post_note(noteInfo, cookies_str)
+        logger.debug(f'{success}, {msg}, {info}')
+        logger.debug('========')
+
