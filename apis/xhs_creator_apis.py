@@ -365,7 +365,7 @@ class XHS_Creator_Apis():
 if __name__ == '__main__':
     xhs_creator_apis = XHS_Creator_Apis()
     # 创作者平台 https://creator.xiaohongshu.com/login 的cookie
-    cookies_str = r''
+    cookies_str = r'ets=1775892144046; a1=19d7b6ba0c37ccgjxgzwzl4dpfszcfbeb37ywdiig50000373956; webId=602137750f48d5a0d5299a4dbccb7a59; gid=yjfWDKDDJYDKyjfWDKD08qf3SqWSSkVCkuEuW3k14fUiMv28uSiDdE888qWqj2K80YWd4S8K; customerClientId=665049190321028; abRequestId=602137750f48d5a0d5299a4dbccb7a59; webBuild=6.7.4; web_session=030037aedd4e4f63b577775c962e4a0779a719; unread={%22ub%22:%2264564fa70000000013017fd8%22%2C%22ue%22:%2264a7e6de000000001a013ebd%22%2C%22uc%22:13}; acw_tc=0a0d0d6817772119669062869edba1125e8cb537b0f278911bd1a91f0a04c5; xsecappid=ugc; websectiga=82e85efc5500b609ac1166aaf086ff8aa4261153a448ef0be5b17417e4512f28; sec_poison_id=9de6674a-7242-49c2-b1cd-587f64516bc1; customer-sso-sid=68c517633067413928837121z61cmzm3d4bvg2ue; x-user-id-creator.xiaohongshu.com=632fb88d00000000230398a1; access-token-creator.xiaohongshu.com=customer.creator.AT-68c517633067413928837122kcfxvyy3m2mgcbqz; galaxy_creator_session_id=NhUDn3791ow3Fyt6DxkTneLS02ybD0E0JGGq; galaxy.creator.beaker.session.id=1777211999923051805868; loadts=1777212004476'
     noteInfos = [
         {
             # 标题
