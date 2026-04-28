@@ -3,6 +3,8 @@ import math
 import os
 import random
 import time
+from urllib.parse import urlencode
+
 import execjs
 from xhs_utils.cookie_util import trans_cookies
 
@@ -127,12 +129,10 @@ def generate_request_params(cookies_str, api, data='', method='POST'):
     return headers, cookies, data
 
 def splice_str(api, params):
-    url = api + '?'
-    for key, value in params.items():
-        if value is None:
-            value = ''
-        url += key + '=' + value + '&'
-    return url[:-1]
+    return api + '?' + urlencode(
+        {key: '' if value is None else value for key, value in params.items()},
+        doseq=True
+    )
 
 if __name__ == '__main__':
     print(generate_search_id())

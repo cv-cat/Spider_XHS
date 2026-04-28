@@ -1,11 +1,9 @@
 import json
-import math
 import os
-import random
 
 import execjs
 
-from xhs_utils.xhs_util import generate_xray_traceid
+from xhs_utils.xhs_util import generate_x_b3_traceid, generate_xray_traceid, splice_str
 
 _STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
@@ -32,11 +30,6 @@ def generate_xs_xs_common(a1, api, data=''):
     xs, xt, xs_common = ret['xs'], ret['xt'], ret['xs_common']
     return xs, xt, xs_common
 
-def generate_x_b3_traceid(len=16):
-    x_b3_traceid = ""
-    for t in range(len):
-        x_b3_traceid += "abcdef0123456789"[math.floor(16 * random.random())]
-    return x_b3_traceid
 def generate_xsc(a1, api, data=''):
     xs, xt, xs_common = generate_xs_xs_common(a1, api, data)
     x_b3_traceid = generate_x_b3_traceid()
@@ -382,10 +375,3 @@ def get_post_note_video_data(title, desc, postTime, post_loc, privacy_type, file
             "entrance": "web"
         }
     }
-def splice_str(api, params):
-    url = api + '?'
-    for key, value in params.items():
-        if value is None:
-            value = ''
-        url += key + '=' + value + '&'
-    return url[:-1]

@@ -56,7 +56,8 @@ class XHSLoginApi:
             )
             res = resp.json()
             return res.get('data', {}).get('secPoisonId')
-        except Exception:
+        except Exception as e:
+            logger.debug(f'fetch sec_poison_id failed: {e}')
             return None
 
     def _fetch_gid(self, cookies):
@@ -80,7 +81,8 @@ class XHSLoginApi:
             for key, value in resp.cookies.items():
                 cookies[key] = value
             return cookies.get('gid')
-        except Exception:
+        except Exception as e:
+            logger.debug(f'fetch gid failed: {e}')
             return None
 
     def generate_init_cookies(self):

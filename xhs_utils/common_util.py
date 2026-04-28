@@ -89,10 +89,10 @@ def fetch_sec_cookies(cookies, headers):
                     js_code = env + '\n' + jsvmp_code + '\nvar __result = _websectiga_result;'
                     ctx = execjs.compile(js_code)
                     websectiga = ctx.eval('__result') or None
-                except Exception:
-                    pass
-    except Exception:
-        pass
+                except Exception as e:
+                    logger.debug(f'websectiga jsvmp execution failed: {e}')
+    except Exception as e:
+        logger.debug(f'fetch sec cookies failed: {e}')
     return sec_poison_id, websectiga
 
 
@@ -121,6 +121,6 @@ def fetch_gid(cookies, headers):
             cookies[key] = value
         if 'gid' in cookies:
             return cookies['gid']
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f'fetch gid failed: {e}')
     return None

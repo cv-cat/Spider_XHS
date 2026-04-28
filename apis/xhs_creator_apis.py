@@ -15,6 +15,9 @@ from xhs_utils.xhs_creator_util import get_upload_media_headers, get_post_note_h
     generate_xsc, generate_xs_xs_common, get_search_location_headers
 from xhs_utils.xhs_util import splice_str, generate_x_rap_param
 
+TRANSCODE_MAX_RETRIES = 20
+TRANSCODE_RETRY_DELAY = 3
+
 
 class XHS_Creator_Apis():
     def __init__(self):
@@ -134,8 +137,11 @@ class XHS_Creator_Apis():
             headers = get_upload_media_headers(message, signature, token)
             api = f"/spectrum/{fileIds}"
             response = requests.put(upload_url + api, headers=headers, data=file, cookies=cookies, timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
             if media_type == "video":
-                res['video_id'] = response.headers['X-Ros-Video-Id']
+                res['video_id'] = response.headers.get('X-Ros-Video-Id')
+                if not res['video_id']:
+                    raise ValueError('upload response missing X-Ros-Video-Id')
         except Exception as e:
             return False, str(e), None
         return True, "上传成功", res
@@ -190,20 +196,21 @@ class XHS_Creator_Apis():
         post_api = "/web_api/sns/v2/note"
         headers = get_post_note_headers()
         cookies = trans_cookies(cookies_str)
-        title = noteInfo['title']
-        desc = noteInfo['desc']
-        postTime = noteInfo['postTime']
-        location = noteInfo['location']
-        type = noteInfo['type']
-        media_type = noteInfo['media_type']
+        title = noteInfo.get('title', '')
+        desc = noteInfo.get('desc', '')
+        postTime = noteInfo.get('postTime')
+        location = noteInfo.get('location')
+        privacy_type = noteInfo.get('type', 1)
+        media_type = noteInfo.get('media_type', 'image')
 
         if location is not None:
             success, msg, location_info = self.get_location_info(location, cookies)
             if not success:
                 raise Exception(msg)
-            if len(location_info['data']['poi_list']) == 0:
+            poi_list = (location_info.get('data') or {}).get('poi_list') or []
+            if len(poi_list) == 0:
                 raise Exception('未找到该地点')
-            location = location_info['data']['poi_list'][0]
+            location = poi_list[0]
             post_loc = {
                 "name": location['name'],
                 "subname": location['full_address'],
@@ -213,7 +220,9 @@ class XHS_Creator_Apis():
         else:
             post_loc = {}
         if media_type == 'video':
-            video = noteInfo['video']
+            video = noteInfo.get('video')
+            if not video:
+                raise ValueError('video media requires noteInfo["video"]')
             cover, metadata = self.extract_video_cover_and_metadata(video)
             success, msg, fileInfo = self.upload_media(video, media_type, cookies)
             if not success:
@@ -221,25 +230,38 @@ class XHS_Creator_Apis():
             success, msg, coverInfo = self.upload_media(cover, 'image', cookies)
             if not success:
                 raise Exception(msg)
-            for _ in range(20):
+            transcode_ready = False
+            for _ in range(TRANSCODE_MAX_RETRIES):
                 success, msg, res = self.query_transcode(fileInfo['video_id'], cookies)
                 if not success:
                     raise Exception(msg)
                 data_info = res.get('data') or {}
-                if data_info.get('hasFirstFrame') is True or data_info.get('status') in (2, 'success', 'SUCCESS') or not data_info:
+                if (
+                    data_info.get('hasFirstFrame') is True
+                    or data_info.get('has_first_frame') is True
+                    or data_info.get('firstFrameFileId')
+                    or data_info.get('first_frame_file_id')
+                    or data_info.get('status') in (2, 'success', 'SUCCESS')
+                    or not data_info
+                ):
+                    transcode_ready = True
                     break
-                time.sleep(3)
-            data = get_post_note_video_data(title, desc, postTime, post_loc, type, fileInfo, coverInfo, metadata)
+                time.sleep(TRANSCODE_RETRY_DELAY)
+            if not transcode_ready:
+                raise TimeoutError('video transcode not ready after polling')
+            data = get_post_note_video_data(title, desc, postTime, post_loc, privacy_type, fileInfo, coverInfo, metadata)
         else:
             fileInfos = []
-            images = noteInfo['images']
+            images = noteInfo.get('images') or []
+            if not images:
+                raise ValueError('image media requires noteInfo["images"]')
             for image in images:
                 success, msg, fileInfo = self.upload_media(image, media_type, cookies)
                 if not success:
                     raise Exception(msg)
                 fileInfos.append(fileInfo)
-            data = get_post_note_image_data(title, desc, postTime, post_loc, type, fileInfos)
-        topics = noteInfo['topics']
+            data = get_post_note_image_data(title, desc, postTime, post_loc, privacy_type, fileInfos)
+        topics = noteInfo.get('topics') or []
         for topic in topics:
             success, msg, res_json = self.get_topic(topic, cookies)
             if not success:
@@ -269,7 +291,10 @@ class XHS_Creator_Apis():
     def get_file_info(self, file, media_type="image"):
         file_size = len(file)
         if media_type == "image":
-            size = cv2.imdecode(np.frombuffer(file, np.uint8), cv2.IMREAD_COLOR).shape
+            image = cv2.imdecode(np.frombuffer(file, np.uint8), cv2.IMREAD_COLOR)
+            if image is None:
+                raise ValueError('image decode failed')
+            size = image.shape
             w, h = size[1], size[0]
             if w > 2 * h:
                 h = int(w / 2)
