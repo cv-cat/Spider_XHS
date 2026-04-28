@@ -1,6 +1,7 @@
 import json
 import math
 import random
+import time
 import execjs
 from xhs_utils.cookie_util import trans_cookies
 
@@ -14,6 +15,11 @@ try:
 except:
     xray_js = execjs.compile(open(r'static/xhs_xray.js', 'r', encoding='utf-8').read())
 
+try:
+    xrap_js = execjs.compile(open(r'../static/xhs_rap.js', 'r', encoding='utf-8').read())
+except:
+    xrap_js = execjs.compile(open(r'static/xhs_rap.js', 'r', encoding='utf-8').read())
+
 def generate_x_b3_traceid(len=16):
     x_b3_traceid = ""
     for t in range(len):
@@ -22,12 +28,26 @@ def generate_x_b3_traceid(len=16):
 
 _BASE36_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz"
 
+def _int_to_base36(value):
+    if value == 0:
+        return "0"
+    result = ""
+    while value:
+        value, remainder = divmod(value, 36)
+        result = _BASE36_CHARS[remainder] + result
+    return result
+
 def generate_search_id(root_search_id=None):
-    def _rand_base36(length=21):
-        return ''.join(random.choices(_BASE36_CHARS, k=length))
-    if root_search_id is None:
-        root_search_id = _rand_base36()
-    return root_search_id + '@' + _rand_base36()
+    if root_search_id:
+        return root_search_id
+    timestamp_ms = int(time.time() * 1000)
+    random_part = math.ceil(0x7ffffffe * random.random())
+    return _int_to_base36((timestamp_ms << 64) + random_part)
+
+def generate_search_request_id():
+    timestamp_ms = int(time.time() * 1000)
+    random_part = math.ceil(0x7ffffffe * random.random())
+    return f"{random_part}-{timestamp_ms}"
 
 def generate_xs_xs_common(a1, api, data='', method='POST'):
     ret = js.call('get_request_headers_params', api, data, a1, method)
@@ -41,6 +61,12 @@ def generate_xs(a1, api, data=''):
 
 def generate_xray_traceid():
     return xray_js.call('traceId')
+
+def generate_x_rap_param(api, data):
+    if isinstance(data, (dict, list)):
+        data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+    return xrap_js.call('generate_x_rap_param', api, data or '')
+
 def get_common_headers():
     return {
         "authority": "www.xiaohongshu.com",
@@ -110,3 +136,5 @@ def splice_str(api, params):
         url += key + '=' + value + '&'
     return url[:-1]
 
+if __name__ == '__main__':
+    print(generate_search_id())

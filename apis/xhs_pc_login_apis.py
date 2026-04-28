@@ -336,5 +336,5 @@ if __name__ == '__main__':
     xhs_apis = XHS_Apis()
     # 获取用户信息
     user_url = 'https://www.xiaohongshu.com/user/profile/67a332a2000000000d008358?xsec_token=ABTf9yz4cLHhTycIlksF0jOi1yIZgfcaQ6IXNNGdKJ8xg=&xsec_source=pc_feed'
-    success, msg, user_info = xhs_apis.get_user_info('67a332a2000000000d008358', cookies_str)
-    logger.info(f'获取用户信息结果 {json.dumps(user_info, ensure_ascii=False)}: {success}, msg: {msg}')
+    success, msg, user_info = xhs_apis.search_note("888666", cookies_str)
+    print(success, msg, user_info)

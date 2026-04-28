@@ -1,10 +1,9 @@
 # encoding: utf-8
 import json
 import re
-import random
 import urllib
 import requests
-from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, generate_search_id, get_common_headers
+from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, generate_search_id, generate_search_request_id, generate_x_rap_param, get_common_headers
 from loguru import logger
 
 """
@@ -381,6 +380,8 @@ class XHS_Apis():
                 "xsec_token": kvDist['xsec_token']
             }
             headers, cookies, data = generate_request_params(cookies_str, api, data, 'POST')
+            headers["x-rap-param"] = generate_x_rap_param(api, data)
+            headers["xy-direction"] = "13"
             response = requests.post(self.base_url + api, headers=headers, data=data, cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
@@ -512,6 +513,7 @@ class XHS_Apis():
                 ]
             }
             headers, cookies, data = generate_request_params(cookies_str, api, data, 'POST')
+            headers["x-rap-param"] = generate_x_rap_param(api, data)
             response = requests.post(self.base_url + api, headers=headers, data=data.encode('utf-8'), cookies=cookies, proxies=proxies)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
@@ -536,7 +538,7 @@ class XHS_Apis():
         """
         page = 1
         note_list = []
-        root_search_id = ''.join(random.choices('0123456789abcdefghijklmnopqrstuvwxyz', k=21))
+        root_search_id = generate_search_id()
         try:
             while True:
                 search_id = generate_search_id(root_search_id)
@@ -571,11 +573,11 @@ class XHS_Apis():
             data = {
                 "search_user_request": {
                     "keyword": query,
-                    "search_id": "2dn9they1jbjxwawlo4xd",
+                    "search_id": generate_search_id(),
                     "page": page,
                     "page_size": 15,
                     "biz_type": "web_search_user",
-                    "request_id": "22471139-1723999898524"
+                    "request_id": generate_search_request_id()
                 }
             }
             headers, cookies, data = generate_request_params(cookies_str, api, data, 'POST')
