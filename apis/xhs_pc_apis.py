@@ -11,6 +11,11 @@ from loguru import logger
     获小红书的api
     :param cookies_str: 你的cookies
 """
+def _log_api_error(error):
+    logger.exception(f'XHS PC API request failed: {error}')
+    return str(error)
+
+
 def _get_query_params(parsed_url):
     return {
         key: values[-1] if values else ''
@@ -36,7 +41,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_homefeed_recommend(self, category, cursor_score, refresh_type, note_index, cookies_str: str, proxies: dict = None):
@@ -76,7 +81,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_homefeed_recommend_by_num(self, category, require_num, cookies_str: str, proxies: dict = None):
@@ -105,7 +110,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         if len(note_list) > require_num:
             note_list = note_list[:require_num]
         return success, msg, note_list
@@ -130,7 +135,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_user_self_info(self, cookies_str: str, proxies: dict = None):
@@ -148,7 +153,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
 
@@ -167,7 +172,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_user_note_info(self, user_id: str, cursor: str, cookies_str: str, xsec_token='', xsec_source='', proxies: dict = None):
@@ -196,7 +201,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
 
@@ -229,7 +234,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, note_list
 
     def get_user_like_note_info(self, user_id: str, cursor: str, cookies_str: str, xsec_token='', xsec_source='', proxies: dict = None):
@@ -258,7 +263,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_user_all_like_note_info(self, user_url: str, cookies_str: str, proxies: dict = None):
@@ -291,7 +296,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, note_list
 
     def get_user_collect_note_info(self, user_id: str, cursor: str, cookies_str: str, xsec_token='', xsec_source='', proxies: dict = None):
@@ -320,7 +325,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_user_all_collect_note_info(self, user_url: str, cookies_str: str, proxies: dict = None):
@@ -353,7 +358,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, note_list
 
     def get_note_info(self, url: str, cookies_str: str, proxies: dict = None):
@@ -391,7 +396,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
 
@@ -415,7 +420,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def search_note(self, query: str, cookies_str: str, page=1, sort_type_choice=0, note_type=0, note_time=0, note_range=0, pos_distance=0, geo="", search_id=None, proxies: dict = None):
@@ -523,7 +528,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def search_some_note(self, query: str, require_num: int, cookies_str: str, sort_type_choice=0, note_type=0, note_time=0, note_range=0, pos_distance=0, geo="", proxies: dict = None):
@@ -558,7 +563,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         if len(note_list) > require_num:
             note_list = note_list[:require_num]
         return success, msg, note_list
@@ -590,7 +595,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def search_some_user(self, query: str, require_num: int, cookies_str: str, proxies: dict = None):
@@ -617,7 +622,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         if len(user_list) > require_num:
             user_list = user_list[:require_num]
         return success, msg, user_list
@@ -647,7 +652,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_note_all_out_comment(self, note_id: str, xsec_token: str, cookies_str: str, proxies: dict = None):
@@ -674,7 +679,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, note_out_comment_list
 
     def get_note_inner_comment(self, comment: dict, cursor: str, xsec_token: str, cookies_str: str, proxies: dict = None):
@@ -704,7 +709,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_note_all_inner_comment(self, comment: dict, xsec_token: str, cookies_str: str, proxies: dict = None):
@@ -734,7 +739,7 @@ class XHS_Apis():
             comment['sub_comments'].extend(inner_comment_list)
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, comment
 
     def get_note_all_comment(self, url: str, cookies_str: str, proxies: dict = None):
@@ -759,7 +764,7 @@ class XHS_Apis():
                     raise Exception(msg)
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, out_comment_list
 
     def get_unread_message(self, cookies_str: str, proxies: dict = None):
@@ -777,7 +782,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_metions(self, cursor: str, cookies_str: str, proxies: dict = None):
@@ -801,7 +806,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_all_metions(self, cookies_str: str, proxies: dict = None):
@@ -827,7 +832,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, metions_list
 
     def get_likesAndcollects(self, cursor: str, cookies_str: str, proxies: dict = None):
@@ -851,7 +856,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_all_likesAndcollects(self, cookies_str: str, proxies: dict = None):
@@ -877,7 +882,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, likesAndcollects_list
 
     def get_new_connections(self, cursor: str, cookies_str: str, proxies: dict = None):
@@ -901,7 +906,7 @@ class XHS_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, res_json
 
     def get_all_new_connections(self, cookies_str: str, proxies: dict = None):
@@ -927,7 +932,7 @@ class XHS_Apis():
                     break
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, connections_list
 
     @staticmethod
@@ -948,7 +953,7 @@ class XHS_Apis():
             video_addr = re.findall(r'<meta name="og:video" content="(.*?)">', res)[0]
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, video_addr
 
 
@@ -981,7 +986,7 @@ class XHS_Apis():
                 new_url = f'https://ci.xiaohongshu.com/{token}?imageView2/format/jpeg'
         except Exception as e:
             success = False
-            msg = str(e)
+            msg = _log_api_error(e)
         return success, msg, new_url
 
 if __name__ == '__main__':

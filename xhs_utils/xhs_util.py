@@ -16,9 +16,13 @@ def _compile_static_js(filename):
         return execjs.compile(f.read())
 
 
-js = _compile_static_js('xhs_main_260411.js')
-xray_js = _compile_static_js('xhs_xray.js')
-xrap_js = _compile_static_js('xhs_rap.js')
+_JS_CACHE = {}
+
+
+def _get_static_js(filename):
+    if filename not in _JS_CACHE:
+        _JS_CACHE[filename] = _compile_static_js(filename)
+    return _JS_CACHE[filename]
 
 def generate_x_b3_traceid(len=16):
     x_b3_traceid = ""
@@ -50,22 +54,22 @@ def generate_search_request_id():
     return f"{random_part}-{timestamp_ms}"
 
 def generate_xs_xs_common(a1, api, data='', method='POST'):
-    ret = js.call('get_request_headers_params', api, data, a1, method)
+    ret = _get_static_js('xhs_main_260411.js').call('get_request_headers_params', api, data, a1, method)
     xs, xt, xs_common = ret['xs'], ret['xt'], ret['xs_common']
     return xs, xt, xs_common
 
 def generate_xs(a1, api, data=''):
-    ret = js.call('get_xs', api, data, a1)
+    ret = _get_static_js('xhs_main_260411.js').call('get_xs', api, data, a1)
     xs, xt = ret['X-s'], ret['X-t']
     return xs, xt
 
 def generate_xray_traceid():
-    return xray_js.call('traceId')
+    return _get_static_js('xhs_xray.js').call('traceId')
 
 def generate_x_rap_param(api, data, app_id=None):
     if isinstance(data, (dict, list)):
         data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-    return xrap_js.call('generate_x_rap_param', api, data or '', app_id)
+    return _get_static_js('xhs_rap.js').call('generate_x_rap_param', api, data or '', app_id)
 
 def get_common_headers():
     return {

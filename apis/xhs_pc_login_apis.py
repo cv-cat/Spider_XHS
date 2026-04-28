@@ -125,12 +125,15 @@ class XHSLoginApi:
         res = resp.json()
         if not res.get('success'):
             return False, res.get('msg', '未知错误'), None
+        data = res.get('data') or {}
+        if not all(key in data for key in ('qr_id', 'code', 'url')):
+            return False, res.get('msg', '二维码响应缺少必要字段'), {'cookies': cookies, 'res_json': res}
 
         return True, '成功', {
             'cookies': cookies,
-            'qr_id': res['data']['qr_id'],
-            'code': res['data']['code'],
-            'qr_url': res['data']['url'],
+            'qr_id': data['qr_id'],
+            'code': data['code'],
+            'qr_url': data['url'],
         }
 
     def check_qrcode_status(self, qr_id, code, cookies):
@@ -147,7 +150,9 @@ class XHSLoginApi:
             cookies[key] = value
 
         res = resp.json()
-        status = res['data']['codeStatus']
+        status = (res.get('data') or {}).get('codeStatus')
+        if status is None:
+            return False, res.get('msg', '二维码状态响应缺少 codeStatus'), cookies
 
         if status == 2:
             cookies = self._login_by_qrcode_status(qr_id, code, cookies)
@@ -226,7 +231,9 @@ class XHSLoginApi:
         res = resp.json()
         if not res.get('success'):
             return False, res.get('msg', '验证码验证失败'), {'cookies': cookies}
-        mobile_token = res['data']['mobile_token']
+        mobile_token = (res.get('data') or {}).get('mobile_token')
+        if not mobile_token:
+            return False, res.get('msg', '验证码响应缺少 mobile_token'), {'cookies': cookies, 'res_json': res}
 
         login_api = '/api/sns/web/v2/login/code'
         data = {"mobile_token": mobile_token, "zone": zone, "phone": phone}
@@ -242,7 +249,10 @@ class XHSLoginApi:
         res = resp.json()
         if not res.get('success'):
             return False, res.get('msg', '登录失败'), {'cookies': cookies}
-        cookies['web_session'] = res['data']['session']
+        session = (res.get('data') or {}).get('session')
+        if not session:
+            return False, res.get('msg', '登录响应缺少 session'), {'cookies': cookies, 'res_json': res}
+        cookies['web_session'] = session
         return True, '成功', {
             'cookies': cookies,
             'res_json': res,
@@ -270,7 +280,7 @@ class XHSLoginApi:
     def qrcode_login(self, show_in_terminal=True):
         logger.info('[1/4] 正在生成初始cookies...')
         cookies = self.generate_init_cookies()
-        logger.info(f'a1={cookies["a1"]}')
+        logger.info(f'{cookies}')
 
         logger.info('[2/4] 正在获取二维码...')
         success, msg, qr_data = self.generate_qrcode(cookies)

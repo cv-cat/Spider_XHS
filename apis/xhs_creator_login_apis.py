@@ -98,11 +98,14 @@ class XHSCreatorLoginApi:
         res = resp.json()
         if not res.get('success'):
             return False, res.get('msg', '未知错误'), None
+        data = res.get('data') or {}
+        if not all(key in data for key in ('id', 'url')):
+            return False, res.get('msg', '二维码响应缺少必要字段'), {'cookies': cookies, 'res_json': res}
 
         return True, '成功', {
             'cookies': cookies,
-            'qr_id': res['data']['id'],
-            'qr_url': res['data']['url'],
+            'qr_id': data['id'],
+            'qr_url': data['url'],
         }
 
     def check_session(self, cookies):
@@ -152,7 +155,9 @@ class XHSCreatorLoginApi:
             cookies[key] = value
 
         res = resp.json()
-        status = res['data']['status']
+        status = (res.get('data') or {}).get('status')
+        if status is None:
+            return False, res.get('msg', '二维码状态响应缺少 status'), cookies
 
         status_map = {
             1: (True, '验证成功'),
@@ -307,7 +312,7 @@ class XHSCreatorLoginApi:
     def phone_login(self):
         logger.info('[1/4] 正在生成初始cookies...')
         cookies = self.generate_init_cookies()
-        logger.info(f'a1={cookies["a1"]}')
+        logger.info(f'{cookies}')
 
         phone = input('请输入手机号: ')
         logger.info('[2/4] 正在发送验证码...')

@@ -19,6 +19,11 @@ TRANSCODE_MAX_RETRIES = 20
 TRANSCODE_RETRY_DELAY = 3
 
 
+def _log_api_error(error):
+    logger.exception(f'XHS Creator API request failed: {error}')
+    return str(error)
+
+
 class XHS_Creator_Apis():
     def __init__(self):
         self.base_url = "https://creator.xiaohongshu.com"
@@ -49,7 +54,7 @@ class XHS_Creator_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             res_json = None
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
     def get_location_info(self, keyword, cookies):
@@ -66,7 +71,7 @@ class XHS_Creator_Apis():
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             res_json = None
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
     # media_type: image or video
@@ -102,7 +107,7 @@ class XHS_Creator_Apis():
             res_json = response.json()
             success, msg = res_json["success"], '获取fileIds成功'
         except Exception as e:
-            return False, str(e), (None, None)
+            return False, _log_api_error(e), (None, None)
         return success, msg, (res_json, headers['x-t'])
 
 
@@ -143,7 +148,7 @@ class XHS_Creator_Apis():
                 if not res['video_id']:
                     raise ValueError('upload response missing X-Ros-Video-Id')
         except Exception as e:
-            return False, str(e), None
+            return False, _log_api_error(e), None
         return True, "上传成功", res
 
     def query_transcode(self, video_id, cookies):
@@ -165,7 +170,7 @@ class XHS_Creator_Apis():
             if 'msg' in res_json:
                 msg = res_json['msg']
         except Exception as e:
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
     def encryption(self, file_id, cookies):
@@ -188,7 +193,7 @@ class XHS_Creator_Apis():
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
 
@@ -379,7 +384,7 @@ class XHS_Creator_Apis():
     #         res_json = response.json()
     #         success = res_json["success"]
     #     except Exception as e:
-    #         success, msg = False, str(e)
+    #         success, msg = False, _log_api_error(e)
     #     return success, msg, res_json
     #
     #
@@ -421,7 +426,7 @@ class XHS_Creator_Apis():
             res_json = response.json()
             success = res_json["success"]
         except Exception as e:
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
 
