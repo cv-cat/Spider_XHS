@@ -1,9 +1,10 @@
 # encoding: utf-8
 import json
 import re
+import random
 import urllib
 import requests
-from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, get_common_headers
+from xhs_utils.xhs_util import splice_str, generate_request_params, generate_x_b3_traceid, generate_search_id, get_common_headers
 from loguru import logger
 
 """
@@ -412,7 +413,7 @@ class XHS_Apis():
             msg = str(e)
         return success, msg, res_json
 
-    def search_note(self, query: str, cookies_str: str, page=1, sort_type_choice=0, note_type=0, note_time=0, note_range=0, pos_distance=0, geo="", proxies: dict = None):
+    def search_note(self, query: str, cookies_str: str, page=1, sort_type_choice=0, note_type=0, note_time=0, note_range=0, pos_distance=0, geo="", search_id=None, proxies: dict = None):
         """
             获取搜索笔记的结果
             :param query 搜索的关键词
@@ -467,7 +468,7 @@ class XHS_Apis():
                 "keyword": query,
                 "page": page,
                 "page_size": 20,
-                "search_id": generate_x_b3_traceid(21),
+                "search_id": search_id or generate_search_id(),
                 "sort": "general",
                 "note_type": 0,
                 "ext_flags": [],
@@ -535,9 +536,11 @@ class XHS_Apis():
         """
         page = 1
         note_list = []
+        root_search_id = ''.join(random.choices('0123456789abcdefghijklmnopqrstuvwxyz', k=21))
         try:
             while True:
-                success, msg, res_json = self.search_note(query, cookies_str, page, sort_type_choice, note_type, note_time, note_range, pos_distance, geo, proxies)
+                search_id = generate_search_id(root_search_id)
+                success, msg, res_json = self.search_note(query, cookies_str, page, sort_type_choice, note_type, note_time, note_range, pos_distance, geo, search_id, proxies)
                 if not success:
                     raise Exception(msg)
                 if "items" not in res_json["data"]:

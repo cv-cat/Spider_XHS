@@ -20,6 +20,15 @@ def generate_x_b3_traceid(len=16):
         x_b3_traceid += "abcdef0123456789"[math.floor(16 * random.random())]
     return x_b3_traceid
 
+_BASE36_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def generate_search_id(root_search_id=None):
+    def _rand_base36(length=21):
+        return ''.join(random.choices(_BASE36_CHARS, k=length))
+    if root_search_id is None:
+        root_search_id = _rand_base36()
+    return root_search_id + '@' + _rand_base36()
+
 def generate_xs_xs_common(a1, api, data='', method='POST'):
     ret = js.call('get_request_headers_params', api, data, a1, method)
     xs, xt, xs_common = ret['xs'], ret['xt'], ret['xs_common']
