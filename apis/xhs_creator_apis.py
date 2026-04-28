@@ -1,15 +1,27 @@
 import json
+import os
+import tempfile
 import time
 
 import cv2
 import numpy as np
 import requests
+from loguru import logger
 from xhs_utils.cookie_util import trans_cookies
+from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_creator_util import get_upload_media_headers, get_post_note_headers, \
     get_loc_data, signature_js, get_fileIds_params, get_query_transcode_headers, \
     get_encryption_headers, sign_js, get_post_note_video_data, get_post_note_image_data, get_common_headers, \
-    generate_xs, generate_xsc, get_search_location_headers
-from xhs_utils.xhs_util import splice_str, generate_x_b3_traceid
+    generate_xsc, generate_xs_xs_common, get_search_location_headers
+from xhs_utils.xhs_util import splice_str, generate_x_rap_param
+
+TRANSCODE_MAX_RETRIES = 20
+TRANSCODE_RETRY_DELAY = 3
+
+
+def _log_api_error(error):
+    logger.exception(f'XHS Creator API request failed: {error}')
+    return str(error)
 
 
 class XHS_Creator_Apis():
@@ -34,14 +46,15 @@ class XHS_Creator_Apis():
                 }
             }
             headers = get_common_headers()
-            xs, xt, data = generate_xs(cookies['a1'], api, data)
-            headers['x-s'], headers['x-t'] = xs, str(xt)
-            response = requests.post(self.edith_url + api, headers=headers, cookies=cookies, data=data.encode('utf-8'))
+            headers.update(generate_xsc(cookies['a1'], api, data))
+            if data:
+                data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+            response = requests.post(self.edith_url + api, headers=headers, cookies=cookies, data=data.encode('utf-8'), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             res_json = None
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
     def get_location_info(self, keyword, cookies):
@@ -53,12 +66,12 @@ class XHS_Creator_Apis():
             headers.update(h)
             if data:
                 data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-            response = requests.post(self.edith_url + api, headers=headers, cookies=cookies, data=data.encode('utf-8'))
+            response = requests.post(self.edith_url + api, headers=headers, cookies=cookies, data=data.encode('utf-8'), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
             res_json = None
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
     # media_type: image or video
@@ -68,7 +81,7 @@ class XHS_Creator_Apis():
             headers = {
                 "accept": "application/json, text/plain, */*",
                 "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-                "authorization;": "",
+                "authorization": "",
                 "cache-control": "no-cache",
                 "pragma": "no-cache",
                 "priority": "u=1, i",
@@ -80,21 +93,22 @@ class XHS_Creator_Apis():
                 "sec-fetch-mode": "cors",
                 "sec-fetch-site": "same-origin",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
-                "x-b3-traceid": "f4f93b86e05f2402",
-                "x-s": "XYS_2UQhPsHCH0c1PjhFHjIj2erjwjQM89PjNsQhPjHCHS4kJfz647PjNsQhPUHCHfM1qAZlPebKPbYxwrk9+LEt4p4OJbmLG98e4M4HLgihGDE9y9krzd8r+DEI4Bz+pepY4n+w//QfafzgwBH94A+G2BQxcAmG/ApG2gYyLrhE2rhl8ePlanWM//8Y+f+OLLH9/rzjpe4aabSayBYBL9kVz/YNPLiFGDkjJLSy2dps4n8GGnHF/fRs+M+bnDEtyA8Y+nq62dY8PFRH40zozFkwNAm+wBFMGjHVHdWFH0ijHdF=",
-                "x-t": str(int(time.time() * 1000))
+                "x-b3-traceid": "",
+                "x-xray-traceid": "",
+                "x-s": "",
+                "x-s-common": "",
+                "x-t": ""
             }
             params = get_fileIds_params(media_type)
             splice_api = splice_str(api, params)
 
-            xs, xt, _ = generate_xs(cookies['a1'], splice_api)
-            headers['x-s'], headers['x-t'] = xs, str(xt)
-            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies)
+            headers.update(generate_xsc(cookies['a1'], splice_api))
+            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], '获取fileIds成功'
         except Exception as e:
-            return False, str(e), (None, None)
-        return success, msg, (res_json, xt)
+            return False, _log_api_error(e), (None, None)
+        return success, msg, (res_json, headers['x-t'])
 
 
     def upload_media(self, path_or_file, media_type, cookies):
@@ -109,6 +123,8 @@ class XHS_Creator_Apis():
             if not success:
                 raise Exception(msg)
             data = data['data']['uploadTempPermits'][0]
+            upload_host = data.get('uploadAddr') or self.upload_url.replace('https://', '')
+            upload_url = upload_host if upload_host.startswith('http') else f"https://{upload_host}"
             fileIds, expireTime, token = data['fileIds'][0].split('/')[-1], data['expireTime'], data['token']
             res['fileIds'] = fileIds
             xt, expireTime = str(xt)[:10], str(expireTime)[:10]
@@ -117,37 +133,44 @@ class XHS_Creator_Apis():
                 width, height, file, file_size = self.get_file_info(path_or_file, media_type="image")
                 res['width'] = width
                 res['height'] = height
+                res['file_size'] = file_size
+                res['mime_type'] = "image/png"
             else:
                 file, file_size = self.get_file_info(path_or_file, media_type="video")
-            signature = signature_js.call('getSignature', message, fileIds, file_size)
+                res['file_size'] = file_size
+            signature = signature_js.call('getSignature', message, fileIds, file_size, upload_host)
             headers = get_upload_media_headers(message, signature, token)
             api = f"/spectrum/{fileIds}"
-            response = requests.put(self.upload_url + api, headers=headers, data=file, cookies=cookies)
+            response = requests.put(upload_url + api, headers=headers, data=file, cookies=cookies, timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
             if media_type == "video":
-                res['video_id'] = response.headers['X-Ros-Video-Id']
+                res['video_id'] = response.headers.get('X-Ros-Video-Id')
+                if not res['video_id']:
+                    raise ValueError('upload response missing X-Ros-Video-Id')
         except Exception as e:
-            return False, str(e), None
+            return False, _log_api_error(e), None
         return True, "上传成功", res
 
     def query_transcode(self, video_id, cookies):
         res_json = None
         success, msg = False, ''
         try:
-            api = "/fe_api/burdock/v2/note/query_transcode"
+            api = "/web_api/sns/capa/postgw/query_transcode"
             headers = get_query_transcode_headers()
-            data = {
-                "videoId": video_id
+            params = {
+                "video_id": str(video_id),
+                "need_transcode": "false",
+                "resource_type": "0",
             }
-            xs, xt, data = generate_xs(cookies['a1'], api, data)
-            headers['x-b3-traceid'] = generate_x_b3_traceid()
-            headers['x-s'], headers['x-t'] = xs, str(xt)
-            response = requests.post(self.xhs_web_url + api, headers=headers, data=data, cookies=cookies)
+            splice_api = splice_str(api, params)
+            headers.update(generate_xsc(cookies['a1'], splice_api))
+            response = requests.get(self.edith_url + splice_api, headers=headers, cookies=cookies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success = res_json["success"]
             if 'msg' in res_json:
                 msg = res_json['msg']
         except Exception as e:
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
     def encryption(self, file_id, cookies):
@@ -165,14 +188,12 @@ class XHS_Creator_Apis():
             sign = sign_js.call('urlSing', file_id)
             params['sign'] = sign
             splice_api = splice_str(api, params)
-            xs, xt, _ = generate_xs(cookies['a1'], splice_api)
-            headers['x-b3-traceid'] = generate_x_b3_traceid()
-            headers['x-s'], headers['x-t'] = xs, str(xt)
-            response = requests.get(self.xhs_web_url + splice_api, headers=headers, cookies=cookies)
+            headers.update(generate_xsc(cookies['a1'], splice_api))
+            response = requests.get(self.xhs_web_url + splice_api, headers=headers, cookies=cookies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
         except Exception as e:
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
 
@@ -180,20 +201,21 @@ class XHS_Creator_Apis():
         post_api = "/web_api/sns/v2/note"
         headers = get_post_note_headers()
         cookies = trans_cookies(cookies_str)
-        title = noteInfo['title']
-        desc = noteInfo['desc']
-        postTime = noteInfo['postTime']
-        location = noteInfo['location']
-        type = noteInfo['type']
-        media_type = noteInfo['media_type']
+        title = noteInfo.get('title', '')
+        desc = noteInfo.get('desc', '')
+        postTime = noteInfo.get('postTime')
+        location = noteInfo.get('location')
+        privacy_type = noteInfo.get('type', 1)
+        media_type = noteInfo.get('media_type', 'image')
 
         if location is not None:
             success, msg, location_info = self.get_location_info(location, cookies)
             if not success:
                 raise Exception(msg)
-            if len(location_info['data']['poi_list']) == 0:
+            poi_list = (location_info.get('data') or {}).get('poi_list') or []
+            if len(poi_list) == 0:
                 raise Exception('未找到该地点')
-            location = location_info['data']['poi_list'][0]
+            location = poi_list[0]
             post_loc = {
                 "name": location['name'],
                 "subname": location['full_address'],
@@ -203,33 +225,48 @@ class XHS_Creator_Apis():
         else:
             post_loc = {}
         if media_type == 'video':
-            video = noteInfo['video']
+            video = noteInfo.get('video')
+            if not video:
+                raise ValueError('video media requires noteInfo["video"]')
+            cover, metadata = self.extract_video_cover_and_metadata(video)
             success, msg, fileInfo = self.upload_media(video, media_type, cookies)
             if not success:
                 raise Exception(msg)
-            firstFrameFileId = ''
-            while True:
+            success, msg, coverInfo = self.upload_media(cover, 'image', cookies)
+            if not success:
+                raise Exception(msg)
+            transcode_ready = False
+            for _ in range(TRANSCODE_MAX_RETRIES):
                 success, msg, res = self.query_transcode(fileInfo['video_id'], cookies)
                 if not success:
                     raise Exception(msg)
-                if res['data']['hasFirstFrame'] == True:
-                    firstFrameFileId = res['data']['firstFrameFileId']
+                data_info = res.get('data') or {}
+                if (
+                    data_info.get('hasFirstFrame') is True
+                    or data_info.get('has_first_frame') is True
+                    or data_info.get('firstFrameFileId')
+                    or data_info.get('first_frame_file_id')
+                    or data_info.get('status') in (2, 'success', 'SUCCESS')
+                    or not data_info
+                ):
+                    transcode_ready = True
                     break
-                time.sleep(3)
-            success, msg, res = self.encryption('/' + firstFrameFileId, cookies)
-            if not success:
-                raise Exception(msg)
-            data = get_post_note_video_data(title, desc, postTime, post_loc, type, fileInfo, firstFrameFileId)
+                time.sleep(TRANSCODE_RETRY_DELAY)
+            if not transcode_ready:
+                raise TimeoutError('video transcode not ready after polling')
+            data = get_post_note_video_data(title, desc, postTime, post_loc, privacy_type, fileInfo, coverInfo, metadata)
         else:
             fileInfos = []
-            images = noteInfo['images']
+            images = noteInfo.get('images') or []
+            if not images:
+                raise ValueError('image media requires noteInfo["images"]')
             for image in images:
                 success, msg, fileInfo = self.upload_media(image, media_type, cookies)
                 if not success:
                     raise Exception(msg)
                 fileInfos.append(fileInfo)
-            data = get_post_note_image_data(title, desc, postTime, post_loc, type, fileInfos)
-        topics = noteInfo['topics']
+            data = get_post_note_image_data(title, desc, postTime, post_loc, privacy_type, fileInfos)
+        topics = noteInfo.get('topics') or []
         for topic in topics:
             success, msg, res_json = self.get_topic(topic, cookies)
             if not success:
@@ -246,18 +283,12 @@ class XHS_Creator_Apis():
             data['common']['hash_tag'].append(insert_topic)
             data['common']['desc'] += f" #{insert_topic['name']}[话题]# "
 
-        # headers['x-s'] = xs
-        # headers['x-t'] = str(int(time.time() * 1000))
+        data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+        xs, xt, xs_common = generate_xs_xs_common(cookies['a1'], post_api, data)
+        headers['x-s'], headers['x-t'], headers['x-s-common'] = xs, str(xt), xs_common
+        headers['x-rap-param'] = generate_x_rap_param(post_api, data)
 
-        xs, xt, _ = generate_xs(cookies['a1'], post_api, data)
-        headers['x-s'], headers['x-t'] = xs, str(xt)
-
-        if data:
-            data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-
-        # xs, xt, data = generate_xs(cookies['a1'], post_api, data)
-        # headers['x-s'], headers['x-t'] = xs, str(xt)
-        response = requests.post(self.edith_url + post_api, headers=headers, data=data.encode('utf-8'), cookies=cookies)
+        response = requests.post(self.edith_url + post_api, headers=headers, data=data.encode('utf-8'), cookies=cookies, timeout=REQUEST_TIMEOUT)
         res_json = response.json()
         success, msg = res_json["success"], res_json["msg"]
         return success, msg, res_json
@@ -265,13 +296,67 @@ class XHS_Creator_Apis():
     def get_file_info(self, file, media_type="image"):
         file_size = len(file)
         if media_type == "image":
-            size = cv2.imdecode(np.frombuffer(file, np.uint8), cv2.IMREAD_COLOR).shape
+            image = cv2.imdecode(np.frombuffer(file, np.uint8), cv2.IMREAD_COLOR)
+            if image is None:
+                raise ValueError('image decode failed')
+            size = image.shape
             w, h = size[1], size[0]
             if w > 2 * h:
                 h = int(w / 2)
             return w, h, file, file_size
         else:
             return file, file_size
+
+    def extract_video_cover_and_metadata(self, video):
+        temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as f:
+                f.write(video)
+                temp_path = f.name
+
+            cap = cv2.VideoCapture(temp_path)
+            if not cap.isOpened():
+                raise ValueError("video decode failed")
+
+            fps = cap.get(cv2.CAP_PROP_FPS) or 0
+            frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
+            duration_ms = int(frame_count / fps * 1000) if fps else 0
+            success, frame = cap.read()
+            cap.release()
+            if not success:
+                raise ValueError("video cover frame decode failed")
+
+            ok, encoded = cv2.imencode(".jpg", frame)
+            if not ok:
+                raise ValueError("video cover encode failed")
+
+            metadata = {
+                "video": {
+                    "bitrate": None,
+                    "colour_primaries": "BT.709",
+                    "duration": duration_ms,
+                    "format": "AVC",
+                    "frame_rate": round(fps, 3) if fps else 0,
+                    "height": height,
+                    "matrix_coefficients": "BT.709",
+                    "rotation": 0,
+                    "transfer_characteristics": "BT.709",
+                    "width": width
+                },
+                "audio": {
+                    "bitrate": None,
+                    "channels": 2,
+                    "duration": duration_ms,
+                    "format": "AAC",
+                    "sampling_rate": 48000
+                }
+            }
+            return encoded.tobytes(), metadata
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
 
 
     # # page: 页数
@@ -299,7 +384,7 @@ class XHS_Creator_Apis():
     #         res_json = response.json()
     #         success = res_json["success"]
     #     except Exception as e:
-    #         success, msg = False, str(e)
+    #         success, msg = False, _log_api_error(e)
     #     return success, msg, res_json
     #
     #
@@ -330,19 +415,18 @@ class XHS_Creator_Apis():
             api = "/api/galaxy/creator/note/user/posted"
             headers = get_common_headers()
             cookies = trans_cookies(cookies_str)
-            xs, xt, _ = generate_xs(cookies['a1'], api, '')
-            headers['x-s'], headers['x-t'] = xs, str(xt)
-            headers['x-b3-traceid'] = generate_x_b3_traceid()
             params = {
                 "tab": '0',
             }
             if page:
                 params["page"] = str(page)
-            response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params)
+            splice_api = splice_str(api, params)
+            headers.update(generate_xsc(cookies['a1'], splice_api))
+            response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success = res_json["success"]
         except Exception as e:
-            success, msg = False, str(e)
+            success, msg = False, _log_api_error(e)
         return success, msg, res_json
 
 
@@ -352,7 +436,7 @@ class XHS_Creator_Apis():
         notes = []
         while True:
             success, msg, res_json = self.get_publish_note_info(page, cookies_str)
-            print(success, msg, res_json)
+            logger.debug(f'{success}, {msg}, {res_json}')
             if not success:
                 return False, msg, notes
             notes += res_json['data']['notes']
@@ -401,8 +485,8 @@ if __name__ == '__main__':
     ]
     for noteInfo in noteInfos:
         success, msg, info = xhs_creator_apis.post_note(noteInfo, cookies_str)
-        print(success, msg, info)
-        print('========')
+        logger.debug(f'{success}, {msg}, {info}')
+        logger.debug('========')
 
     # topics = ["雀魂", "麻将"]
     # cookies = trans_cookies(cookies_str)

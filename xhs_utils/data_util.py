@@ -2,14 +2,18 @@ import json
 import os
 import re
 import time
+from pathlib import Path
+
 import openpyxl
 import requests
 from loguru import logger
 from retry import retry
 
+from xhs_utils.http_util import REQUEST_TIMEOUT
 
-def norm_str(str):
-    new_str = re.sub(r"|[\\/:*?\"<>| ]+", "", str).replace('\n', '').replace('\r', '')
+
+def norm_str(value):
+    new_str = re.sub(r"[\\/:*?\"<>| ]+", "", value).replace('\n', '').replace('\r', '')
     return new_str
 
 def norm_text(text):
@@ -45,7 +49,7 @@ def handle_user_info(data, user_id):
     for tag in tags_temp:
         try:
             tags.append(tag['name'])
-        except:
+        except (KeyError, TypeError):
             pass
     return {
         'user_id': user_id,
@@ -89,7 +93,7 @@ def handle_note_info(data):
             image_list.append(image['info_list'][1]['url'])
             # success, msg, img_url = XHS_Apis.get_note_no_water_img(image['info_list'][1]['url'])
             # image_list.append(img_url)
-        except:
+        except (KeyError, IndexError, TypeError):
             pass
     if note_type == '视频':
         video_cover = image_list[0] if image_list else None
@@ -110,7 +114,7 @@ def handle_note_info(data):
     for tag in tags_temp:
         try:
             tags.append(tag['name'])
-        except:
+        except (KeyError, TypeError):
             pass
     upload_time = timestamp_to_str(data['note_card']['time'])
     if 'ip_location' in data['note_card']:
@@ -153,7 +157,7 @@ def handle_comment_info(data):
     upload_time = timestamp_to_str(data['create_time'])
     try:
         ip_location = data['ip_location']
-    except:
+    except KeyError:
         ip_location = '未知'
     pictures = []
     try:
@@ -163,9 +167,9 @@ def handle_comment_info(data):
                 pictures.append(picture['info_list'][1]['url'])
                 # success, msg, img_url = XHS_Apis.get_note_no_water_img(picture['info_list'][1]['url'])
                 # pictures.append(img_url)
-            except:
+            except (KeyError, IndexError, TypeError):
                 pass
-    except:
+    except (KeyError, TypeError):
         pass
     return {
         'note_id': note_id,
@@ -191,29 +195,40 @@ def save_to_xlsx(datas, file_path, type='note'):
         headers = ['用户id', '用户主页url', '用户名', '头像url', '小红书号', '性别', 'ip地址', '介绍', '关注数量', '粉丝数量', '作品被赞和收藏数量', '标签']
     else:
         headers = ['笔记id', '笔记url', '评论id', '用户id', '用户主页url', '昵称', '头像url', '评论内容', '评论标签', '点赞数量', '上传时间', 'ip归属地', '图片地址url列表']
+    field_keys = {
+        'note': ['note_id', 'note_url', 'note_type', 'user_id', 'home_url', 'nickname', 'avatar', 'title', 'desc', 'liked_count', 'collected_count', 'comment_count', 'share_count', 'video_cover', 'video_addr', 'image_list', 'tags', 'upload_time', 'ip_location'],
+        'user': ['user_id', 'home_url', 'nickname', 'avatar', 'red_id', 'gender', 'ip_location', 'desc', 'follows', 'fans', 'interaction', 'tags'],
+        'comment': ['note_id', 'note_url', 'comment_id', 'user_id', 'home_url', 'nickname', 'avatar', 'content', 'show_tags', 'like_count', 'upload_time', 'ip_location', 'pictures'],
+    }
+    keys = field_keys.get(type, field_keys['comment'])
     ws.append(headers)
     for data in datas:
-        data = {k: norm_text(str(v)) for k, v in data.items()}
-        ws.append(list(data.values()))
+        ws.append([norm_text(str(data.get(key, ''))) for key in keys])
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
 def download_media(path, name, url, type):
+    if not url:
+        raise ValueError(f'{type} url is empty: {name}')
+    file_path = Path(path) / f'{name}.{"jpg" if type == "image" else "mp4"}'
     if type == 'image':
-        content = requests.get(url).content
-        with open(path + '/' + name + '.jpg', mode="wb") as f:
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+        content = response.content
+        with open(file_path, mode="wb") as f:
             f.write(content)
     elif type == 'video':
-        res = requests.get(url, stream=True)
+        res = requests.get(url, stream=True, timeout=REQUEST_TIMEOUT)
+        res.raise_for_status()
         size = 0
         chunk_size = 1024 * 1024
-        with open(path + '/' + name + '.mp4', mode="wb") as f:
+        with open(file_path, mode="wb") as f:
             for data in res.iter_content(chunk_size=chunk_size):
                 f.write(data)
                 size += len(data)
 
 def save_user_detail(user, path):
-    with open(f'{path}/detail.txt', mode="w", encoding="utf-8") as f:
+    with open(Path(path) / 'detail.txt', mode="w", encoding="utf-8") as f:
         # 逐行输出到txt里
         f.write(f"用户id: {user['user_id']}\n")
         f.write(f"用户主页url: {user['home_url']}\n")
@@ -229,7 +244,7 @@ def save_user_detail(user, path):
         f.write(f"标签: {user['tags']}\n")
 
 def save_note_detail(note, path):
-    with open(f'{path}/detail.txt', mode="w", encoding="utf-8") as f:
+    with open(Path(path) / 'detail.txt', mode="w", encoding="utf-8") as f:
         # 逐行输出到txt里
         f.write(f"笔记id: {note['note_id']}\n")
         f.write(f"笔记url: {note['note_url']}\n")
@@ -263,9 +278,9 @@ def download_note(note_info, path, save_choice):
     nickname = norm_str(nickname)[:20]
     if title.strip() == '':
         title = f'无标题'
-    save_path = f'{path}/{nickname}_{user_id}/{title}_{note_id}'
+    save_path = str(Path(path) / f'{nickname}_{user_id}' / f'{title}_{note_id}')
     check_and_create_path(save_path)
-    with open(f'{save_path}/info.json', mode='w', encoding='utf-8') as f:
+    with open(Path(save_path) / 'info.json', mode='w', encoding='utf-8') as f:
         f.write(json.dumps(note_info) + '\n')
     note_type = note_info['note_type']
     save_note_detail(note_info, save_path)
@@ -273,11 +288,16 @@ def download_note(note_info, path, save_choice):
         for img_index, img_url in enumerate(note_info['image_list']):
             download_media(save_path, f'image_{img_index}', img_url, 'image')
     elif note_type == '视频' and save_choice in ['media', 'media-video', 'all']:
-        download_media(save_path, 'cover', note_info['video_cover'], 'image')
-        download_media(save_path, 'video', note_info['video_addr'], 'video')
+        if note_info.get('video_cover'):
+            download_media(save_path, 'cover', note_info['video_cover'], 'image')
+        else:
+            logger.warning(f"video cover url is empty: {note_id}")
+        if note_info.get('video_addr'):
+            download_media(save_path, 'video', note_info['video_addr'], 'video')
+        else:
+            logger.warning(f"video url is empty: {note_id}")
     return save_path
 
 
 def check_and_create_path(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+    Path(path).mkdir(parents=True, exist_ok=True)

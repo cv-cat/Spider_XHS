@@ -1,13 +1,14 @@
 const CryptoJS = require('crypto-js');
 
-function getSignature(message, fileId, contentLength) {
+function getSignature(message, fileId, contentLength, host) {
+    host = host || 'ros-upload.xiaohongshu.com';
     let key = 'null'
     let hash = CryptoJS.HmacSHA1(message, key);
     key = CryptoJS.enc.Hex.stringify(hash);
     let new_message = "put\n" +
     `/spectrum/${fileId}\n` +
     "\n" +
-    `content-length=${contentLength}\n`;
+    `content-length=${contentLength}&host=${host}\n`;
     let params = CryptoJS.SHA1(new_message).toString()
     message = "sha1\n" +
     `${message}\n` +

@@ -1,18 +1,28 @@
 import json
 import math
+import os
 import random
+import time
+from urllib.parse import urlencode
+
 import execjs
 from xhs_utils.cookie_util import trans_cookies
 
-try:
-    js = execjs.compile(open(r'../static/xhs_main_260411.js', 'r', encoding='utf-8').read())
-except:
-    js = execjs.compile(open(r'static/xhs_main_260411.js', 'r', encoding='utf-8').read())
+_STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
-try:
-    xray_js = execjs.compile(open(r'../static/xhs_xray.js', 'r', encoding='utf-8').read())
-except:
-    xray_js = execjs.compile(open(r'static/xhs_xray.js', 'r', encoding='utf-8').read())
+
+def _compile_static_js(filename):
+    with open(os.path.join(_STATIC_DIR, filename), 'r', encoding='utf-8') as f:
+        return execjs.compile(f.read())
+
+
+_JS_CACHE = {}
+
+
+def _get_static_js(filename):
+    if filename not in _JS_CACHE:
+        _JS_CACHE[filename] = _compile_static_js(filename)
+    return _JS_CACHE[filename]
 
 def generate_x_b3_traceid(len=16):
     x_b3_traceid = ""
@@ -20,18 +30,47 @@ def generate_x_b3_traceid(len=16):
         x_b3_traceid += "abcdef0123456789"[math.floor(16 * random.random())]
     return x_b3_traceid
 
+_BASE36_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+def _int_to_base36(value):
+    if value == 0:
+        return "0"
+    result = ""
+    while value:
+        value, remainder = divmod(value, 36)
+        result = _BASE36_CHARS[remainder] + result
+    return result
+
+def generate_search_id(root_search_id=None):
+    if root_search_id:
+        return root_search_id
+    timestamp_ms = int(time.time() * 1000)
+    random_part = math.ceil(0x7ffffffe * random.random())
+    return _int_to_base36((timestamp_ms << 64) + random_part)
+
+def generate_search_request_id():
+    timestamp_ms = int(time.time() * 1000)
+    random_part = math.ceil(0x7ffffffe * random.random())
+    return f"{random_part}-{timestamp_ms}"
+
 def generate_xs_xs_common(a1, api, data='', method='POST'):
-    ret = js.call('get_request_headers_params', api, data, a1, method)
+    ret = _get_static_js('xhs_main_260411.js').call('get_request_headers_params', api, data, a1, method)
     xs, xt, xs_common = ret['xs'], ret['xt'], ret['xs_common']
     return xs, xt, xs_common
 
 def generate_xs(a1, api, data=''):
-    ret = js.call('get_xs', api, data, a1)
+    ret = _get_static_js('xhs_main_260411.js').call('get_xs', api, data, a1)
     xs, xt = ret['X-s'], ret['X-t']
     return xs, xt
 
 def generate_xray_traceid():
-    return xray_js.call('traceId')
+    return _get_static_js('xhs_xray.js').call('traceId')
+
+def generate_x_rap_param(api, data, app_id=None):
+    if isinstance(data, (dict, list)):
+        data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+    return _get_static_js('xhs_rap.js').call('generate_x_rap_param', api, data or '', app_id)
+
 def get_common_headers():
     return {
         "authority": "www.xiaohongshu.com",
@@ -94,10 +133,10 @@ def generate_request_params(cookies_str, api, data='', method='POST'):
     return headers, cookies, data
 
 def splice_str(api, params):
-    url = api + '?'
-    for key, value in params.items():
-        if value is None:
-            value = ''
-        url += key + '=' + value + '&'
-    return url[:-1]
+    return api + '?' + urlencode(
+        {key: '' if value is None else value for key, value in params.items()},
+        doseq=True
+    )
 
+if __name__ == '__main__':
+    print(generate_search_id())

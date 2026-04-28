@@ -36,7 +36,7 @@
 
 小红书没有开放完整的内容运营接口。想要接入 AI 大模型实现内容批量采集、智能改写、一键发布，首先需要能**稳定读写平台数据**。Spider_XHS 解决的正是这个前置问题：
 
-- 逆向还原了小红书 PC 端与创作者平台的签名算法（x-s / x-t / x-s-common / x_b3_traceid / sign / q-signature参数）
+- 逆向还原了小红书 PC 端与创作者平台的签名算法（a1 / web_id / websectiga / sec_poison_id / gid / x-s / x-t / x-s-common / x-b3-traceid / x-xray-traceid / x-rap-param / search_id / request_id / sign / q-signature 等参数）
 - 封装全部核心 HTTP 接口，签名参数已透明处理
 - 同时覆盖 **数据采集**（PC端）、**内容发布**（创作者平台）、**KOL数据**（蒲公英）三大场景
 
@@ -175,7 +175,7 @@ Cookie 获取方式：浏览器登录小红书后，按 `F12` 打开开发者工
 ### 🚀 运行项目
 
 ```bash
-python main.py
+python -m spider.spider
 ```
 
 ### 🐳 Docker 部署（可选）
@@ -191,7 +191,9 @@ docker run -e COOKIES='your_cookie_here' spider_xhs
 
 ```
 Spider_XHS/
-├── main.py                          # 主入口：爬虫调用示例
+├── spider/
+│   ├── __init__.py
+│   └── spider.py                    # 主入口：爬虫调用示例
 ├── apis/
 │   ├── xhs_pc_apis.py               # 小红书PC端完整API（采集）
 │   ├── xhs_creator_apis.py          # 创作者平台API（上传发布）
@@ -209,6 +211,7 @@ Spider_XHS/
 │   └── xhs_qianfan_util.py          # 千帆平台工具
 ├── static/
 │   ├── xhs_main_260411.js           # PC端签名核心JS（最新版）
+│   ├── xhs_rap.js                   # PC端 x-rap-param JSVMP 补环境生成脚本
 │   ├── xhs_creator_260411.js        # 创作者平台签名核心JS（最新版）
 │   └── ...
 ├── .env                             # Cookie配置（不要提交到git）
@@ -221,7 +224,7 @@ Spider_XHS/
 
 ## 🗝️ 注意事项
 
-- `main.py` 是爬虫入口，可根据需求修改调用逻辑
+- `spider/spider.py` 是爬虫入口，可根据需求修改调用逻辑
 - `apis/xhs_pc_apis.py` 包含所有 PC 端数据接口
 - `apis/xhs_creator_apis.py` 包含创作者平台发布接口
 - Cookie 有时效性，失效后需重新获取
@@ -247,6 +250,7 @@ Spider_XHS/
 | 25/06/07 | 更新 search 接口，区分视频和图集下载，新增创作者平台 API |
 | 25/07/15 | 更新 xs version56 & 小红书创作者接口 |
 | 26/04/11 | 重构创作者平台 API（图集 / 视频上传），新增蒲公英 KOL 数据 API，新增千帆分销商 API，签名算法升级至最新版 |
+| 26/04/28 | 更新 PC 端搜索与笔记详情风控参数，新增 `search_id` 当前算法与 `x-rap-param` 本地 JSVMP 生成，补充 `a1`、`web_id`、`websectiga` 等签名参数说明 |
 
 ---
 
