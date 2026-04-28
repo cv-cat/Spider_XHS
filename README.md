@@ -175,7 +175,7 @@ Cookie 获取方式：浏览器登录小红书后，按 `F12` 打开开发者工
 ### 🚀 运行项目
 
 ```bash
-python main.py
+python -m spider.spider
 ```
 
 ### 🐳 Docker 部署（可选）
@@ -191,7 +191,9 @@ docker run -e COOKIES='your_cookie_here' spider_xhs
 
 ```
 Spider_XHS/
-├── main.py                          # 主入口：爬虫调用示例
+├── spider/
+│   ├── __init__.py
+│   └── spider.py                    # 主入口：爬虫调用示例
 ├── apis/
 │   ├── xhs_pc_apis.py               # 小红书PC端完整API（采集）
 │   ├── xhs_creator_apis.py          # 创作者平台API（上传发布）
@@ -222,7 +224,7 @@ Spider_XHS/
 
 ## 🗝️ 注意事项
 
-- `main.py` 是爬虫入口，可根据需求修改调用逻辑
+- `spider/spider.py` 是爬虫入口，可根据需求修改调用逻辑
 - `apis/xhs_pc_apis.py` 包含所有 PC 端数据接口
 - `apis/xhs_creator_apis.py` 包含创作者平台发布接口
 - Cookie 有时效性，失效后需重新获取

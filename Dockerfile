@@ -26,4 +26,4 @@ EXPOSE 5000
 ENV PYTHONUNBUFFERED=1
 ENV NODE_ENV=production
 
-CMD ["python", "main.py"] 
+CMD ["python", "-m", "spider.spider"] 
