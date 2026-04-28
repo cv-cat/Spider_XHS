@@ -280,6 +280,8 @@ window.anti_hp_sign_config = {
     { pattern: "api/sns/web/v1/user_posted", mode: "includes" },
     { pattern: "api/sns/web/v1/feed", mode: "endsWith" },
     { pattern: "api/sns/web/v1/comment/post", mode: "endsWith" },
+    { pattern: "web_api/sns/v5/creator/topic/template/list", mode: "endsWith" },
+    { pattern: "web_api/sns/v2/note", mode: "endsWith" },
   ],
   responseTransformConfigs: [
     { url: { pattern: "api/sns/web/v1/homefeed", mode: "endsWith" }, listKey: "items" },
@@ -287,6 +289,7 @@ window.anti_hp_sign_config = {
     { url: { pattern: "api/sns/web/v1/user_posted", mode: "includes" }, listKey: "notes" },
   ],
 };
+window.__rap_app_id__ = "xhs-pc-web";
 window.__INITIAL_STATE__ = { global: {}, user: {}, search: {} };
 
 window.__capturedRapParam = null;
@@ -422,9 +425,14 @@ Object.getPrototypeOf = function getPrototypeOf(obj) {
   window.__flushRapTimers();
 })();
 
-function generate_x_rap_param(api, data) {
+function generate_x_rap_param(api, data, appId) {
   window.__capturedRapParam = null;
   var url = /^https?:\/\//.test(api) ? api : 'https://edith.xiaohongshu.com' + api;
+  window.__rap_app_id__ = appId || (
+    url.indexOf('/web_api/sns/v2/note') >= 0 || url.indexOf('/web_api/sns/v5/creator/') >= 0
+      ? 'creator-platform'
+      : 'xhs-pc-web'
+  );
   var body = typeof data === 'string' ? data : JSON.stringify(data || {});
   var xhr = new XMLHttpRequest();
   xhr.open('POST', url);

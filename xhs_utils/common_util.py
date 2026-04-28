@@ -10,6 +10,7 @@ import requests
 from loguru import logger
 from dotenv import load_dotenv
 
+from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_creator_util import generate_xsc
 
 _STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static')
@@ -75,7 +76,8 @@ def fetch_sec_cookies(cookies, headers):
             _AS_URL + api,
             headers=h,
             cookies=cookies,
-            data=data_str.encode('utf-8')
+            data=data_str.encode('utf-8'),
+            timeout=REQUEST_TIMEOUT
         )
         res = resp.json()
         sec_poison_id = res.get('data', {}).get('secPoisonId')
@@ -112,7 +114,8 @@ def fetch_gid(cookies, headers):
             _AS_URL + api,
             headers=h,
             cookies=cookies,
-            data=data_str.encode('utf-8')
+            data=data_str.encode('utf-8'),
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value

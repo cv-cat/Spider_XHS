@@ -2,6 +2,7 @@ import json
 import requests
 from loguru import logger
 from xhs_utils.cookie_util import trans_cookies
+from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_qianfan_util import get_qianfan_headers_template, generate_qianfan_data, get_qianfan_userDetail_headers_template
 
 class QianFanAPI:
@@ -11,7 +12,7 @@ class QianFanAPI:
         params = {
             "types": "content_category,distribution_category,user_design_tag,content_tag"
         }
-        response = requests.get(url, headers=headers, cookies=cookies, params=params)
+        response = requests.get(url, headers=headers, cookies=cookies, params=params, timeout=REQUEST_TIMEOUT)
         distribution_category = response.json()["data"]['distributor_tag_map']["distribution_category"]
         return distribution_category
 
@@ -30,7 +31,7 @@ class QianFanAPI:
         url = "https://pgy.xiaohongshu.com/api/draco/distributor-square/distributors"
         data = generate_qianfan_data(choice, distribution_category, page)
         data = json.dumps(data, separators=(',', ':'))
-        response = requests.post(url, headers=headers, cookies=cookies, data=data)
+        response = requests.post(url, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         res_json = response.json()
         total = res_json["data"]["total"]
         user_list = res_json["data"]["list"]
@@ -57,7 +58,7 @@ class QianFanAPI:
             "date_type": 2
         }
         data = json.dumps(data, separators=(',', ':'))
-        response = requests.post(url, headers=headers, cookies=cookies, data=data)
+        response = requests.post(url, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_cooperation(self, user_id, cookies):
@@ -72,7 +73,7 @@ class QianFanAPI:
             "size": 10
         }
         data = json.dumps(data, separators=(',', ':'))
-        response = requests.post(url, headers=headers, cookies=cookies, data=data)
+        response = requests.post(url, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_shop(self, user_id, cookies):
@@ -87,7 +88,7 @@ class QianFanAPI:
             "size": 10
         }
         data = json.dumps(data, separators=(',', ':'))
-        response = requests.post(url, headers=headers, cookies=cookies, data=data)
+        response = requests.post(url, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_item(self, user_id, cookies):
@@ -102,7 +103,7 @@ class QianFanAPI:
             "size": 10
         }
         data = json.dumps(data, separators=(',', ':'))
-        response = requests.post(url, headers=headers, cookies=cookies, data=data)
+        response = requests.post(url, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_fans(self, user_id, cookies):
@@ -112,7 +113,7 @@ class QianFanAPI:
             "distributor_id": user_id,
             "date_type": "2"
         }
-        response = requests.get(url, headers=headers, cookies=cookies, params=params)
+        response = requests.get(url, headers=headers, cookies=cookies, params=params, timeout=REQUEST_TIMEOUT)
         return response.json()
 
 if __name__ == '__main__':

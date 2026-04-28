@@ -2,6 +2,7 @@ import json
 import requests
 from loguru import logger
 from xhs_utils.cookie_util import trans_cookies
+from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_pugongying_util import generate_pugongying_headers, get_pugongying_bozhu_data, generate_pugongying_data
 from xhs_utils.xhs_util import get_request_headers_template
 
@@ -13,7 +14,7 @@ class PuGongYingAPI:
     def get_all_categories(self, cookies):
         api = '/api/solar/cooperator/content/tag_tree'
         headers = generate_pugongying_headers(cookies['a1'], api)
-        response = requests.get(self.base_url + api, headers=headers, cookies=cookies)
+        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, timeout=REQUEST_TIMEOUT)
         distribution_category = response.json()["data"]
         return distribution_category
 
@@ -31,7 +32,7 @@ class PuGongYingAPI:
         api = "/api/solar/cooperator/blogger/track"
         data = json.dumps(data, separators=(',', ':'))
         headers = generate_pugongying_headers(cookies['a1'], api, data)
-        response = requests.post(self.base_url + api, headers=headers, cookies=cookies, data=data)
+        response = requests.post(self.base_url + api, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_by_page(self, page, cookies, contentTag=None):
@@ -44,7 +45,7 @@ class PuGongYingAPI:
         data['trackId'] = trackId
         data = json.dumps(data, separators=(',', ':'))
         headers = generate_pugongying_headers(cookies['a1'], api, data)
-        response = requests.post(self.base_url + api, headers=headers, cookies=cookies, data=data)
+        response = requests.post(self.base_url + api, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         res_json = response.json()
         total = res_json["data"]["total"]
         user_list = res_json["data"]["kols"]
@@ -70,7 +71,7 @@ class PuGongYingAPI:
             "business": "0"
         }
         headers = generate_pugongying_headers(cookies['a1'], api)
-        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params)
+        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_fans_detail(self, user_id, cookies):
@@ -79,7 +80,7 @@ class PuGongYingAPI:
             "userId": user_id
         }
         headers = generate_pugongying_headers(cookies['a1'], api)
-        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params)
+        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_fans_history(self, user_id, cookies):
@@ -89,7 +90,7 @@ class PuGongYingAPI:
             "increaseType": "1"
         }
         headers = generate_pugongying_headers(cookies['a1'], api)
-        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params)
+        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_user_notes_detail(self, user_id, cookies):
@@ -102,13 +103,13 @@ class PuGongYingAPI:
             "advertiseSwitch": "1"
         }
         headers = generate_pugongying_headers(cookies['a1'], api)
-        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params)
+        response = requests.get(self.base_url + api, headers=headers, cookies=cookies, params=params, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def get_self_info(self, cookies):
         url = "https://pgy.xiaohongshu.com/api/solar/user/info"
         headers = get_request_headers_template()
-        response = requests.get(url, headers=headers, cookies=cookies)
+        response = requests.get(url, headers=headers, cookies=cookies, timeout=REQUEST_TIMEOUT)
         return response.json()
 
     def send_invite(self, user_id, cookies, productName, time, inviteContent, contactInfo):
@@ -131,7 +132,7 @@ class PuGongYingAPI:
         }
         data = json.dumps(data, separators=(',', ':'))
         headers = generate_pugongying_headers(cookies['a1'], api)
-        response = requests.post(self.base_url + api, headers=headers, cookies=cookies, data=data)
+        response = requests.post(self.base_url + api, headers=headers, cookies=cookies, data=data, timeout=REQUEST_TIMEOUT)
         return response.json()
 
 if __name__ == '__main__':

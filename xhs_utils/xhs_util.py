@@ -1,24 +1,22 @@
 import json
 import math
+import os
 import random
 import time
 import execjs
 from xhs_utils.cookie_util import trans_cookies
 
-try:
-    js = execjs.compile(open(r'../static/xhs_main_260411.js', 'r', encoding='utf-8').read())
-except:
-    js = execjs.compile(open(r'static/xhs_main_260411.js', 'r', encoding='utf-8').read())
+_STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
-try:
-    xray_js = execjs.compile(open(r'../static/xhs_xray.js', 'r', encoding='utf-8').read())
-except:
-    xray_js = execjs.compile(open(r'static/xhs_xray.js', 'r', encoding='utf-8').read())
 
-try:
-    xrap_js = execjs.compile(open(r'../static/xhs_rap.js', 'r', encoding='utf-8').read())
-except:
-    xrap_js = execjs.compile(open(r'static/xhs_rap.js', 'r', encoding='utf-8').read())
+def _compile_static_js(filename):
+    with open(os.path.join(_STATIC_DIR, filename), 'r', encoding='utf-8') as f:
+        return execjs.compile(f.read())
+
+
+js = _compile_static_js('xhs_main_260411.js')
+xray_js = _compile_static_js('xhs_xray.js')
+xrap_js = _compile_static_js('xhs_rap.js')
 
 def generate_x_b3_traceid(len=16):
     x_b3_traceid = ""
@@ -62,10 +60,10 @@ def generate_xs(a1, api, data=''):
 def generate_xray_traceid():
     return xray_js.call('traceId')
 
-def generate_x_rap_param(api, data):
+def generate_x_rap_param(api, data, app_id=None):
     if isinstance(data, (dict, list)):
         data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
-    return xrap_js.call('generate_x_rap_param', api, data or '')
+    return xrap_js.call('generate_x_rap_param', api, data or '', app_id)
 
 def get_common_headers():
     return {

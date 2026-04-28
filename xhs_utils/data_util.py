@@ -7,9 +7,11 @@ import requests
 from loguru import logger
 from retry import retry
 
+from xhs_utils.http_util import REQUEST_TIMEOUT
 
-def norm_str(str):
-    new_str = re.sub(r"|[\\/:*?\"<>| ]+", "", str).replace('\n', '').replace('\r', '')
+
+def norm_str(value):
+    new_str = re.sub(r"[\\/:*?\"<>| ]+", "", value).replace('\n', '').replace('\r', '')
     return new_str
 
 def norm_text(text):
@@ -45,7 +47,7 @@ def handle_user_info(data, user_id):
     for tag in tags_temp:
         try:
             tags.append(tag['name'])
-        except:
+        except (KeyError, TypeError):
             pass
     return {
         'user_id': user_id,
@@ -89,7 +91,7 @@ def handle_note_info(data):
             image_list.append(image['info_list'][1]['url'])
             # success, msg, img_url = XHS_Apis.get_note_no_water_img(image['info_list'][1]['url'])
             # image_list.append(img_url)
-        except:
+        except (KeyError, IndexError, TypeError):
             pass
     if note_type == '视频':
         video_cover = image_list[0] if image_list else None
@@ -110,7 +112,7 @@ def handle_note_info(data):
     for tag in tags_temp:
         try:
             tags.append(tag['name'])
-        except:
+        except (KeyError, TypeError):
             pass
     upload_time = timestamp_to_str(data['note_card']['time'])
     if 'ip_location' in data['note_card']:
@@ -153,7 +155,7 @@ def handle_comment_info(data):
     upload_time = timestamp_to_str(data['create_time'])
     try:
         ip_location = data['ip_location']
-    except:
+    except KeyError:
         ip_location = '未知'
     pictures = []
     try:
@@ -163,9 +165,9 @@ def handle_comment_info(data):
                 pictures.append(picture['info_list'][1]['url'])
                 # success, msg, img_url = XHS_Apis.get_note_no_water_img(picture['info_list'][1]['url'])
                 # pictures.append(img_url)
-            except:
+            except (KeyError, IndexError, TypeError):
                 pass
-    except:
+    except (KeyError, TypeError):
         pass
     return {
         'note_id': note_id,
@@ -200,11 +202,14 @@ def save_to_xlsx(datas, file_path, type='note'):
 
 def download_media(path, name, url, type):
     if type == 'image':
-        content = requests.get(url).content
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+        content = response.content
         with open(path + '/' + name + '.jpg', mode="wb") as f:
             f.write(content)
     elif type == 'video':
-        res = requests.get(url, stream=True)
+        res = requests.get(url, stream=True, timeout=REQUEST_TIMEOUT)
+        res.raise_for_status()
         size = 0
         chunk_size = 1024 * 1024
         with open(path + '/' + name + '.mp4', mode="wb") as f:

@@ -7,6 +7,7 @@ import qrcode
 from loguru import logger
 
 from apis.xhs_creator_apis import XHS_Creator_Apis
+from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_creator_util import generate_xsc, splice_str
 from xhs_utils.common_util import generate_a1, generate_web_id, fetch_sec_cookies, fetch_gid
 
@@ -36,7 +37,8 @@ class XHSCreatorLoginApi:
             self.creator_url + '/login',
             headers=headers,
             cookies=cookies,
-            allow_redirects=False
+            allow_redirects=False,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -87,7 +89,8 @@ class XHSCreatorLoginApi:
             self.customer_url + api,
             headers=headers,
             cookies=cookies,
-            data=data_str.encode('utf-8')
+            data=data_str.encode('utf-8'),
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -116,7 +119,8 @@ class XHSCreatorLoginApi:
             self.customer_url + api,
             headers=headers,
             cookies=cookies,
-            data=data_str.encode('utf-8')
+            data=data_str.encode('utf-8'),
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -141,7 +145,8 @@ class XHSCreatorLoginApi:
         resp = requests.get(
             self.customer_url + splice_api,
             headers=headers,
-            cookies=cookies
+            cookies=cookies,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -169,7 +174,8 @@ class XHSCreatorLoginApi:
         resp = requests.get(
             self.creator_url + api,
             headers=headers,
-            cookies=cookies
+            cookies=cookies,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -195,7 +201,8 @@ class XHSCreatorLoginApi:
             self.customer_url + api,
             headers=headers,
             cookies=cookies,
-            data=data_str.encode('utf-8')
+            data=data_str.encode('utf-8'),
+            timeout=REQUEST_TIMEOUT
         )
         res = resp.json()
         return res.get('success', False), res.get('msg', ''), res
@@ -221,7 +228,8 @@ class XHSCreatorLoginApi:
             self.customer_url + api,
             headers=headers,
             cookies=cookies,
-            data=data_str.encode('utf-8')
+            data=data_str.encode('utf-8'),
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -336,7 +344,7 @@ if __name__ == '__main__':
     noteInfos = [
         {
             # 标题
-            "title": "21121121212",
+            "title": "222",
             # 描述
             "desc": "dwadaw最后一把直接神之一手直接立直后第一轮就胡牌了，最近吃点好的，哈哈",
             # 13位时间戳 数字类型
@@ -355,7 +363,7 @@ if __name__ == '__main__':
             ],
         },
         {
-            "title": "test2",
+            "title": "111",
             "desc": "dwadawd20240815",
             "postTime": None,
             "location": '河海大学',
@@ -363,11 +371,10 @@ if __name__ == '__main__':
             # "topics": [],
             "type": 1,
             "media_type": "video",
-            "video": open(r"D:\data\Videos\2024-05-02 21-14-45.mkv", 'rb').read(),
+            "video": open(r"D:\Desktop\2026-04-28 13-24-20.mp4", 'rb').read(),
         }
     ]
     for noteInfo in noteInfos:
         success, msg, info = xhs_creator_apis.post_note(noteInfo, cookies_str)
         logger.debug(f'{success}, {msg}, {info}')
         logger.debug('========')
-

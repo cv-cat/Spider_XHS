@@ -8,6 +8,7 @@ import qrcode
 from loguru import logger
 
 from apis.xhs_pc_apis import XHS_Apis
+from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_util import generate_headers, generate_xs_xs_common, splice_str
 from xhs_utils.common_util import generate_a1, generate_web_id
 
@@ -50,7 +51,8 @@ class XHSLoginApi:
             resp = requests.post(
                 self.as_url + api,
                 headers=headers, cookies=cookies,
-                data=data_str.encode('utf-8')
+                data=data_str.encode('utf-8'),
+                timeout=REQUEST_TIMEOUT
             )
             res = resp.json()
             return res.get('data', {}).get('secPoisonId')
@@ -72,7 +74,8 @@ class XHSLoginApi:
             resp = requests.post(
                 self.as_url + api,
                 headers=headers, cookies=cookies,
-                data=data_str.encode('utf-8')
+                data=data_str.encode('utf-8'),
+                timeout=REQUEST_TIMEOUT
             )
             for key, value in resp.cookies.items():
                 cookies[key] = value
@@ -111,7 +114,8 @@ class XHSLoginApi:
         headers, data = generate_headers(cookies['a1'], api, data)
         resp = requests.post(
             self.base_url + api,
-            headers=headers, cookies=cookies, data=data
+            headers=headers, cookies=cookies, data=data,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -134,7 +138,8 @@ class XHSLoginApi:
         headers, data = generate_headers(cookies['a1'], api, data)
         resp = requests.post(
             self.base_url + api,
-            headers=headers, cookies=cookies, data=data
+            headers=headers, cookies=cookies, data=data,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -162,7 +167,8 @@ class XHSLoginApi:
         headers, _ = generate_headers(cookies['a1'], splice_api, method='GET')
         resp = requests.get(
             self.base_url + splice_api,
-            headers=headers, cookies=cookies
+            headers=headers, cookies=cookies,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -181,7 +187,8 @@ class XHSLoginApi:
         headers, _ = generate_headers(cookies['a1'], api)
         resp = requests.get(
             self.base_url + api,
-            headers=headers, cookies=cookies
+            headers=headers, cookies=cookies,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
@@ -197,7 +204,8 @@ class XHSLoginApi:
         headers, _ = generate_headers(cookies['a1'], splice_api)
         resp = requests.get(
             self.base_url + splice_api,
-            headers=headers, cookies=cookies
+            headers=headers, cookies=cookies,
+            timeout=REQUEST_TIMEOUT
         )
         res = resp.json()
         return res.get('success', False), res.get('msg', ''), res
@@ -210,7 +218,8 @@ class XHSLoginApi:
         headers, _ = generate_headers(cookies['a1'], splice_api)
         resp = requests.get(
             self.base_url + splice_api,
-            headers=headers, cookies=cookies
+            headers=headers, cookies=cookies,
+            timeout=REQUEST_TIMEOUT
         )
         res = resp.json()
         if not res.get('success'):
@@ -222,7 +231,8 @@ class XHSLoginApi:
         headers, data = generate_headers(cookies['a1'], login_api, data)
         resp = requests.post(
             self.base_url + login_api,
-            headers=headers, cookies=cookies, data=data
+            headers=headers, cookies=cookies, data=data,
+            timeout=REQUEST_TIMEOUT
         )
         for key, value in resp.cookies.items():
             cookies[key] = value
