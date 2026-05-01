@@ -415,6 +415,7 @@ class XHS_Creator_Apis():
         try:
             api = "/api/galaxy/creator/note/user/posted"
             headers = get_common_headers()
+            headers["Host"] = "creator.xiaohongshu.com"
             cookies = trans_cookies(cookies_str)
             params = {
                 "tab": '0',
