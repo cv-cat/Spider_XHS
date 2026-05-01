@@ -32,10 +32,11 @@ venv.bak/
 CLAUDE.md
 AGENTS.md
 .agent
-docs
 docx
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 datas/accounts.json
 datas/accounts.tmp
+datas/operations.json
+datas/operations.tmp

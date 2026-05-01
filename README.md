@@ -26,6 +26,49 @@
 
 ---
 
+## Spider XHS Web 运营后台
+
+本项目当前扩展了本地 Web 版小红书运营后台，支持多账号管理、内容发布、发布任务、关键词查询/监控、主页查询、账号分析快照和 Docker 一键部署。
+
+### Web 快速启动
+
+Docker：
+
+```bash
+docker compose up --build -d
+```
+
+访问：
+
+```text
+http://127.0.0.1:8000/
+```
+
+本地开发：
+
+```bash
+uvicorn server.main:app --host 127.0.0.1 --port 8000 --reload
+cd frontend
+npm install
+npm run dev
+```
+
+访问：
+
+```text
+http://127.0.0.1:5173/
+```
+
+### Web 运营后台文档
+
+- [需求文档](docs/REQUIREMENTS.md)
+- [项目状态](docs/PROJECT_STATUS.md)
+- [部署文档](docs/DEPLOYMENT.md)
+- [注意事项](docs/NOTES.md)
+- [风控策略](RISK_CONTROL.md)
+
+---
+
 ## 为什么需要这个项目？
 
 ```
@@ -181,9 +224,10 @@ python -m spider.spider
 ### 🐳 Docker 部署（可选）
 
 ```bash
-docker build -t spider_xhs .
-docker run -e COOKIES='your_cookie_here' spider_xhs
+docker compose up --build -d
 ```
+
+Web 后台访问 `http://127.0.0.1:8000/`，更多说明见 [部署文档](docs/DEPLOYMENT.md)。
 
 ---
 
@@ -289,4 +333,3 @@ ps: 请加群9、10，人满或者过期 issue | wx 提醒
 ![group7](https://github.com/cv-cat/Spider_XHS/blob/master/author/group9.jpg)
 
 ![group7](https://github.com/cv-cat/Spider_XHS/blob/master/author/group10.jpg)
-

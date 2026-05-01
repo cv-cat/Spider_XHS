@@ -1,0 +1,16 @@
+services:
+  xhs-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spider-xhs-web:local
+    container_name: spider-xhs-web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      XHS_WEB_HOST: 0.0.0.0
+      XHS_WEB_PORT: 8000
+      XHS_USE_PROXY: "0"
+    volumes:
+      - ./datas:/app/datas
