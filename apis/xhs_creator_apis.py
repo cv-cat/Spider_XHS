@@ -46,6 +46,7 @@ class XHS_Creator_Apis():
                 }
             }
             headers = get_common_headers()
+            headers["content-type"] = "application/json;charset=UTF-8"
             headers.update(generate_xsc(cookies['a1'], api, data))
             if data:
                 data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
@@ -447,40 +448,34 @@ class XHS_Creator_Apis():
 
 
 if __name__ == '__main__':
+    from dotenv import load_dotenv
+
     xhs_creator_apis = XHS_Creator_Apis()
-    # 创作者平台 https://creator.xiaohongshu.com/login 的cookie
-    cookies_str = r''
+    # 创作者平台 https://creator.xiaohongshu.com/login 的 Cookie
+    load_dotenv()
+    cookies_str = os.getenv('CREATOR_COOKIES') or os.getenv('COOKIES')
+    if not cookies_str:
+        raise RuntimeError('请在 .env 中配置 CREATOR_COOKIES 或 COOKIES')
     noteInfos = [
         {
             # 标题
-            "title": "21121121212",
+            "title": "钟楼街",
             # 描述
-            "desc": "dwadaw最后一把直接神之一手直接立直后第一轮就胡牌了，最近吃点好的，哈哈",
+            "desc": "今天逛了太原柳巷，发现钟楼街好多小吃，便宜实惠，种草给姐妹们",
             # 13位时间戳 数字类型
             "postTime": None,
             # 设置地点 "河海大学"
-            "location": '南京',
+            "location": '太原钟楼街',
             # 0:公开 1:私密
             "type": 1,
             "media_type": "image",
             # 设置话题
-            # "topics": ["雀魂", "麻将"],
-            "topics": [],
+            "topics": ["太原", "钟楼街"],
+            # "topics": [],
             # 图片路径 最多15张
             "images": [
-                open(r"D:\Desktop\签名\QQ图片20240903150607.jpg", 'rb').read(),
+                open(r"/Users/guoyang/AIProjects/Spider_XHS/author/logo.jpg", 'rb').read(),
             ],
-        },
-        {
-            "title": "test2",
-            "desc": "dwadawd20240815",
-            "postTime": None,
-            "location": '河海大学',
-            "topics": ["北京"],
-            # "topics": [],
-            "type": 1,
-            "media_type": "video",
-            "video": open(r"D:\data\Videos\2024-05-02 21-14-45.mkv", 'rb').read(),
         }
     ]
     for noteInfo in noteInfos:
@@ -488,7 +483,7 @@ if __name__ == '__main__':
         logger.debug(f'{success}, {msg}, {info}')
         logger.debug('========')
 
-    # topics = ["雀魂", "麻将"]
+    # topics = ["钟楼街"]
     # cookies = trans_cookies(cookies_str)
     # for topic in topics:
     #     success, msg, res_json = xhs_creator_apis.get_topic(topic, cookies)
