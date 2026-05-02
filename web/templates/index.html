@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>小红书采集工具</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="topbar-back" title="返回首页">←</a>
+    <div class="brand">小红书采集工具</div>
+    <div class="topbar-meta">
+      <span id="run-pill" class="run-pill" hidden>
+        <span class="dot"></span>
+        <span id="run-pill-text">运行中</span>
+      </span>
+      <span id="clock" class="muted">--:--:--</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab is-active" data-mode="comments">评论采集</button>
+    <button class="tab" data-mode="homepage">主页采集</button>
+    <button class="tab" data-mode="search">关键词搜索</button>
+    <button class="tab" data-mode="history">历史任务 <span id="history-count" class="tab-badge">0</span></button>
+  </nav>
+
+  <div class="context-bar" id="context-bar" hidden>
+    <span class="ctx-label">当前任务</span>
+    <span class="ctx-name" id="ctx-name">—</span>
+    <span class="ctx-meta muted" id="ctx-meta"></span>
+    <button class="btn-ghost xs" id="ctx-clear">新建任务（清空当前）</button>
+  </div>
+
+  <main class="layout">
+
+    <section class="left">
+      <!-- shared cookie -->
+      <div class="card cookie-card">
+        <label class="row">
+          <span class="lbl">Cookie</span>
+          <input id="cookie-input" type="password" placeholder="留空使用 .env 中的 COOKIES" />
+          <button class="btn-ghost xs" id="cookie-toggle" type="button">显示</button>
+        </label>
+      </div>
+
+      <!-- panel: comments -->
+      <article class="card panel" data-panel="comments">
+        <div class="card-head">
+          <h2>评论采集</h2>
+          <p class="hint">粘贴笔记 URL，每行一个；分页拉取评论流。</p>
+        </div>
+        <div class="card-body">
+          <label class="field">
+            <span class="lbl">笔记 URL（每行一个）</span>
+            <textarea id="comments-urls" rows="6" placeholder="https://www.xiaohongshu.com/explore/…?xsec_token=…"></textarea>
+          </label>
+          <fieldset class="opts">
+            <legend class="lbl">评论范围</legend>
+            <label class="opt"><input type="radio" name="cmt-depth" value="all" checked /> 一级 + 二级</label>
+            <label class="opt"><input type="radio" name="cmt-depth" value="top" /> 仅一级</label>
+          </fieldset>
+          <div class="actions">
+            <button class="btn-primary" data-run="comments">开始采集</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- panel: homepage -->
+      <article class="card panel hidden" data-panel="homepage">
+        <div class="card-head">
+          <h2>主页采集</h2>
+          <p class="hint">输入用户主页 URL，拉全部已发布笔记；可勾选连带采评论。</p>
+        </div>
+        <div class="card-body">
+          <label class="field">
+            <span class="lbl">用户主页 URL</span>
+            <input id="homepage-url" type="text" placeholder="https://www.xiaohongshu.com/user/profile/…" />
+          </label>
+          <div class="opts-row">
+            <label class="opt"><input type="checkbox" id="hp-fetch-detail" checked /> 采集完整详情</label>
+            <label class="opt opt-toggle">
+              <input type="checkbox" id="hp-with-comments" /> 连带采评论
+            </label>
+            <fieldset class="opts opt-sub" data-deps="hp-with-comments">
+              <label class="opt"><input type="radio" name="hp-depth" value="all" checked /> 一级 + 二级</label>
+              <label class="opt"><input type="radio" name="hp-depth" value="top" /> 仅一级</label>
+            </fieldset>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" data-run="homepage">开始采集</button>
+            <span class="muted hint-inline">未勾选"连带采评论"时，可在结果中勾选笔记后批量采集</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- panel: search -->
+      <article class="card panel hidden" data-panel="search">
+        <div class="card-head">
+          <h2>关键词搜索</h2>
+          <p class="hint">先按关键词检索笔记列表，可选立即对结果批量采评论。</p>
+        </div>
+        <div class="card-body">
+          <div class="grid">
+            <label class="field span-all">
+              <span class="lbl">关键词</span>
+              <input id="search-query" type="text" placeholder="榴莲 / 露营 …" />
+            </label>
+            <label class="field">
+              <span class="lbl">数量</span>
+              <input id="search-num" type="number" min="1" max="200" value="20" />
+            </label>
+            <label class="field">
+              <span class="lbl">排序</span>
+              <select id="search-sort">
+                <option value="0">综合</option>
+                <option value="1">最新</option>
+                <option value="2">最多点赞</option>
+                <option value="3">最多评论</option>
+                <option value="4">最多收藏</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="lbl">类型</span>
+              <select id="search-type">
+                <option value="0">不限</option>
+                <option value="1">视频</option>
+                <option value="2">图文</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="lbl">时间</span>
+              <select id="search-time">
+                <option value="0">不限</option>
+                <option value="1">一天内</option>
+                <option value="2">一周内</option>
+                <option value="3">半年内</option>
+              </select>
+            </label>
+          </div>
+          <div class="opts-row">
+            <label class="opt"><input type="checkbox" id="sr-fetch-detail" checked /> 采集完整详情</label>
+            <label class="opt opt-toggle">
+              <input type="checkbox" id="sr-with-comments" /> 连带采评论（全部）
+            </label>
+            <fieldset class="opts opt-sub" data-deps="sr-with-comments">
+              <label class="opt"><input type="radio" name="sr-depth" value="all" checked /> 一级 + 二级</label>
+              <label class="opt"><input type="radio" name="sr-depth" value="top" /> 仅一级</label>
+            </fieldset>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" data-run="search">开始采集</button>
+            <span class="muted hint-inline">检索完成后可在结果中勾选目标笔记，再批量采评论</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- panel: history -->
+      <article class="card panel hidden" data-panel="history">
+        <div class="card-head">
+          <h2>历史任务</h2>
+          <p class="hint">点击行可载入到结果面板，再切回上方任意 tab 可向其追加抓取。</p>
+          <button class="btn-ghost xs" id="refresh-history" style="margin-left:auto">刷新</button>
+        </div>
+        <div class="history-body">
+          <div class="empty" id="history-empty">
+            <div>尚无历史任务</div>
+            <div style="margin-top:8px;font-size:12px;color:var(--muted-2)">
+              在「评论 / 主页 / 关键词」面板启动一次采集，任务结束后会自动出现在这里。<br/>
+              所有任务持久化在 <code>data/tasks/</code> 目录，重启服务后仍然可见。
+            </div>
+          </div>
+          <table class="table history-table" hidden>
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th class="w-kind">类型</th>
+                <th class="num">笔记</th>
+                <th class="num">评论</th>
+                <th class="w-runs">运行次数</th>
+                <th>更新时间</th>
+                <th class="w-action"></th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- results -->
+      <section class="card results">
+        <header class="card-head with-tabs">
+          <div class="result-tabs">
+            <button class="rtab is-active" data-rtab="notes">笔记 <span class="badge" id="rc-notes">0</span></button>
+            <button class="rtab" data-rtab="comments">评论 <span class="badge" id="rc-comments">0</span></button>
+          </div>
+          <div class="card-actions">
+            <button class="btn-ghost" id="export-notes" disabled>导出笔记 .xlsx</button>
+            <button class="btn-ghost" id="export-comments" disabled>导出评论 .xlsx</button>
+          </div>
+        </header>
+        <div class="results-body">
+          <div class="rpane is-active" data-rpane="notes">
+            <div class="empty">尚无笔记</div>
+            <div class="rpane-toolbar" hidden>
+              <label class="opt">
+                <input type="checkbox" id="notes-all" /> 全选
+              </label>
+              <span class="muted">已选 <span id="notes-sel-count">0</span> / <span id="notes-total">0</span></span>
+              <input type="text" id="notes-filter" class="filter-input" placeholder="搜索标题 / 用户 / 描述..." />
+              <span class="sep">·</span>
+              <fieldset class="opts" title="决定「采集评论」按钮拉取的评论层级">
+                <legend class="lbl">评论范围</legend>
+                <label class="opt"><input type="radio" name="batch-depth" value="all" checked /> 一级 + 二级</label>
+                <label class="opt"><input type="radio" name="batch-depth" value="top" /> 仅一级</label>
+              </fieldset>
+              <button class="btn-primary xs" id="batch-comments" disabled title="采集选中笔记的评论（按上方"评论范围"控制层级）">
+                采集评论 <span id="comments-target-count" class="badge">0</span>
+              </button>
+              <button class="btn-ghost xs" id="batch-details" disabled title="补抓选中且未完成的笔记详情">
+                补全详情 <span id="undetailed-count" class="badge">0</span>
+              </button>
+            </div>
+            <table class="table notes-table" hidden>
+              <thead>
+                <tr>
+                  <th class="w-check"><input type="checkbox" id="notes-all-th" /></th>
+                  <th class="w-idx">#</th>
+                  <th class="w-cover">封面</th>
+                  <th data-sort="title">标题 / 用户</th>
+                  <th class="num" data-sort="liked_count">点赞</th>
+                  <th class="num" data-sort="collected_count">收藏</th>
+                  <th class="num" data-sort="comment_count">评论</th>
+                  <th class="w-time" data-sort="upload_time">时间</th>
+                  <th class="w-action"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="rpane" data-rpane="comments">
+            <div class="empty">尚无评论</div>
+            <div class="rpane-toolbar comments-toolbar" hidden>
+              <input type="text" id="comments-filter" class="filter-input" placeholder="搜索内容 / 用户..." />
+              <span class="muted">共 <span id="comments-total-count">0</span> 条</span>
+            </div>
+            <table class="table comments-table" hidden>
+              <thead>
+                <tr>
+                  <th class="w-idx">#</th>
+                  <th class="w-level" data-sort="level" title="1=根评论, 2=回复">层</th>
+                  <th data-sort="nickname">用户</th>
+                  <th>内容</th>
+                  <th class="num" data-sort="like_count">赞</th>
+                  <th class="w-time" data-sort="upload_time">时间</th>
+                  <th data-sort="ip_location">归属地</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- right: progress + log -->
+    <aside class="right">
+      <div class="card status-card">
+        <header class="card-head">
+          <h3>进度</h3>
+          <span class="status-badge" id="dock-state">空闲</span>
+          <button id="stop-btn" class="btn-ghost xs danger" disabled>停止</button>
+        </header>
+        <div class="card-body status-body">
+          <div class="metrics">
+            <div class="metric">
+              <span class="m-key">阶段</span>
+              <span class="m-val" id="m-phase">—</span>
+            </div>
+            <div class="metric">
+              <span class="m-key">笔记</span>
+              <span class="m-val" id="m-notes">0 / 0</span>
+            </div>
+            <div class="metric">
+              <span class="m-key">评论</span>
+              <span class="m-val" id="m-comments">0</span>
+            </div>
+            <div class="metric">
+              <span class="m-key">耗时</span>
+              <span class="m-val" id="m-elapsed">0.0s</span>
+            </div>
+          </div>
+
+          <div class="bars">
+            <div class="bar">
+              <div class="bar-row"><span>总体</span><span id="bar-overall-pct" class="muted">—</span></div>
+              <div class="bar-track"><div class="bar-fill" id="bar-overall"></div></div>
+            </div>
+            <div class="bar">
+              <div class="bar-row"><span>当前</span><span id="bar-current-pct" class="muted">—</span></div>
+              <div class="bar-track"><div class="bar-fill alt" id="bar-current"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card log-card">
+        <header class="card-head">
+          <h3>日志</h3>
+          <button class="btn-ghost xs" id="clear-feed">清空</button>
+        </header>
+        <ol class="feed" id="feed"></ol>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 笔记预览抽屉 -->
+  <div class="drawer" id="note-drawer" hidden>
+    <div class="drawer-mask" data-close></div>
+    <aside class="drawer-panel">
+      <header class="drawer-head">
+        <h3 id="dr-title">笔记预览</h3>
+        <a id="dr-open" class="btn-ghost xs" target="_blank" rel="noopener">在小红书打开 ↗</a>
+        <button class="btn-ghost xs" data-close>关闭</button>
+      </header>
+      <div class="drawer-body" id="drawer-body">
+        <div class="empty">加载中…</div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="ftr">
+    <span>Spider_XHS · 仅供学习交流，禁止商业用途</span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

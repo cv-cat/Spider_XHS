@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>数据采集工具集</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
+</head>
+<body class="home-page">
+  <header class="topbar">
+    <div class="brand">数据采集工具集</div>
+    <div class="topbar-meta">
+      <span class="muted">{{ tools|length }} 个工具</span>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <section class="home-intro">
+      <h1>选择一个工具开始</h1>
+      <p class="muted">点击卡片进入对应平台的数据采集工具</p>
+    </section>
+
+    <section class="tools-grid">
+      {% for t in tools %}
+      <a class="tool-card" href="{{ t.url }}"
+         style="--c-accent: {{ t.color }}; --c-accent-soft: {{ t.color_soft }};">
+        <div class="tool-icon">{{ t.icon }}</div>
+        <div class="tool-info">
+          <div class="tool-name">{{ t.name }}</div>
+          <div class="tool-desc">{{ t.desc }}</div>
+          <div class="tool-url">{{ t.url }}</div>
+        </div>
+        <div class="tool-arrow">→</div>
+      </a>
+      {% endfor %}
+
+      <div class="tool-card placeholder">
+        <div class="tool-icon">+</div>
+        <div class="tool-info">
+          <div class="tool-name">更多工具</div>
+          <div class="tool-desc">在 server.py 的 TOOLS 中追加配置项即可接入新平台</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ftr">
+    <span>仅供学习交流，禁止商业用途</span>
+  </footer>
+</body>
+</html>

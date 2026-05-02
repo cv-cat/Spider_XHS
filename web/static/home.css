@@ -1,0 +1,113 @@
+/* 工具集首页 */
+
+.home-page .topbar { justify-content: space-between; }
+
+.home-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px 24px;
+}
+
+.home-intro {
+  margin-bottom: 28px;
+}
+.home-intro h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+.home-intro p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  cursor: pointer;
+  --c-accent: var(--accent);
+  --c-accent-soft: var(--accent-soft);
+}
+.tool-card:hover {
+  border-color: var(--c-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.tool-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.tool-info {
+  flex: 1;
+  min-width: 0;
+}
+.tool-name {
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.tool-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.tool-url {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted-2);
+  margin-top: 4px;
+}
+
+.tool-arrow {
+  color: var(--muted);
+  font-size: 18px;
+  transition: transform 0.15s, color 0.15s;
+}
+.tool-card:hover .tool-arrow {
+  transform: translateX(4px);
+  color: var(--c-accent);
+}
+
+.tool-card.placeholder {
+  cursor: default;
+  border-style: dashed;
+  background: transparent;
+  opacity: 0.7;
+}
+.tool-card.placeholder:hover {
+  transform: none;
+  border-color: var(--border-2);
+  box-shadow: none;
+}
+.tool-card.placeholder .tool-icon {
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 22px;
+  font-weight: 300;
+}

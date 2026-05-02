@@ -34,3 +34,7 @@ AGENTS.md
 .agent
 docs
 docx
+
+# Web 工具运行时数据 / 缓存
+data/
+datas/

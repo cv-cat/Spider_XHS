@@ -143,7 +143,7 @@ def handle_note_info(data):
         'ip_location': ip_location,
     }
 
-def handle_comment_info(data):
+def handle_comment_info(data, parent_comment_id='', level=1):
     note_id = data['note_id']
     note_url = data['note_url']
     comment_id = data['id']
@@ -165,8 +165,6 @@ def handle_comment_info(data):
         for picture in pictures_temp:
             try:
                 pictures.append(picture['info_list'][1]['url'])
-                # success, msg, img_url = XHS_Apis.get_note_no_water_img(picture['info_list'][1]['url'])
-                # pictures.append(img_url)
             except (KeyError, IndexError, TypeError):
                 pass
     except (KeyError, TypeError):
@@ -175,6 +173,8 @@ def handle_comment_info(data):
         'note_id': note_id,
         'note_url': note_url,
         'comment_id': comment_id,
+        'parent_comment_id': parent_comment_id,
+        'level': level,
         'user_id': user_id,
         'home_url': home_url,
         'nickname': nickname,
@@ -194,16 +194,30 @@ def save_to_xlsx(datas, file_path, type='note'):
     elif type == 'user':
         headers = ['用户id', '用户主页url', '用户名', '头像url', '小红书号', '性别', 'ip地址', '介绍', '关注数量', '粉丝数量', '作品被赞和收藏数量', '标签']
     else:
-        headers = ['笔记id', '笔记url', '评论id', '用户id', '用户主页url', '昵称', '头像url', '评论内容', '评论标签', '点赞数量', '上传时间', 'ip归属地', '图片地址url列表']
+        headers = ['笔记id', '笔记url', '评论id', '父评论id', '层级', '用户id', '用户主页url', '昵称', '头像url', '评论内容', '评论标签', '点赞数量', '上传时间', 'ip归属地', '图片地址url列表']
     field_keys = {
         'note': ['note_id', 'note_url', 'note_type', 'user_id', 'home_url', 'nickname', 'avatar', 'title', 'desc', 'liked_count', 'collected_count', 'comment_count', 'share_count', 'video_cover', 'video_addr', 'image_list', 'tags', 'upload_time', 'ip_location'],
         'user': ['user_id', 'home_url', 'nickname', 'avatar', 'red_id', 'gender', 'ip_location', 'desc', 'follows', 'fans', 'interaction', 'tags'],
-        'comment': ['note_id', 'note_url', 'comment_id', 'user_id', 'home_url', 'nickname', 'avatar', 'content', 'show_tags', 'like_count', 'upload_time', 'ip_location', 'pictures'],
+        'comment': ['note_id', 'note_url', 'comment_id', 'parent_comment_id', 'level', 'user_id', 'home_url', 'nickname', 'avatar', 'content', 'show_tags', 'like_count', 'upload_time', 'ip_location', 'pictures'],
     }
     keys = field_keys.get(type, field_keys['comment'])
     ws.append(headers)
+    # 评论按 (parent_comment_id, level, comment_id) 排序，让根评论与其子评论紧挨着输出
+    if type == 'comment':
+        def _sort_key(d):
+            level = d.get('level', 1) or 1
+            if level == 1:
+                return (str(d.get('comment_id', '')), 0, '')
+            return (str(d.get('parent_comment_id', '')), 1, str(d.get('comment_id', '')))
+        datas = sorted(datas, key=_sort_key)
     for data in datas:
-        ws.append([norm_text(str(data.get(key, ''))) for key in keys])
+        row = []
+        for key in keys:
+            v = data.get(key, '')
+            if isinstance(v, list):
+                v = ';'.join(str(x) for x in v if x not in (None, ''))
+            row.append(norm_text(str(v)))
+        ws.append(row)
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
