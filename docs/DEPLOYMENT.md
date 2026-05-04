@@ -3,7 +3,7 @@
 ## 技术栈
 
 - 后端：Python 3.10、FastAPI、Uvicorn、Pydantic
-- 前端：React、TypeScript、Vite
+- 前端：React、TypeScript、Vite、Tailwind CSS、shadcn/ui 配置体系、lucide-react
 - 存储：本地 JSON 文件
 - 容器：Docker、Docker Compose
 
@@ -28,6 +28,35 @@ npm run dev
 ```text
 http://127.0.0.1:5173/
 ```
+
+手机局域网访问：
+
+```bash
+cd frontend
+npm run dev:lan
+```
+
+然后确认手机和电脑在同一个 Wi-Fi，用手机浏览器访问：
+
+```text
+http://电脑局域网IP:5173/
+```
+
+示例：
+
+```text
+http://192.168.1.23:5173/
+```
+
+开发模式下，手机访问前端仍会通过 Vite 把 `/api` 代理到电脑本机的后端 `127.0.0.1:8000`，所以后端可以继续只监听本机地址。
+
+## 自动化检查
+
+```bash
+sh scripts/check.sh
+```
+
+该脚本会执行后端 pytest 和前端构建检查。
 
 ## Docker 一键部署
 
@@ -68,7 +97,7 @@ Docker Compose 会把本地 `./datas` 挂载到容器 `/app/datas`。
 主要本地数据：
 
 - `datas/accounts.json`：账号 Cookie，本地明文保存，不要提交。
-- `datas/operations.json`：运营任务、监控结果、账号快照和操作日志，不要提交。
+- `datas/operations.json`：运营任务、监控结果、账号快照、第三方发布 API Key 和操作日志，不要提交。
 
 ## 环境变量
 

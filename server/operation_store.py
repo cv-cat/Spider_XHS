@@ -13,6 +13,14 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def mask_secret(value: str) -> str:
+    if not value:
+        return ""
+    if len(value) <= 10:
+        return "*" * len(value)
+    return f"{value[:4]}...{value[-4:]}"
+
+
 class OperationStore:
     def __init__(self, path: Path = DEFAULT_STORE_PATH):
         self.path = path
@@ -24,6 +32,13 @@ class OperationStore:
             "search_monitors": [],
             "search_results": [],
             "analytics_snapshots": [],
+            "external_publish": {
+                "api_key": "",
+                "base_url": "https://www.myaibot.vip",
+                "endpoint": "/api/rednote/publish-with-upload",
+                "updated_at": None,
+            },
+            "external_publish_records": [],
             "logs": [],
         }
 
@@ -72,8 +87,52 @@ class OperationStore:
             "monitor_enabled": len([item for item in monitors if item.get("enabled", True)]),
             "search_result_total": len(data["search_results"]),
             "analytics_snapshot_total": len(snapshots),
+            "external_publish_total": len(data["external_publish_records"]),
             "latest_logs": data["logs"][:20],
         }
+
+    def get_external_publish_config(self, include_secret: bool = False) -> dict[str, Any]:
+        config = self._read()["external_publish"]
+        api_key = config.get("api_key", "")
+        return {
+            "api_key": api_key if include_secret else "",
+            "api_key_preview": mask_secret(api_key),
+            "has_api_key": bool(api_key),
+            "base_url": config.get("base_url") or "https://www.myaibot.vip",
+            "endpoint": config.get("endpoint") or "/api/rednote/publish-with-upload",
+            "updated_at": config.get("updated_at"),
+        }
+
+    def save_external_publish_config(self, payload: dict[str, Any]) -> dict[str, Any]:
+        data = self._read()
+        config = data["external_publish"]
+        if payload.get("api_key"):
+            config["api_key"] = payload["api_key"].strip()
+        config["base_url"] = (payload.get("base_url") or config.get("base_url") or "https://www.myaibot.vip").rstrip("/")
+        config["endpoint"] = payload.get("endpoint") or config.get("endpoint") or "/api/rednote/publish-with-upload"
+        config["updated_at"] = utc_now()
+        data["external_publish"] = config
+        self._write(data)
+        return self.get_external_publish_config()
+
+    def save_external_publish_record(self, payload: dict[str, Any]) -> dict[str, Any]:
+        data = self._read()
+        item = {
+            "id": str(uuid.uuid4()),
+            "title": payload.get("title", ""),
+            "note_type": payload.get("note_type", ""),
+            "provider": payload.get("provider", "myaibot"),
+            "request": payload.get("request", {}),
+            "response": payload.get("response", {}),
+            "created_at": utc_now(),
+        }
+        data["external_publish_records"].insert(0, item)
+        data["external_publish_records"] = data["external_publish_records"][:200]
+        self._write(data)
+        return item
+
+    def list_external_publish_records(self) -> list[dict[str, Any]]:
+        return self._read()["external_publish_records"]
 
     def list_publish_tasks(self) -> list[dict[str, Any]]:
         return self._read()["publish_tasks"]
@@ -102,7 +161,7 @@ class OperationStore:
         data["logs"].insert(0, {
             "id": str(uuid.uuid4()),
             "event_type": "publish_task_created",
-            "message": f"创建发布任务：{item['title']}",
+            "message": f"创建发布历史：{item['title']}",
             "payload": {"task_id": item["id"]},
             "created_at": now,
         })
@@ -128,7 +187,7 @@ class OperationStore:
                 data["logs"].insert(0, {
                     "id": str(uuid.uuid4()),
                     "event_type": "publish_task_status",
-                    "message": f"发布任务状态更新为 {status}",
+                    "message": f"发布历史状态更新为 {status}",
                     "payload": {"task_id": task_id, "error": last_error},
                     "created_at": now,
                 })
@@ -199,15 +258,21 @@ class OperationStore:
     def save_search_results(self, monitor_id: str, keyword: str, notes: list[dict[str, Any]]) -> list[dict[str, Any]]:
         data = self._read()
         now = utc_now()
-        existing_keys = {
-            (item.get("monitor_id"), item.get("note_id"), item.get("xsec_token"))
-            for item in data["search_results"]
-        }
+        existing_keys = set()
+        for item in data["search_results"]:
+            note = item.get("note") or {}
+            key_value = item.get("note_id") or note.get("note_id") or note.get("note_url")
+            if key_value:
+                existing_keys.add((item.get("monitor_id"), key_value))
         saved = []
         for note in notes:
-            key = (monitor_id, note.get("note_id"), note.get("xsec_token"))
+            key_value = note.get("note_id") or note.get("note_url")
+            if not key_value:
+                continue
+            key = (monitor_id, key_value)
             if key in existing_keys:
                 continue
+            existing_keys.add(key)
             item = {
                 "id": str(uuid.uuid4()),
                 "monitor_id": monitor_id,
@@ -225,8 +290,18 @@ class OperationStore:
     def list_search_results(self, monitor_id: str | None = None) -> list[dict[str, Any]]:
         results = self._read()["search_results"]
         if monitor_id:
-            return [item for item in results if item.get("monitor_id") == monitor_id]
-        return results
+            results = [item for item in results if item.get("monitor_id") == monitor_id]
+        seen = set()
+        unique_results = []
+        for item in results:
+            note = item.get("note") or {}
+            key_value = note.get("note_id") or note.get("note_url") or item.get("id")
+            key = (item.get("monitor_id"), key_value)
+            if key in seen:
+                continue
+            seen.add(key)
+            unique_results.append(item)
+        return unique_results
 
     def save_analytics_snapshot(self, payload: dict[str, Any]) -> dict[str, Any]:
         data = self._read()

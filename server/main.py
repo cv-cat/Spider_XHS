@@ -205,6 +205,23 @@ class SearchMonitorCreate(BaseModel):
     enabled: bool = True
 
 
+class ExternalPublishConfigRequest(BaseModel):
+    api_key: str = Field(default="", max_length=500)
+    base_url: str = Field(default="https://www.myaibot.vip", max_length=200)
+    endpoint: str = Field(default="/api/rednote/publish-with-upload", max_length=120)
+
+
+class ExternalPublishRequest(BaseModel):
+    account_id: str = ""
+    type: str = Field(pattern="^(normal|video)$")
+    title: str = Field(default="", max_length=40)
+    content: str = Field(default="", max_length=1000)
+    images: list[str] = []
+    video: str = ""
+    cover: str = ""
+    use_upload_endpoint: bool = True
+
+
 def require_account(account_id: str) -> dict:
     account = store.get_account(account_id)
     if not account:
@@ -275,6 +292,11 @@ def parse_topics(raw_topics: str) -> list[str]:
     if not isinstance(parsed, list) or not all(isinstance(item, str) for item in parsed):
         raise HTTPException(status_code=400, detail="topics 必须是 JSON 字符串数组")
     return [item.strip() for item in parsed if item.strip()]
+
+
+def extract_topics_from_text(value: str) -> list[str]:
+    topics = re.findall(r"#([^#\s，,。.！!？?\n\r]+)", value or "")
+    return list(dict.fromkeys(item.strip() for item in topics if item.strip()))
 
 
 def parse_user_id(value: str) -> str:
@@ -404,6 +426,33 @@ def normalize_search_note(item: dict) -> dict:
     }
 
 
+def note_dedupe_key(note: dict) -> str:
+    return str(note.get("note_id") or note.get("note_url") or "").strip()
+
+
+def is_useful_note(note: dict) -> bool:
+    if not note_dedupe_key(note):
+        return False
+    title = str(note.get("title") or "").strip()
+    nickname = str(note.get("nickname") or "").strip()
+    cover = str(note.get("cover") or "").strip()
+    if title == "无标题" and not nickname and not cover:
+        return False
+    return True
+
+
+def dedupe_notes(notes: list[dict]) -> list[dict]:
+    seen = set()
+    unique_notes = []
+    for note in notes:
+        key = note_dedupe_key(note)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        unique_notes.append(note)
+    return unique_notes
+
+
 def normalize_profile_note(item: dict, xsec_source: str = "pc_user") -> dict:
     note_id = item.get("note_id") or item.get("noteId") or item.get("id") or ""
     xsec_token = item.get("xsec_token") or item.get("xsecToken") or ""
@@ -487,6 +536,92 @@ def get_ops_summary() -> dict:
     return {"summary": ops_store.summary()}
 
 
+@app.get("/api/external-publish/config")
+def get_external_publish_config() -> dict:
+    return {"config": ops_store.get_external_publish_config()}
+
+
+@app.post("/api/external-publish/config")
+def save_external_publish_config(payload: ExternalPublishConfigRequest) -> dict:
+    if not payload.api_key.strip() and not ops_store.get_external_publish_config(include_secret=True).get("api_key"):
+        raise HTTPException(status_code=400, detail="请填写 API Key")
+    config = ops_store.save_external_publish_config(payload.model_dump())
+    return {"config": config}
+
+
+@app.get("/api/external-publish/records")
+def list_external_publish_records() -> dict:
+    return {"records": ops_store.list_external_publish_records()}
+
+
+@app.post("/api/external-publish/qrcode")
+def create_external_publish_qrcode(payload: ExternalPublishRequest) -> dict:
+    config = ops_store.get_external_publish_config(include_secret=True)
+    api_key = config.get("api_key")
+    if not api_key:
+        raise HTTPException(status_code=400, detail="请先保存 API Key")
+    if payload.account_id:
+        require_account(payload.account_id)
+    if payload.type == "normal" and not payload.images:
+        raise HTTPException(status_code=400, detail="图文笔记请至少填写一个图片 URL")
+    if payload.type == "video" and not payload.video:
+        raise HTTPException(status_code=400, detail="视频笔记请填写视频 URL")
+
+    endpoint = "/api/rednote/publish-with-upload" if payload.use_upload_endpoint else config["endpoint"]
+    url = f"{config['base_url'].rstrip('/')}{endpoint}"
+    request_data = {
+        "api_key": api_key,
+        "type": payload.type,
+        "title": payload.title,
+        "content": payload.content,
+    }
+    if payload.type == "normal":
+        request_data["images"] = payload.images
+    else:
+        request_data["video"] = payload.video
+        if payload.cover:
+            request_data["cover"] = payload.cover
+
+    try:
+        response = requests.post(url, json=request_data, headers={"Content-Type": "application/json"}, timeout=REQUEST_TIMEOUT)
+        res_json = response.json()
+    except Exception as exc:
+        ops_store.log("external_publish_failed", "扫码发布接口请求失败", {"error": str(exc)})
+        raise HTTPException(status_code=400, detail=f"扫码发布接口请求失败: {exc}") from exc
+
+    safe_request = {key: value for key, value in request_data.items() if key != "api_key"}
+    record = ops_store.save_external_publish_record(
+        {
+            "title": payload.title,
+            "note_type": payload.type,
+            "provider": "myaibot",
+            "request": safe_request,
+            "response": res_json,
+        }
+    )
+    if not response.ok or not res_json.get("success"):
+        error = res_json.get("error") if isinstance(res_json, dict) else None
+        message = (error or {}).get("message") if isinstance(error, dict) else response.text
+        raise HTTPException(status_code=response.status_code, detail=message or "扫码发布接口返回失败")
+    task = None
+    if payload.account_id:
+        task = ops_store.create_publish_task(
+            {
+                "account_id": payload.account_id,
+                "title": payload.title or "扫码发布",
+                "desc": payload.content,
+                "topics": extract_topics_from_text(payload.content),
+                "location": "",
+                "privacy_type": 0,
+                "media_type": "image" if payload.type == "normal" else "video",
+                "media_names": payload.images if payload.type == "normal" else [payload.video],
+                "scheduled_date": "",
+                "status": "published",
+            }
+        )
+    return {"result": res_json.get("data") or {}, "record": record, "task": task}
+
+
 @app.post("/api/accounts")
 def create_account(payload: AccountCreate) -> dict:
     account = store.create_account(payload.name, payload.cookies)
@@ -514,6 +649,11 @@ def list_publish_tasks() -> dict:
     return {"tasks": ops_store.list_publish_tasks()}
 
 
+@app.get("/api/publish-history")
+def list_publish_history() -> dict:
+    return {"items": ops_store.list_publish_tasks()}
+
+
 @app.post("/api/publish-tasks")
 def create_publish_task(payload: PublishTaskCreate) -> dict:
     require_account(payload.account_id)
@@ -527,14 +667,14 @@ def create_publish_task(payload: PublishTaskCreate) -> dict:
 def update_publish_task(task_id: str, payload: TaskStatusUpdate) -> dict:
     task = ops_store.update_publish_task_status(task_id, payload.status, payload.last_error)
     if not task:
-        raise HTTPException(status_code=404, detail="发布任务不存在")
+        raise HTTPException(status_code=404, detail="发布历史不存在")
     return {"task": task}
 
 
 @app.delete("/api/publish-tasks/{task_id}")
 def delete_publish_task(task_id: str) -> dict:
     if not ops_store.delete_publish_task(task_id):
-        raise HTTPException(status_code=404, detail="发布任务不存在")
+        raise HTTPException(status_code=404, detail="发布历史不存在")
     return {"success": True}
 
 
@@ -576,7 +716,7 @@ def run_search_monitor(monitor_id: str) -> dict:
     if not success:
         ops_store.update_search_monitor_run(monitor_id, "failed", msg)
         raise HTTPException(status_code=400, detail=msg)
-    normalized = [normalize_search_note(item) for item in notes]
+    normalized = dedupe_notes([note for note in (normalize_search_note(item) for item in notes) if is_useful_note(note)])
     saved = ops_store.save_search_results(monitor_id, monitor["keyword"], normalized)
     ops_store.update_search_monitor_run(monitor_id, "success", f"新增 {len(saved)} 条，返回 {len(normalized)} 条")
     return {"notes": normalized, "saved": saved}
@@ -717,7 +857,8 @@ def search_notes(payload: SearchNotesRequest) -> dict:
     )
     if not success:
         raise HTTPException(status_code=400, detail=msg)
-    return {"notes": [normalize_search_note(item) for item in notes], "detail_mode": "manual"}
+    normalized = dedupe_notes([note for note in (normalize_search_note(item) for item in notes) if is_useful_note(note)])
+    return {"notes": normalized, "detail_mode": "manual"}
 
 
 @app.post("/api/search/note-detail")

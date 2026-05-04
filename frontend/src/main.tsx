@@ -1,5 +1,16 @@
 import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
+import {
+  BarChart3,
+  CalendarCheck,
+  Languages,
+  LayoutDashboard,
+  LineChart,
+  Search,
+  Send,
+  ShieldCheck,
+  UserRound
+} from "lucide-react";
 import "./styles.css";
 
 type Account = {
@@ -10,12 +21,6 @@ type Account = {
   updated_at?: string;
   last_check_at?: string | null;
   last_check_status?: string | null;
-};
-
-type Topic = {
-  id?: string;
-  name?: string;
-  link?: string;
 };
 
 type Profile = {
@@ -71,12 +76,14 @@ type OperationLog = {
   created_at: string;
 };
 
-type PublishTask = {
+type PublishHistoryItem = {
   id: string;
   account_id: string;
   title: string;
   desc: string;
   topics: string[];
+  location?: string;
+  privacy_type?: number;
   media_type: string;
   media_names: string[];
   scheduled_date: string;
@@ -118,24 +125,139 @@ type AnalyticsSnapshot = {
   created_at: string;
 };
 
+type ExternalPublishConfig = {
+  api_key_preview: string;
+  has_api_key: boolean;
+  base_url: string;
+  endpoint: string;
+  updated_at?: string | null;
+};
+
+type ExternalPublishRecord = {
+  id: string;
+  title: string;
+  note_type: string;
+  response: { data?: { id?: string; url?: string; qrcode?: string }; success?: boolean };
+  created_at: string;
+};
+
 type Status = {
   type: "idle" | "loading" | "success" | "error";
   text: string;
 };
 
+type ApiValidationError = {
+  loc?: Array<string | number>;
+  msg?: string;
+  type?: string;
+};
+
+type Lang = "zh" | "en";
 type TabKey = "dashboard" | "accounts" | "publish" | "tasks" | "profile" | "search" | "monitors" | "analytics";
 
 const initialStatus: Status = { type: "idle", text: "" };
-const tabs: Array<{ key: TabKey; label: string }> = [
-  { key: "dashboard", label: "运营概览" },
-  { key: "accounts", label: "账号管理" },
-  { key: "publish", label: "发布笔记" },
-  { key: "tasks", label: "发布任务" },
-  { key: "profile", label: "主页查询" },
-  { key: "search", label: "关键词查询" },
-  { key: "monitors", label: "关键词监控" },
-  { key: "analytics", label: "账号分析" }
+const tabs: Array<{ key: TabKey; zh: string; en: string }> = [
+  { key: "dashboard", zh: "运营概览", en: "Dashboard" },
+  { key: "accounts", zh: "账号管理", en: "Accounts" },
+  { key: "publish", zh: "发布笔记", en: "Publish" },
+  { key: "tasks", zh: "发布历史", en: "History" },
+  { key: "profile", zh: "主页查询", en: "Profiles" },
+  { key: "search", zh: "关键词查询", en: "Search" },
+  { key: "monitors", zh: "关键词监控", en: "Monitors" },
+  { key: "analytics", zh: "账号分析", en: "Analytics" }
 ];
+
+const tabIcons: Record<TabKey, React.ComponentType<{ "aria-hidden"?: boolean }>> = {
+  dashboard: LayoutDashboard,
+  accounts: ShieldCheck,
+  publish: Send,
+  tasks: CalendarCheck,
+  profile: UserRound,
+  search: Search,
+  monitors: LineChart,
+  analytics: BarChart3
+};
+
+const labels = {
+  zh: {
+    appTitle: "Spider XHS Publisher",
+    appSubtitle: "本地多账号小红书运营工作台",
+    language: "语言",
+    currentAccount: "当前账号",
+    standby: "待命",
+    qrPublish: "扫码发布",
+    apiConfig: "API Key 配置",
+    apiKey: "API Key",
+    saveConfig: "保存配置",
+    noteType: "笔记类型",
+    imageNote: "图文",
+    videoNote: "视频",
+    title: "标题",
+    content: "正文",
+    imageUrls: "图片 URL",
+    videoUrl: "视频 URL",
+    coverUrl: "封面 URL",
+    localMedia: "本地上传",
+    urlMedia: "链接",
+    mediaSource: "媒体来源",
+    directPublish: "直接发布",
+    localPublishTip: "本地文件用于直接发布；扫码发布需要可公开访问的图片/视频 URL。",
+    generateQr: "生成二维码",
+    qrResult: "二维码结果",
+    openSharePage: "打开分享页",
+    records: "调用记录"
+  },
+  en: {
+    appTitle: "Spider XHS Publisher",
+    appSubtitle: "Local multi-account XHS operations console",
+    language: "Language",
+    currentAccount: "Account",
+    standby: "Idle",
+    qrPublish: "QR Publish",
+    apiConfig: "API Key Config",
+    apiKey: "API Key",
+    saveConfig: "Save Config",
+    noteType: "Type",
+    imageNote: "Image Note",
+    videoNote: "Video Note",
+    title: "Title",
+    content: "Content",
+    imageUrls: "Image URLs",
+    videoUrl: "Video URL",
+    coverUrl: "Cover URL",
+    localMedia: "Local Upload",
+    urlMedia: "URL",
+    mediaSource: "Media Source",
+    directPublish: "Direct Publish",
+    localPublishTip: "Local files are used for direct publish. QR publish requires public image/video URLs.",
+    generateQr: "Generate QR Code",
+    qrResult: "QR Result",
+    openSharePage: "Open Share Page",
+    records: "Records"
+  }
+};
+
+function formatApiError(detail: unknown, fallback: string): string {
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object") {
+          const error = item as ApiValidationError;
+          const field = (error.loc || []).filter((part) => part !== "body").join(".");
+          return [field, error.msg].filter(Boolean).join(": ");
+        }
+        return String(item);
+      })
+      .filter(Boolean)
+      .join("\n");
+  }
+  if (detail && typeof detail === "object") {
+    return JSON.stringify(detail, null, 2);
+  }
+  return fallback;
+}
 
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
@@ -145,16 +267,22 @@ async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
     : await response.text();
   if (!response.ok) {
     const detail = typeof body === "object" && body && "detail" in body ? body.detail : body;
-    throw new Error(String(detail || response.statusText));
+    throw new Error(formatApiError(detail, response.statusText));
   }
   return body as T;
 }
 
-function splitTopics(value: string): string[] {
-  return value
-    .split(/[,\n，]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+function extractTopicsFromText(value: string): string[] {
+  const matches = value.matchAll(/#([^#\s，,。.！!？?\n\r]+)/g);
+  return Array.from(new Set(Array.from(matches).map((match) => match[1].trim()).filter(Boolean)));
+}
+
+function appendTopicsToContent(value: string, topicList: string[]): string {
+  const existing = extractTopicsFromText(value);
+  const missing = topicList.filter((topic) => !existing.includes(topic));
+  if (missing.length === 0) return value;
+  const suffix = missing.map((topic) => `#${topic}`).join(" ");
+  return [value.trim(), suffix].filter(Boolean).join("\n\n");
 }
 
 function mediaProxyUrl(url?: string): string {
@@ -162,6 +290,7 @@ function mediaProxyUrl(url?: string): string {
 }
 
 function App() {
+  const [lang, setLang] = useState<Lang>("zh");
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState("");
@@ -169,14 +298,15 @@ function App() {
   const [accountCookies, setAccountCookies] = useState("");
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [topics, setTopics] = useState("");
-  const [topicKeyword, setTopicKeyword] = useState("");
-  const [topicResults, setTopicResults] = useState<Topic[]>([]);
   const [location, setLocation] = useState("");
   const [privacyType, setPrivacyType] = useState("1");
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
+  const [mediaSource, setMediaSource] = useState<"local" | "url">("local");
   const [images, setImages] = useState<FileList | null>(null);
   const [video, setVideo] = useState<File | null>(null);
+  const [imageUrls, setImageUrls] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [coverUrl, setCoverUrl] = useState("");
   const [profileInput, setProfileInput] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -191,14 +321,19 @@ function App() {
   const [profileNotesUserId, setProfileNotesUserId] = useState("");
   const [detailLoadingIds, setDetailLoadingIds] = useState<string[]>([]);
   const [summary, setSummary] = useState<OperationSummary | null>(null);
-  const [publishTasks, setPublishTasks] = useState<PublishTask[]>([]);
-  const [taskDate, setTaskDate] = useState("");
+  const [publishHistory, setPublishHistory] = useState<PublishHistoryItem[]>([]);
   const [searchMonitors, setSearchMonitors] = useState<SearchMonitor[]>([]);
   const [monitorKeyword, setMonitorKeyword] = useState("");
   const [monitorInterval, setMonitorInterval] = useState("60");
   const [savedSearchResults, setSavedSearchResults] = useState<SavedSearchResult[]>([]);
   const [analyticsSnapshots, setAnalyticsSnapshots] = useState<AnalyticsSnapshot[]>([]);
+  const [externalConfig, setExternalConfig] = useState<ExternalPublishConfig | null>(null);
+  const [externalApiKey, setExternalApiKey] = useState("");
+  const [externalQr, setExternalQr] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
+  const [externalRecords, setExternalRecords] = useState<ExternalPublishRecord[]>([]);
   const [status, setStatus] = useState<Status>(initialStatus);
+  const text = labels[lang];
 
   const selectedAccount = useMemo(
     () => accounts.find((account) => account.id === selectedAccountId),
@@ -214,18 +349,22 @@ function App() {
   }
 
   async function loadOperations() {
-    const [summaryData, tasksData, monitorsData, resultsData, snapshotsData] = await Promise.all([
+    const [summaryData, historyData, monitorsData, resultsData, snapshotsData, externalConfigData, externalRecordsData] = await Promise.all([
       apiFetch<{ summary: OperationSummary }>("/api/ops/summary"),
-      apiFetch<{ tasks: PublishTask[] }>("/api/publish-tasks"),
+      apiFetch<{ items: PublishHistoryItem[] }>("/api/publish-history"),
       apiFetch<{ monitors: SearchMonitor[] }>("/api/search-monitors"),
       apiFetch<{ results: SavedSearchResult[] }>("/api/search-results"),
-      apiFetch<{ snapshots: AnalyticsSnapshot[] }>("/api/analytics/snapshots")
+      apiFetch<{ snapshots: AnalyticsSnapshot[] }>("/api/analytics/snapshots"),
+      apiFetch<{ config: ExternalPublishConfig }>("/api/external-publish/config"),
+      apiFetch<{ records: ExternalPublishRecord[] }>("/api/external-publish/records")
     ]);
     setSummary(summaryData.summary);
-    setPublishTasks(tasksData.tasks);
+    setPublishHistory(historyData.items);
     setSearchMonitors(monitorsData.monitors);
     setSavedSearchResults(resultsData.results);
     setAnalyticsSnapshots(snapshotsData.snapshots);
+    setExternalConfig(externalConfigData.config);
+    setExternalRecords(externalRecordsData.records);
   }
 
   useEffect(() => {
@@ -288,29 +427,6 @@ function App() {
     }
   }
 
-  async function searchTopics(event: FormEvent) {
-    event.preventDefault();
-    if (!requireSelectedAccount() || !topicKeyword.trim()) return;
-    setStatus({ type: "loading", text: "正在搜索话题..." });
-    try {
-      const data = await apiFetch<{ topics: Topic[] }>("/api/topics/search", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ account_id: selectedAccountId, keyword: topicKeyword })
-      });
-      setTopicResults(data.topics);
-      setStatus({ type: "success", text: `找到 ${data.topics.length} 个话题` });
-    } catch (error) {
-      setStatus({ type: "error", text: (error as Error).message });
-    }
-  }
-
-  function addTopic(name?: string) {
-    if (!name) return;
-    const next = Array.from(new Set([...splitTopics(topics), name]));
-    setTopics(next.join(", "));
-  }
-
   async function publish(event: FormEvent) {
     event.preventDefault();
     if (!requireSelectedAccount()) return;
@@ -318,10 +434,14 @@ function App() {
     formData.append("account_id", selectedAccountId);
     formData.append("title", title);
     formData.append("desc", desc);
-    formData.append("topics", JSON.stringify(splitTopics(topics)));
+    formData.append("topics", JSON.stringify(extractTopicsFromText(desc)));
     formData.append("location", location);
     formData.append("privacy_type", privacyType);
     formData.append("media_type", mediaType);
+    if (mediaSource !== "local") {
+      setStatus({ type: "error", text: "直接发布需要选择本地上传文件；链接媒体请使用扫码发布" });
+      return;
+    }
     if (mediaType === "image") {
       Array.from(images || []).forEach((file) => formData.append("images", file));
     } else if (video) {
@@ -339,33 +459,6 @@ function App() {
         text: `${data.msg}\n${JSON.stringify(data.data, null, 2)}`
       });
       await loadOperations();
-    } catch (error) {
-      setStatus({ type: "error", text: (error as Error).message });
-    }
-  }
-
-  async function savePublishTask() {
-    if (!requireSelectedAccount() || !title.trim()) return;
-    setStatus({ type: "loading", text: "正在保存发布任务..." });
-    try {
-      await apiFetch<{ task: PublishTask }>("/api/publish-tasks", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          account_id: selectedAccountId,
-          title,
-          desc,
-          topics: splitTopics(topics),
-          location,
-          privacy_type: Number(privacyType),
-          media_type: mediaType,
-          media_names: mediaType === "image" ? Array.from(images || []).map((file) => file.name) : [video?.name || ""].filter(Boolean),
-          scheduled_date: taskDate,
-          status: "pending"
-        })
-      });
-      await loadOperations();
-      setStatus({ type: "success", text: "发布任务已保存" });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -439,6 +532,11 @@ function App() {
   async function createMonitor(event: FormEvent) {
     event.preventDefault();
     if (!requireSelectedAccount() || !monitorKeyword.trim()) return;
+    const intervalMinutes = Number(monitorInterval);
+    if (!Number.isFinite(intervalMinutes) || intervalMinutes < 5) {
+      setStatus({ type: "error", text: "监控间隔不能小于 5 分钟" });
+      return;
+    }
     setStatus({ type: "loading", text: "正在保存关键词监控..." });
     try {
       await apiFetch<{ monitor: SearchMonitor }>("/api/search-monitors", {
@@ -451,7 +549,7 @@ function App() {
           sort_type_choice: Number(sortType),
           note_type: Number(noteType),
           note_time: Number(noteTime),
-          interval_minutes: Number(monitorInterval),
+          interval_minutes: intervalMinutes,
           enabled: true
         })
       });
@@ -489,12 +587,12 @@ function App() {
     }
   }
 
-  async function deletePublishTask(taskId: string) {
-    setStatus({ type: "loading", text: "正在删除发布任务..." });
+  async function deletePublishHistoryItem(taskId: string) {
+    setStatus({ type: "loading", text: "正在删除发布历史..." });
     try {
       await apiFetch(`/api/publish-tasks/${taskId}`, { method: "DELETE" });
       await loadOperations();
-      setStatus({ type: "success", text: "发布任务已删除" });
+      setStatus({ type: "success", text: "发布历史已删除" });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -543,9 +641,14 @@ function App() {
   }
 
   function updateNote(note: SearchNote) {
-    const matcher = (item: SearchNote) => item.note_id === note.note_id && item.xsec_token === note.xsec_token;
+    const matcher = (item: SearchNote) =>
+      Boolean(note.note_id && item.note_id === note.note_id) ||
+      Boolean(note.note_url && item.note_url === note.note_url);
     setSearchResults((current) => current.map((item) => (matcher(item) ? { ...item, ...note } : item)));
     setProfileNotes((current) => current.map((item) => (matcher(item) ? { ...item, ...note } : item)));
+    setSavedSearchResults((current) =>
+      current.map((item) => (matcher(item.note) ? { ...item, note: { ...item.note, ...note } } : item))
+    );
   }
 
   async function loadNoteDetail(note: SearchNote) {
@@ -574,32 +677,129 @@ function App() {
     }
   }
 
+  async function saveExternalConfig(event: FormEvent) {
+    event.preventDefault();
+    setStatus({ type: "loading", text: lang === "zh" ? "正在保存 API Key..." : "Saving API Key..." });
+    try {
+      await apiFetch<{ config: ExternalPublishConfig }>("/api/external-publish/config", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          api_key: externalApiKey,
+          base_url: externalConfig?.base_url || "https://www.myaibot.vip",
+          endpoint: externalConfig?.endpoint || "/api/rednote/publish-with-upload"
+        })
+      });
+      setExternalApiKey("");
+      await loadOperations();
+      setStatus({ type: "success", text: lang === "zh" ? "API Key 已保存" : "API Key saved" });
+    } catch (error) {
+      setStatus({ type: "error", text: (error as Error).message });
+    }
+  }
+
+  async function generateExternalQr(event?: FormEvent) {
+    event?.preventDefault();
+    if (!requireSelectedAccount()) return;
+    if (mediaSource !== "url") {
+      setStatus({ type: "error", text: lang === "zh" ? "扫码发布需要选择链接媒体，并填写公网可访问的 URL" : "QR publish requires URL media with public URLs" });
+      return;
+    }
+    setStatus({ type: "loading", text: lang === "zh" ? "正在生成二维码..." : "Generating QR code..." });
+    try {
+      const extractedTopics = extractTopicsFromText(desc);
+      const data = await apiFetch<{ result: { qrcode?: string; url?: string; id?: string } }>("/api/external-publish/qrcode", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          account_id: selectedAccountId,
+          type: mediaType === "image" ? "normal" : "video",
+          title,
+          content: appendTopicsToContent(desc, extractedTopics),
+          images: imageUrls.split(/[\n,，]/).map((item) => item.trim()).filter(Boolean),
+          video: videoUrl.trim(),
+          cover: coverUrl.trim(),
+          use_upload_endpoint: true
+        })
+      });
+      setExternalQr(data.result.qrcode || "");
+      setExternalUrl(data.result.url || "");
+      await loadOperations();
+      setStatus({ type: "success", text: lang === "zh" ? "二维码已生成" : "QR code generated" });
+    } catch (error) {
+      setStatus({ type: "error", text: (error as Error).message });
+    }
+  }
+
+  function reusePublishHistoryItem(task: PublishHistoryItem) {
+    setTitle(task.title || "");
+    setDesc(task.desc || "");
+    setLocation(task.location || "");
+    setPrivacyType(String(task.privacy_type ?? 1));
+    setMediaType(task.media_type === "video" ? "video" : "image");
+    setImages(null);
+    setVideo(null);
+    if ((task.media_names || []).some((item) => /^https?:\/\//i.test(item))) {
+      setMediaSource("url");
+      if (task.media_type === "video") {
+        setVideoUrl(task.media_names[0] || "");
+        setImageUrls("");
+      } else {
+        setImageUrls((task.media_names || []).join("\n"));
+        setVideoUrl("");
+      }
+    } else {
+      setMediaSource("local");
+      setImageUrls("");
+      setVideoUrl("");
+    }
+    setCoverUrl("");
+    setActiveTab("publish");
+    setStatus({ type: "success", text: "已带入发布内容，可在发布页继续编辑" });
+  }
+
   return (
     <main className="app-shell">
       <section className="topbar">
         <div>
-          <h1>Spider XHS Publisher</h1>
-          <p>本地多账号小红书运营工作台</p>
+          <h1>{text.appTitle}</h1>
+          <p>{text.appSubtitle}</p>
         </div>
-        <div className={`status-pill ${status.type}`}>{status.type === "idle" ? "待命" : status.type}</div>
+        <div className="topbar-actions">
+          <label>
+            <span className="inline-flex items-center gap-1.5">
+              <Languages aria-hidden />
+              {text.language}
+            </span>
+            <select value={lang} onChange={(event) => setLang(event.target.value as Lang)}>
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <div className={`status-pill ${status.type}`}>{status.type === "idle" ? text.standby : status.type}</div>
+        </div>
       </section>
 
       <nav className="tabs" aria-label="功能导航">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            className={activeTab === tab.key ? "active" : ""}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const Icon = tabIcons[tab.key];
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              className={activeTab === tab.key ? "active" : ""}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              <Icon aria-hidden />
+              {tab[lang]}
+            </button>
+          );
+        })}
       </nav>
 
       <section className="context-bar">
         <label>
-          当前账号
+          {text.currentAccount}
           <select value={selectedAccountId} onChange={(event) => setSelectedAccountId(event.target.value)}>
             <option value="">未选择</option>
             {accounts.map((account) => (
@@ -622,8 +822,8 @@ function App() {
         <section className="layout">
           <section className="stats-grid">
             <div className="stat-card">
-              <strong>{summary?.publish_pending || 0}</strong>
-              <span>待发布任务</span>
+              <strong>{summary?.publish_total || 0}</strong>
+              <span>发布历史</span>
             </div>
             <div className="stat-card">
               <strong>{summary?.publish_done || 0}</strong>
@@ -704,20 +904,10 @@ function App() {
                 正文
                 <textarea value={desc} onChange={(event) => setDesc(event.target.value)} rows={7} />
               </label>
-              <div className="two-col">
-                <label>
-                  话题
-                  <input
-                    value={topics}
-                    onChange={(event) => setTopics(event.target.value)}
-                    placeholder="用逗号分隔，如 太原, 钟楼街"
-                  />
-                </label>
-                <label>
-                  地点
-                  <input value={location} onChange={(event) => setLocation(event.target.value)} />
-                </label>
-              </div>
+              <label>
+                地点
+                <input value={location} onChange={(event) => setLocation(event.target.value)} />
+              </label>
               <div className="two-col">
                 <label>
                   可见性
@@ -734,6 +924,9 @@ function App() {
                       setMediaType(event.target.value as "image" | "video");
                       setImages(null);
                       setVideo(null);
+                      setImageUrls("");
+                      setVideoUrl("");
+                      setCoverUrl("");
                     }}
                   >
                     <option value="image">图文</option>
@@ -742,68 +935,125 @@ function App() {
                 </label>
               </div>
               <label>
-                计划日期
-                <input type="date" value={taskDate} onChange={(event) => setTaskDate(event.target.value)} />
+                {text.mediaSource}
+                <select value={mediaSource} onChange={(event) => setMediaSource(event.target.value as "local" | "url")}>
+                  <option value="local">{text.localMedia}</option>
+                  <option value="url">{text.urlMedia}</option>
+                </select>
               </label>
-              {mediaType === "image" ? (
-                <label>
-                  图片
-                  <input type="file" accept="image/*" multiple onChange={(event) => setImages(event.target.files)} />
-                </label>
+              {mediaSource === "local" ? (
+                mediaType === "image" ? (
+                  <label>
+                    图片
+                    <input type="file" accept="image/*" multiple onChange={(event) => setImages(event.target.files)} />
+                  </label>
+                ) : (
+                  <label>
+                    视频
+                    <input type="file" accept="video/*" onChange={(event) => setVideo(event.target.files?.[0] || null)} />
+                  </label>
+                )
               ) : (
-                <label>
-                  视频
-                  <input type="file" accept="video/*" onChange={(event) => setVideo(event.target.files?.[0] || null)} />
-                </label>
+                mediaType === "image" ? (
+                  <label>
+                    {text.imageUrls}
+                    <textarea
+                      value={imageUrls}
+                      onChange={(event) => setImageUrls(event.target.value)}
+                      rows={5}
+                      placeholder="https://example.com/1.jpg&#10;https://example.com/2.jpg"
+                    />
+                  </label>
+                ) : (
+                  <>
+                    <label>
+                      {text.videoUrl}
+                      <input value={videoUrl} onChange={(event) => setVideoUrl(event.target.value)} />
+                    </label>
+                    <label>
+                      {text.coverUrl}
+                      <input value={coverUrl} onChange={(event) => setCoverUrl(event.target.value)} />
+                    </label>
+                  </>
+                )
               )}
+              <p className="empty-state">{text.localPublishTip}</p>
               <button type="submit" className="primary">
-                发布
+                {text.directPublish}
               </button>
-              <button type="button" onClick={savePublishTask}>
-                保存为发布任务
+              <button type="button" onClick={() => generateExternalQr()} disabled={!selectedAccountId || !externalConfig?.has_api_key || mediaSource !== "url"}>
+                {text.generateQr}
               </button>
             </form>
           </section>
 
           <aside className="panel topic-panel">
-            <h2>话题搜索</h2>
-            <form onSubmit={searchTopics} className="topic-search">
-              <input value={topicKeyword} onChange={(event) => setTopicKeyword(event.target.value)} />
-              <button type="submit" disabled={!selectedAccountId}>
-                搜索
-              </button>
+            <h2>{text.apiConfig}</h2>
+            <form onSubmit={saveExternalConfig} className="stack">
+              <label>
+                {text.apiKey}
+                <input
+                  value={externalApiKey}
+                  onChange={(event) => setExternalApiKey(event.target.value)}
+                  placeholder={externalConfig?.has_api_key ? externalConfig.api_key_preview : "sk-..."}
+                />
+              </label>
+              <p className="empty-state">
+                {externalConfig?.has_api_key
+                  ? `${lang === "zh" ? "已保存" : "Saved"}：${externalConfig.api_key_preview}`
+                  : lang === "zh" ? "尚未保存 API Key" : "No API Key saved"}
+              </p>
+              <button type="submit" className="primary">{text.saveConfig}</button>
             </form>
-            <div className="topic-list">
-              {topicResults.map((topic) => (
-                <button key={topic.id || topic.name} type="button" onClick={() => addTopic(topic.name)}>
-                  #{topic.name}
-                </button>
-              ))}
-            </div>
           </aside>
+          {(externalQr || externalRecords.length > 0) && (
+            <section className="panel wide-panel">
+              <div className="section-head">
+                <h2>{text.qrResult}</h2>
+                {externalUrl && <a href={externalUrl} target="_blank" rel="noreferrer">{text.openSharePage}</a>}
+              </div>
+              {externalQr && (
+                <div className="qr-result">
+                  <img src={externalQr} alt="XHS publish QR code" />
+                </div>
+              )}
+              <div className="table-list">
+                {externalRecords.slice(0, 5).map((record) => (
+                  <div className="list-row" key={record.id}>
+                    <strong>{record.title || "Untitled"}</strong>
+                    <span>{record.note_type} · {record.created_at}</span>
+                    {record.response?.data?.url && (
+                      <a href={record.response.data.url} target="_blank" rel="noreferrer">{text.openSharePage}</a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </section>
       )}
 
       {activeTab === "tasks" && (
         <section className="panel">
           <div className="section-head">
-            <h2>发布任务</h2>
+            <h2>发布历史</h2>
             <button type="button" onClick={loadOperations}>刷新</button>
           </div>
           <div className="table-list">
-            {publishTasks.map((task) => (
+            {publishHistory.map((task) => (
               <div className="list-row" key={task.id}>
                 <strong>{task.title}</strong>
                 <span>{task.status}</span>
-                <span>{task.scheduled_date || "未设日期"} · {task.media_type}</span>
+                <span>{task.created_at} · {task.media_type}</span>
                 <span>{(task.topics || []).map((topic) => `#${topic}`).join(" ")}</span>
                 {task.last_error && <span>{task.last_error}</span>}
                 <div className="row-actions">
-                  <button type="button" className="danger" onClick={() => deletePublishTask(task.id)}>删除</button>
+                  <button type="button" onClick={() => reusePublishHistoryItem(task)}>带入发布</button>
+                  <button type="button" className="danger" onClick={() => deletePublishHistoryItem(task.id)}>删除</button>
                 </div>
               </div>
             ))}
-            {publishTasks.length === 0 && <p className="empty-state">还没有发布任务。可以在“发布笔记”里保存任务。</p>}
+            {publishHistory.length === 0 && <p className="empty-state">还没有发布历史。成功发布或生成二维码后会记录在这里。</p>}
           </div>
         </section>
       )}
@@ -921,7 +1171,13 @@ function App() {
                 </label>
                 <label>
                   间隔分钟
-                  <input value={monitorInterval} onChange={(event) => setMonitorInterval(event.target.value)} />
+                  <input
+                    type="number"
+                    min="5"
+                    max="1440"
+                    value={monitorInterval}
+                    onChange={(event) => setMonitorInterval(event.target.value)}
+                  />
                 </label>
               </div>
               <button type="submit" className="primary" disabled={!selectedAccountId}>保存监控</button>
@@ -1000,54 +1256,147 @@ function NoteResults({
   detailLoadingIds: string[];
   onLoadDetail: (note: SearchNote) => void;
 }) {
+  const [expandedDescKeys, setExpandedDescKeys] = useState<string[]>([]);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number; title: string } | null>(null);
+
+  function toggleDesc(key: string) {
+    setExpandedDescKeys((current) =>
+      current.includes(key) ? current.filter((item) => item !== key) : [...current, key]
+    );
+  }
+
+  function openViewer(images: string[], index: number, title: string) {
+    setViewer({ images, index, title });
+  }
+
+  function closeViewer() {
+    setViewer(null);
+  }
+
+  function shiftViewer(direction: number) {
+    setViewer((current) => {
+      if (!current || current.images.length <= 1) return current;
+      const nextIndex = (current.index + direction + current.images.length) % current.images.length;
+      return { ...current, index: nextIndex };
+    });
+  }
+
+  useEffect(() => {
+    if (!viewer) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") closeViewer();
+      if (event.key === "ArrowLeft") shiftViewer(-1);
+      if (event.key === "ArrowRight") shiftViewer(1);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [viewer]);
+
   return (
-    <div className="results-grid">
-      {notes.map((note) => {
-        const detailLoaded = Boolean(note.desc || note.upload_time || note.video_addr || (note.image_list || []).length > 0);
-        const key = `${note.note_id}-${note.xsec_token}`;
-        return (
-          <article className="note-card" key={key}>
-            <div className="note-header">
-              {note.cover && <img src={mediaProxyUrl(note.cover)} alt={note.title} />}
-              <div>
-                <h3>{note.title}</h3>
-                <p>{note.nickname || "未知作者"} · {note.note_type || "笔记"}</p>
-                {note.upload_time && <p>发布时间：{note.upload_time}</p>}
-                <p>赞 {note.liked_count || 0} · 藏 {note.collected_count || 0} · 评 {note.comment_count || 0}</p>
+    <>
+      <div className="results-grid">
+        {notes.map((note) => {
+          const detailLoaded = Boolean(note.desc || note.upload_time || note.video_addr || (note.image_list || []).length > 0);
+          const key = `${note.note_id}-${note.xsec_token}`;
+          const descExpanded = expandedDescKeys.includes(key);
+          const canToggleDesc = (note.desc || "").length > 140;
+          const noteImages = (note.image_list || []).filter(Boolean);
+          return (
+            <article className="note-card" key={key}>
+              <div className="note-header">
+                {note.cover && <img src={mediaProxyUrl(note.cover)} alt={note.title} />}
+                <div>
+                  <h3>{note.title}</h3>
+                  <p>{note.nickname || "未知作者"} · {note.note_type || "笔记"}</p>
+                  {note.upload_time && <p>发布时间：{note.upload_time}</p>}
+                  <p>赞 {note.liked_count || 0} · 藏 {note.collected_count || 0} · 评 {note.comment_count || 0}</p>
+                </div>
               </div>
+              {note.desc && (
+                <div className="note-desc-wrap">
+                  <p className={descExpanded ? "note-desc expanded" : "note-desc"}>{note.desc}</p>
+                  {canToggleDesc && (
+                    <button type="button" className="text-button" onClick={() => toggleDesc(key)}>
+                      {descExpanded ? "收起" : "展开"}
+                    </button>
+                  )}
+                </div>
+              )}
+              {noteImages.length > 0 && (
+                <div className="note-media-grid">
+                  {noteImages.map((imageUrl, index) => (
+                    <button
+                      type="button"
+                      className="note-image-button"
+                      key={`${note.note_id}-image-${index}`}
+                      onClick={() => openViewer(noteImages, index, note.title)}
+                    >
+                      <img
+                        src={mediaProxyUrl(imageUrl)}
+                        alt={`${note.title} 图片 ${index + 1}`}
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+              {note.video_addr && (
+                <video className="note-video" controls preload="metadata" src={mediaProxyUrl(note.video_addr)} />
+              )}
+              <div className="note-actions">
+                <button type="button" onClick={() => onLoadDetail(note)} disabled={detailLoadingIds.includes(key)}>
+                  {detailLoaded ? "刷新详情" : "加载详情"}
+                </button>
+                {detailLoaded && note.note_url ? (
+                  <a href={note.note_url} target="_blank" rel="noreferrer">
+                    打开笔记
+                  </a>
+                ) : (
+                  <span>加载详情后可打开</span>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      {viewer && (
+        <div className="image-viewer" role="dialog" aria-modal="true" aria-label="图片查看器" onClick={closeViewer}>
+          <div className="image-viewer-inner" onClick={(event) => event.stopPropagation()}>
+            <div className="image-viewer-head">
+              <span>{viewer.title || "图片"} · {viewer.index + 1}/{viewer.images.length}</span>
+              <button type="button" onClick={closeViewer}>关闭</button>
             </div>
-            {note.desc && <p className="note-desc">{note.desc}</p>}
-            {(note.image_list || []).length > 0 && (
-              <div className="note-media-grid">
-                {(note.image_list || []).map((imageUrl, index) => (
-                  <img
-                    key={`${note.note_id}-image-${index}`}
-                    src={mediaProxyUrl(imageUrl)}
-                    alt={`${note.title} 图片 ${index + 1}`}
-                    loading="lazy"
-                  />
+            <div className="image-viewer-stage">
+              {viewer.images.length > 1 && (
+                <button type="button" className="image-viewer-nav left" onClick={() => shiftViewer(-1)} aria-label="上一张">
+                  ‹
+                </button>
+              )}
+              <img src={mediaProxyUrl(viewer.images[viewer.index])} alt={`${viewer.title} 大图 ${viewer.index + 1}`} />
+              {viewer.images.length > 1 && (
+                <button type="button" className="image-viewer-nav right" onClick={() => shiftViewer(1)} aria-label="下一张">
+                  ›
+                </button>
+              )}
+            </div>
+            {viewer.images.length > 1 && (
+              <div className="image-viewer-thumbs">
+                {viewer.images.map((imageUrl, index) => (
+                  <button
+                    type="button"
+                    key={`${imageUrl}-${index}`}
+                    className={index === viewer.index ? "active" : ""}
+                    onClick={() => setViewer((current) => current ? { ...current, index } : current)}
+                  >
+                    <img src={mediaProxyUrl(imageUrl)} alt={`缩略图 ${index + 1}`} />
+                  </button>
                 ))}
               </div>
             )}
-            {note.video_addr && (
-              <video className="note-video" controls preload="metadata" src={mediaProxyUrl(note.video_addr)} />
-            )}
-            <div className="note-actions">
-              <button type="button" onClick={() => onLoadDetail(note)} disabled={detailLoadingIds.includes(key)}>
-                {detailLoaded ? "刷新详情" : "加载详情"}
-              </button>
-              {detailLoaded && note.note_url ? (
-                <a href={note.note_url} target="_blank" rel="noreferrer">
-                  打开笔记
-                </a>
-              ) : (
-                <span>加载详情后可打开</span>
-              )}
-            </div>
-          </article>
-        );
-      })}
-    </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

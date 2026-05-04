@@ -64,6 +64,7 @@ http://127.0.0.1:5173/
 - [需求文档](docs/REQUIREMENTS.md)
 - [项目状态](docs/PROJECT_STATUS.md)
 - [部署文档](docs/DEPLOYMENT.md)
+- [自动化测试](docs/TESTING.md)
 - [注意事项](docs/NOTES.md)
 - [风控策略](RISK_CONTROL.md)
 
