@@ -184,8 +184,25 @@
     @apply lg:grid-cols-[minmax(420px,1fr)_minmax(280px,420px)];
   }
 
+  .account-layout {
+    @apply lg:grid-cols-[minmax(460px,1.15fr)_minmax(340px,0.85fr)];
+  }
+
   .panel {
     @apply grid gap-5 rounded-ios-lg border border-white/80 bg-white/80 p-5 shadow-ios backdrop-blur-xl;
+  }
+
+  .qr-login-panel {
+    @apply content-start gap-6;
+  }
+
+  .manual-cookie-panel,
+  .account-tools-panel {
+    @apply content-start;
+  }
+
+  .account-tools-panel {
+    @apply lg:col-start-2;
   }
 
   .publisher-panel {
@@ -214,6 +231,10 @@
 
   .section-head {
     @apply flex flex-wrap items-center justify-between gap-3;
+  }
+
+  .section-head > div {
+    @apply grid gap-1;
   }
 
   .section-head button {
@@ -254,6 +275,10 @@
     @apply flex gap-2;
   }
 
+  .button-row button svg {
+    @apply h-4 w-4;
+  }
+
   .button-row button,
   .topic-search button {
     @apply flex-1;
@@ -266,6 +291,10 @@
 
   .danger:hover:not(:disabled) {
     @apply bg-red-500;
+  }
+
+  .soft-badge {
+    @apply inline-flex rounded-full bg-blue-50 px-3 py-1.5 text-sm font-semibold text-primary ring-1 ring-blue-100;
   }
 
   .primary {
@@ -417,6 +446,22 @@
 
   .qr-result img {
     @apply w-full max-w-[260px] rounded-ios border border-slate-100 bg-white p-2 shadow-ios-sm;
+  }
+
+  .login-qr-card {
+    @apply grid gap-4 rounded-ios border border-blue-100 bg-blue-50/45 p-4 sm:grid-cols-[180px_1fr];
+  }
+
+  .login-qr-card img {
+    @apply w-full max-w-[180px] rounded-ios border border-slate-100 bg-white p-2 shadow-ios-sm;
+  }
+
+  .login-qr-card div {
+    @apply grid content-center gap-2 text-sm text-slate-500;
+  }
+
+  .login-qr-card strong {
+    @apply text-base text-slate-950;
   }
 
   .message {

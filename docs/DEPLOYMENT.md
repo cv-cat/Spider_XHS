@@ -2,10 +2,10 @@
 
 ## 技术栈
 
-- 后端：Python 3.10、FastAPI、Uvicorn、Pydantic
+- 后端：Python 3.10、FastAPI、Uvicorn、Pydantic、PyExecJS
 - 前端：React、TypeScript、Vite、Tailwind CSS、shadcn/ui 配置体系、lucide-react
 - 存储：本地 JSON 文件
-- 容器：Docker、Docker Compose
+- 容器：Docker、Docker Compose，运行镜像内包含 Node.js 和根目录 npm 依赖，供 PyExecJS 执行小红书签名 JS
 
 ## 本地开发运行
 
@@ -89,6 +89,27 @@ docker compose down
 ```bash
 sh scripts/docker-down.sh
 ```
+
+## Docker 国内源
+
+Dockerfile 默认使用国内依赖源加速构建：
+
+| 类型 | 默认源 |
+|---|---|
+| apt | 清华 Debian 镜像 |
+| pip | `https://pypi.tuna.tsinghua.edu.cn/simple` |
+| npm | `https://registry.npmmirror.com` |
+
+如需改回官方源：
+
+```bash
+ENABLE_CHINA_MIRRORS=0 \
+PIP_INDEX_URL=https://pypi.org/simple \
+NPM_REGISTRY=https://registry.npmjs.org \
+docker compose build
+```
+
+基础镜像 `python:3.10-slim` 和 `node:20-bookworm-slim` 的拉取速度由 Docker Desktop 的 registry mirror 决定，项目内无法直接替代。可在 Docker Desktop 的 Docker Engine 配置里增加镜像加速地址后重启 Docker。
 
 ## 数据持久化
 

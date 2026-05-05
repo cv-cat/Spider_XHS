@@ -4,10 +4,14 @@ import random
 import re
 import threading
 import time
+from base64 import b64encode
+from io import BytesIO
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 from urllib.parse import urlencode, urlparse
 
+import qrcode
+import qrcode.image.svg
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
@@ -16,7 +20,9 @@ from pydantic import BaseModel, Field
 import requests
 
 from apis.xhs_creator_apis import XHS_Creator_Apis
+from apis.xhs_creator_login_apis import XHSCreatorLoginApi
 from apis.xhs_pc_apis import XHS_Apis
+from apis.xhs_pc_login_apis import XHSLoginApi
 from server.account_store import AccountStore
 from server.operation_store import OperationStore
 from xhs_utils.data_util import handle_note_info
@@ -55,11 +61,14 @@ store = AccountStore()
 ops_store = OperationStore()
 creator_api = XHS_Creator_Apis()
 pc_api = XHS_Apis()
+pc_login_api = XHSLoginApi()
+creator_login_api = XHSCreatorLoginApi()
 
 COOKIE_CHECK_TTL_SECONDS = 600
 REQUEST_INTERVAL_RANGE_SECONDS = (2.0, 6.0)
 FAILURE_COOLDOWN_THRESHOLD = 3
 FAILURE_COOLDOWN_SECONDS = 300
+LOGIN_SESSION_TTL_SECONDS = 180
 
 
 class RiskGuard:
@@ -115,6 +124,59 @@ class RiskGuard:
 
 
 risk_guard = RiskGuard()
+
+
+class LoginSessionStore:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._sessions: dict[str, dict] = {}
+
+    def create(self, platform: str, cookies: dict, qr_id: str, qr_url: str, code: str = "") -> dict:
+        session_id = f"{int(time.time() * 1000)}-{random.randint(100000, 999999)}"
+        session = {
+            "id": session_id,
+            "platform": platform,
+            "cookies": cookies,
+            "qr_id": qr_id,
+            "qr_url": qr_url,
+            "code": code,
+            "created_at": time.time(),
+            "last_check_at": 0.0,
+            "last_status": "pending",
+            "last_msg": "二维码已生成",
+        }
+        with self._lock:
+            self._cleanup_locked()
+            self._sessions[session_id] = session
+        return session
+
+    def get(self, session_id: str) -> dict | None:
+        with self._lock:
+            self._cleanup_locked()
+            session = self._sessions.get(session_id)
+            return dict(session) if session else None
+
+    def update(self, session_id: str, **kwargs) -> None:
+        with self._lock:
+            if session_id in self._sessions:
+                self._sessions[session_id].update(kwargs)
+
+    def delete(self, session_id: str) -> None:
+        with self._lock:
+            self._sessions.pop(session_id, None)
+
+    def _cleanup_locked(self) -> None:
+        now = time.time()
+        expired = [
+            session_id
+            for session_id, session in self._sessions.items()
+            if now - session["created_at"] > LOGIN_SESSION_TTL_SECONDS
+        ]
+        for session_id in expired:
+            self._sessions.pop(session_id, None)
+
+
+login_sessions = LoginSessionStore()
 ROOT_DIR = Path(__file__).resolve().parents[1]
 FRONTEND_DIST = ROOT_DIR / "frontend" / "dist"
 
@@ -133,8 +195,17 @@ app.add_middleware(
 
 
 class AccountCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=80)
+    name: str = Field(default="", max_length=80)
     cookies: str = Field(min_length=20)
+
+
+class LoginQrCreate(BaseModel):
+    platform: Literal["pc"] = "pc"
+
+
+class LoginQrCheck(BaseModel):
+    account_name: str = Field(default="", max_length=80)
+    save_account: bool = True
 
 
 class TopicSearchRequest(BaseModel):
@@ -254,6 +325,109 @@ def guarded_xhs_call(account_id: str, func, *args, **kwargs):
     return result
 
 
+def make_qr_svg_data_url(value: str) -> str:
+    qr = qrcode.QRCode(box_size=8, border=2)
+    qr.add_data(value)
+    qr.make(fit=True)
+    image = qr.make_image(image_factory=qrcode.image.svg.SvgPathImage)
+    buffer = BytesIO()
+    image.save(buffer)
+    payload = b64encode(buffer.getvalue()).decode("ascii")
+    return f"data:image/svg+xml;base64,{payload}"
+
+
+def login_status_key(success: bool, msg: str) -> str:
+    if success:
+        return "success"
+    if "过期" in msg:
+        return "expired"
+    if "确认" in msg:
+        return "confirm"
+    if "扫描" in msg:
+        return "waiting_scan"
+    return "pending"
+
+
+def create_qr_login_session(platform: str) -> dict:
+    login_api = pc_login_api
+    try:
+        cookies = login_api.generate_init_cookies()
+        success, msg, qr_data = login_api.generate_qrcode(cookies)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"生成登录二维码失败: {exc}") from exc
+
+    if not success or not qr_data:
+        raise HTTPException(status_code=400, detail=msg or "生成登录二维码失败")
+
+    session = login_sessions.create(
+        platform=platform,
+        cookies=qr_data["cookies"],
+        qr_id=qr_data["qr_id"],
+        qr_url=qr_data["qr_url"],
+        code=qr_data.get("code", ""),
+    )
+    return {
+        "session_id": session["id"],
+        "platform": platform,
+        "qr_url": qr_data["qr_url"],
+        "qr_image": make_qr_svg_data_url(qr_data["qr_url"]),
+        "expires_in_seconds": LOGIN_SESSION_TTL_SECONDS,
+        "msg": msg,
+    }
+
+
+def check_qr_login_session(session_id: str, payload: LoginQrCheck) -> dict:
+    session = login_sessions.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="二维码登录会话不存在或已过期")
+
+    now = time.time()
+    if now - session.get("last_check_at", 0) < 1.0:
+        return {
+            "status": session.get("last_status", "pending"),
+            "msg": session.get("last_msg", "请稍后重试"),
+            "account": None,
+        }
+
+    login_api = pc_login_api
+    cookies = session["cookies"]
+    try:
+        success, msg, cookies = login_api.check_qrcode_status(session["qr_id"], session["code"], cookies)
+    except Exception as exc:
+        login_sessions.update(session_id, last_check_at=now, last_status="error", last_msg=str(exc))
+        raise HTTPException(status_code=502, detail=f"检查扫码状态失败: {exc}") from exc
+
+    status = login_status_key(success, msg)
+    login_sessions.update(session_id, cookies=cookies, last_check_at=now, last_status=status, last_msg=msg)
+    if not success:
+        if status == "expired":
+            login_sessions.delete(session_id)
+        return {"status": status, "msg": msg, "account": None}
+
+    try:
+        user_success, user_info, cookies = login_api.get_user_info(cookies)
+    except Exception:
+        user_success, user_info = False, {}
+
+    account = None
+    if payload.save_account:
+        default_name = user_info.get("nickname") or user_info.get("userName") or "PC扫码账号"
+        account_name = payload.account_name.strip() or default_name
+        account = store.create_account(account_name, login_api.cookies_to_str(cookies))
+        store.update_check_status(account["id"], "valid" if user_success else "unchecked")
+        risk_guard.set_cookie_cache(account["id"], True, "扫码登录成功")
+        account = store.get_account(account["id"])
+        account = store.to_public(account) if account else None
+
+    login_sessions.delete(session_id)
+    return {
+        "status": "success",
+        "msg": "扫码登录成功",
+        "account": account,
+        "user": user_info,
+    }
+
+
 def check_creator_cookie(account_id: str, force: bool = False) -> tuple[bool, str, dict | None]:
     account = require_account(account_id)
     if not force:
@@ -365,6 +539,35 @@ def normalize_profile(data: dict, fallback_user_id: str | None = None) -> dict:
         "interaction": pick_count(interactions, 2),
         "tags": tags,
     }
+
+
+def resolve_account_name_from_cookies(cookies_str: str, fallback_name: str = "") -> tuple[str, str]:
+    fallback_name = fallback_name.strip()
+    if fallback_name:
+        return fallback_name, "manual"
+
+    try:
+        success, _, res_json = pc_api.get_user_self_info2(cookies_str)
+        if not success:
+            success, _, res_json = pc_api.get_user_self_info(cookies_str)
+        if success and isinstance(res_json, dict):
+            data = res_json.get("data") if isinstance(res_json.get("data"), dict) else res_json
+            nickname = normalize_profile(data).get("nickname", "").strip()
+            if nickname:
+                return nickname, "pc"
+    except Exception:
+        pass
+
+    try:
+        success, user_info, _ = creator_login_api.get_user_info(trans_cookies(cookies_str))
+        if success and isinstance(user_info, dict):
+            nickname = (user_info.get("userName") or user_info.get("nickname") or "").strip()
+            if nickname:
+                return nickname, "creator"
+    except Exception:
+        pass
+
+    return "手动账号", "fallback"
 
 
 def normalize_media_url(url: str | None) -> str:
@@ -622,10 +825,26 @@ def create_external_publish_qrcode(payload: ExternalPublishRequest) -> dict:
     return {"result": res_json.get("data") or {}, "record": record, "task": task}
 
 
+@app.post("/api/login/qrcode")
+def create_login_qrcode(payload: LoginQrCreate) -> dict:
+    return create_qr_login_session(payload.platform)
+
+
+@app.post("/api/login/qrcode/{session_id}/check")
+def check_login_qrcode(session_id: str, payload: LoginQrCheck) -> dict:
+    return check_qr_login_session(session_id, payload)
+
+
 @app.post("/api/accounts")
 def create_account(payload: AccountCreate) -> dict:
-    account = store.create_account(payload.name, payload.cookies)
-    return {"account": account}
+    account_name, source = resolve_account_name_from_cookies(payload.cookies, payload.name)
+    account = store.create_account(account_name, payload.cookies)
+    if source in {"pc", "creator"}:
+        store.update_check_status(account["id"], "valid")
+        risk_guard.set_cookie_cache(account["id"], True, "Cookie 可用")
+        account = store.get_account(account["id"])
+        account = store.to_public(account) if account else None
+    return {"account": account, "name_source": source}
 
 
 @app.delete("/api/accounts/{account_id}")

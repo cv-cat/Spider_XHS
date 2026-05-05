@@ -3,6 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        ENABLE_CHINA_MIRRORS: ${ENABLE_CHINA_MIRRORS:-1}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmmirror.com}
     image: spider-xhs-web:local
     container_name: spider-xhs-web
     restart: unless-stopped

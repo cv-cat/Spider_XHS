@@ -24,12 +24,44 @@ class FakeResponse:
         }
 
 
+class FakePcLoginApi:
+    @staticmethod
+    def cookies_to_str(cookies):
+        return "; ".join(f"{key}={value}" for key, value in cookies.items())
+
+    def generate_init_cookies(self):
+        return {"a1": "pc-a1"}
+
+    def generate_qrcode(self, cookies):
+        return True, "成功", {
+            "cookies": cookies,
+            "qr_id": "pc-qr",
+            "code": "pc-code",
+            "qr_url": "https://login.example/pc",
+        }
+
+    def check_qrcode_status(self, qr_id, code, cookies):
+        assert qr_id == "pc-qr"
+        assert code == "pc-code"
+        cookies["web_session"] = "pc-session"
+        return True, "验证成功", cookies
+
+    def get_user_info(self, cookies):
+        return True, {"nickname": "pc-name", "red_id": "red-2"}, cookies
+
+
+class FakePcApi:
+    def get_user_self_info2(self, cookies):
+        return True, "ok", {"data": {"basic_info": {"nickname": "cookie-name"}}}
+
+
 @pytest.fixture()
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     account_store = AccountStore(tmp_path / "accounts.json")
     operation_store = OperationStore(tmp_path / "operations.json")
     monkeypatch.setattr(main, "store", account_store)
     monkeypatch.setattr(main, "ops_store", operation_store)
+    monkeypatch.setattr(main, "login_sessions", main.LoginSessionStore())
     main.risk_guard._cookie_cache.clear()
     main.risk_guard._last_request_at.clear()
     main.risk_guard._failure_count.clear()
@@ -59,6 +91,38 @@ def test_account_cookie_is_masked(client: TestClient):
     assert account["id"] == account_id
     assert "cookies" not in account
     assert "..." in account["cookie_preview"]
+
+
+def test_manual_cookie_name_can_be_resolved(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(main, "pc_api", FakePcApi())
+    response = client.post("/api/accounts", json={"name": "", "cookies": "a" * 32})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["account"]["name"] == "cookie-name"
+    assert body["name_source"] == "pc"
+    assert "cookies" not in body["account"]
+
+
+def test_pc_qrcode_login_uses_code_and_saves_account(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(main, "pc_login_api", FakePcLoginApi())
+    response = client.post("/api/login/qrcode", json={"platform": "pc"})
+    assert response.status_code == 200
+    qr_data = response.json()
+
+    response = client.post(
+        f"/api/login/qrcode/{qr_data['session_id']}/check",
+        json={"account_name": "pc custom", "save_account": True},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "success"
+    assert body["account"]["name"] == "pc custom"
+    assert body["account"]["last_check_status"] == "valid"
+
+
+def test_qrcode_login_rejects_creator_platform(client: TestClient):
+    response = client.post("/api/login/qrcode", json={"platform": "creator"})
+    assert response.status_code == 422
 
 
 def test_publish_history_crud(client: TestClient):

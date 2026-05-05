@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useMemo, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BarChart3,
@@ -6,9 +6,11 @@ import {
   Languages,
   LayoutDashboard,
   LineChart,
+  QrCode,
   Search,
   Send,
   ShieldCheck,
+  Smartphone,
   UserRound
 } from "lucide-react";
 import "./styles.css";
@@ -146,6 +148,23 @@ type Status = {
   text: string;
 };
 
+type LoginPlatform = "pc";
+
+type LoginQrSession = {
+  session_id: string;
+  platform: LoginPlatform;
+  qr_url: string;
+  qr_image: string;
+  expires_in_seconds: number;
+  msg: string;
+};
+
+type LoginQrCheckResult = {
+  status: "pending" | "waiting_scan" | "confirm" | "success" | "expired" | "error";
+  msg: string;
+  account?: Account | null;
+};
+
 type ApiValidationError = {
   loc?: Array<string | number>;
   msg?: string;
@@ -205,7 +224,158 @@ const labels = {
     generateQr: "生成二维码",
     qrResult: "二维码结果",
     openSharePage: "打开分享页",
-    records: "调用记录"
+    records: "调用记录",
+    notSelected: "未选择",
+    statusLabel: "状态",
+    unchecked: "未校验",
+    refresh: "刷新",
+    dashboardPublishHistory: "发布历史",
+    dashboardPublished: "已发布记录",
+    enabledMonitors: "启用监控",
+    monitorResults: "监控结果",
+    accountSnapshots: "账号快照",
+    recentOps: "最近操作",
+    noOps: "暂无操作记录。",
+    pcQrLogin: "PC 扫码登录",
+    pcQrLoginDesc: "用于搜索、主页查询、关键词监控和账号分析。",
+    recommended: "推荐",
+    accountName: "账号名",
+    autoNameAfterLogin: "可留空，登录成功后自动取昵称",
+    generateLoginQr: "生成二维码",
+    checkStatus: "检查状态",
+    scanQrAlt: "小红书登录二维码",
+    scanQrConfirm: "请使用小红书 App 扫码，并在手机端确认登录。",
+    scanQrUsage: "扫码保存的 Cookie 用于搜索、主页查询、关键词监控和账号分析。",
+    qrExpires: "二维码约 {seconds} 秒内有效。",
+    manualCookie: "手动 Cookie",
+    manualCookieDesc: "备用入口。账号名可留空，保存时会尝试自动获取昵称。",
+    autoNameAfterSave: "可留空，保存成功后自动取昵称",
+    saveAccount: "保存账号",
+    accountTools: "当前账号",
+    noAccount: "尚未选择账号。",
+    checkAccount: "校验账号",
+    deleteAccount: "删除账号",
+    location: "地点",
+    visibility: "可见性",
+    private: "私密",
+    public: "公开",
+    mediaType: "媒体类型",
+    image: "图片",
+    video: "视频",
+    saved: "已保存",
+    noApiKey: "尚未保存 API Key",
+    publishHistory: "发布历史",
+    reusePublish: "带入发布",
+    delete: "删除",
+    noPublishHistory: "还没有发布历史。成功发布或生成二维码后会记录在这里。",
+    profileQuery: "主页查询",
+    getSelfProfile: "获取当前账号主页",
+    profileInput: "用户主页链接或 user_id",
+    queryProfile: "查询主页",
+    profileNotes: "主页笔记",
+    loadNextPage: "加载下一页",
+    noMore: "没有更多",
+    keywordSearch: "关键词查询",
+    keyword: "关键词",
+    count: "数量",
+    sort: "排序",
+    comprehensive: "综合",
+    latest: "最新",
+    mostLiked: "最多点赞",
+    mostCommented: "最多评论",
+    mostCollected: "最多收藏",
+    type: "类型",
+    unlimited: "不限",
+    time: "时间",
+    oneDay: "一天内",
+    oneWeek: "一周内",
+    halfYear: "半年内",
+    searchNotes: "搜索笔记",
+    keywordMonitor: "关键词监控",
+    intervalMinutes: "间隔分钟",
+    saveMonitor: "保存监控",
+    monitorList: "监控列表",
+    everyMinutes: "每 {minutes} 分钟",
+    enabled: "启用",
+    disabled: "停用",
+    notRun: "未执行",
+    runOnce: "执行一次",
+    noMonitors: "还没有关键词监控。",
+    analytics: "账号分析",
+    collectSnapshot: "采集当前账号快照",
+    unknownAccount: "未知账号",
+    fans: "粉丝",
+    likesCollects: "获赞收藏",
+    recentNotesCount: "最近笔记 {count} 条",
+    noSnapshots: "还没有账号快照。",
+    unknownAuthor: "未知作者",
+    note: "笔记",
+    publishTime: "发布时间",
+    likeShort: "赞",
+    collectShort: "藏",
+    commentShort: "评",
+    collapse: "收起",
+    expand: "展开",
+    refreshDetail: "刷新详情",
+    loadDetail: "加载详情",
+    openNote: "打开笔记",
+    openAfterDetail: "加载详情后可打开",
+    imageViewer: "图片查看器",
+    picture: "图片",
+    close: "关闭",
+    previousImage: "上一张",
+    nextImage: "下一张",
+    thumbnail: "缩略图",
+    largeImage: "大图",
+    profileData: "主页资料",
+    profileEmpty: "查询后会在这里显示头像、昵称、主页链接和基础指标。",
+    unknownUser: "未知用户",
+    redId: "小红书号",
+    unknown: "未知",
+    openProfile: "打开主页",
+    noBio: "暂无简介",
+    follows: "关注",
+    queryProfileNotes: "查询主页笔记",
+    selectAccountRequired: "请先选择账号",
+    savingAccount: "正在保存账号...",
+    accountSaved: "账号已保存",
+    generatingLoginQr: "正在生成登录二维码...",
+    loginQrReady: "二维码已生成，请用小红书 App 扫码",
+    checkingLogin: "正在检查扫码状态...",
+    qrLoginSaved: "扫码登录成功，账号已保存",
+    qrExpired: "二维码已过期",
+    deletingAccount: "正在删除账号...",
+    accountDeleted: "账号已删除",
+    checkingCookie: "正在校验 Cookie...",
+    localPublishOnly: "直接发布需要选择本地上传文件；链接媒体请使用扫码发布",
+    publishing: "正在校验账号并发布...",
+    loadingSelfProfile: "正在获取当前账号主页...",
+    profileLoaded: "主页资料获取成功",
+    queryingProfile: "正在查询主页...",
+    searchingNotes: "正在搜索笔记...",
+    searchDone: "找到 {count} 条笔记。为降低请求频率，正文和媒体请按需加载。",
+    monitorIntervalInvalid: "监控间隔不能小于 5 分钟",
+    savingMonitor: "正在保存关键词监控...",
+    monitorSaved: "关键词监控已保存",
+    runningMonitor: "正在执行关键词监控...",
+    monitorDone: "监控完成，返回 {returned} 条，新增 {saved} 条",
+    deletingMonitor: "正在删除关键词监控...",
+    monitorDeleted: "关键词监控已删除",
+    deletingHistory: "正在删除发布历史...",
+    historyDeleted: "发布历史已删除",
+    collectingSnapshot: "正在采集账号快照...",
+    snapshotSaved: "账号快照已保存",
+    loadingProfileNotes: "正在查询主页笔记...",
+    loadingMoreProfileNotes: "正在加载下一页主页笔记...",
+    profileNotesLoaded: "已加载 {count} 条主页笔记",
+    loadingNoteDetail: "正在按需加载笔记详情...",
+    noteDetailLoaded: "笔记详情已加载",
+    savingApiKey: "正在保存 API Key...",
+    apiKeySaved: "API Key 已保存",
+    qrPublishNeedsUrl: "扫码发布需要选择链接媒体，并填写公网可访问的 URL",
+    generatingQr: "正在生成二维码...",
+    qrGenerated: "二维码已生成",
+    publishReused: "已带入发布内容，可在发布页继续编辑"
   },
   en: {
     appTitle: "Spider XHS Publisher",
@@ -233,9 +403,169 @@ const labels = {
     generateQr: "Generate QR Code",
     qrResult: "QR Result",
     openSharePage: "Open Share Page",
-    records: "Records"
+    records: "Records",
+    notSelected: "Not selected",
+    statusLabel: "Status",
+    unchecked: "Unchecked",
+    refresh: "Refresh",
+    dashboardPublishHistory: "Publish history",
+    dashboardPublished: "Published records",
+    enabledMonitors: "Enabled monitors",
+    monitorResults: "Monitor results",
+    accountSnapshots: "Account snapshots",
+    recentOps: "Recent activity",
+    noOps: "No activity yet.",
+    pcQrLogin: "PC QR Login",
+    pcQrLoginDesc: "Used for search, profile lookup, keyword monitors, and account analytics.",
+    recommended: "Recommended",
+    accountName: "Account name",
+    autoNameAfterLogin: "Optional. Nickname is fetched after login.",
+    generateLoginQr: "Generate QR Code",
+    checkStatus: "Check Status",
+    scanQrAlt: "XHS login QR code",
+    scanQrConfirm: "Scan with the XHS app and confirm login on your phone.",
+    scanQrUsage: "The saved cookie is used for search, profile lookup, keyword monitors, and analytics.",
+    qrExpires: "QR code expires in about {seconds} seconds.",
+    manualCookie: "Manual Cookie",
+    manualCookieDesc: "Fallback entry. Account name is optional; the backend will try to fetch the nickname.",
+    autoNameAfterSave: "Optional. Nickname is fetched after saving.",
+    saveAccount: "Save Account",
+    accountTools: "Current Account",
+    noAccount: "No account selected.",
+    checkAccount: "Check Account",
+    deleteAccount: "Delete Account",
+    location: "Location",
+    visibility: "Visibility",
+    private: "Private",
+    public: "Public",
+    mediaType: "Media Type",
+    image: "Image",
+    video: "Video",
+    saved: "Saved",
+    noApiKey: "No API Key saved",
+    publishHistory: "Publish History",
+    reusePublish: "Reuse",
+    delete: "Delete",
+    noPublishHistory: "No publish history yet. Successful publishes and generated QR codes will appear here.",
+    profileQuery: "Profile Lookup",
+    getSelfProfile: "Get Current Profile",
+    profileInput: "Profile URL or user_id",
+    queryProfile: "Query Profile",
+    profileNotes: "Profile Notes",
+    loadNextPage: "Load Next Page",
+    noMore: "No More",
+    keywordSearch: "Keyword Search",
+    keyword: "Keyword",
+    count: "Count",
+    sort: "Sort",
+    comprehensive: "Comprehensive",
+    latest: "Latest",
+    mostLiked: "Most liked",
+    mostCommented: "Most commented",
+    mostCollected: "Most collected",
+    type: "Type",
+    unlimited: "Any",
+    time: "Time",
+    oneDay: "Past day",
+    oneWeek: "Past week",
+    halfYear: "Past six months",
+    searchNotes: "Search Notes",
+    keywordMonitor: "Keyword Monitor",
+    intervalMinutes: "Interval minutes",
+    saveMonitor: "Save Monitor",
+    monitorList: "Monitor List",
+    everyMinutes: "Every {minutes} minutes",
+    enabled: "Enabled",
+    disabled: "Disabled",
+    notRun: "Not run",
+    runOnce: "Run Once",
+    noMonitors: "No keyword monitors yet.",
+    analytics: "Analytics",
+    collectSnapshot: "Collect Snapshot",
+    unknownAccount: "Unknown account",
+    fans: "Fans",
+    likesCollects: "Likes and collects",
+    recentNotesCount: "{count} recent notes",
+    noSnapshots: "No account snapshots yet.",
+    unknownAuthor: "Unknown author",
+    note: "Note",
+    publishTime: "Published",
+    likeShort: "Likes",
+    collectShort: "Collects",
+    commentShort: "Comments",
+    collapse: "Collapse",
+    expand: "Expand",
+    refreshDetail: "Refresh Detail",
+    loadDetail: "Load Detail",
+    openNote: "Open Note",
+    openAfterDetail: "Load detail to open",
+    imageViewer: "Image viewer",
+    picture: "Image",
+    close: "Close",
+    previousImage: "Previous image",
+    nextImage: "Next image",
+    thumbnail: "Thumbnail",
+    largeImage: "Large image",
+    profileData: "Profile Data",
+    profileEmpty: "Avatar, nickname, profile link, and basic metrics will appear here after lookup.",
+    unknownUser: "Unknown user",
+    redId: "XHS ID",
+    unknown: "Unknown",
+    openProfile: "Open Profile",
+    noBio: "No bio",
+    follows: "Following",
+    queryProfileNotes: "Query Profile Notes",
+    selectAccountRequired: "Select an account first",
+    savingAccount: "Saving account...",
+    accountSaved: "Account saved",
+    generatingLoginQr: "Generating login QR code...",
+    loginQrReady: "QR code generated. Scan with the XHS app.",
+    checkingLogin: "Checking scan status...",
+    qrLoginSaved: "QR login succeeded. Account saved.",
+    qrExpired: "QR code expired",
+    deletingAccount: "Deleting account...",
+    accountDeleted: "Account deleted",
+    checkingCookie: "Checking cookie...",
+    localPublishOnly: "Direct publish requires local files. Use QR publish for URL media.",
+    publishing: "Checking account and publishing...",
+    loadingSelfProfile: "Loading current profile...",
+    profileLoaded: "Profile loaded",
+    queryingProfile: "Querying profile...",
+    searchingNotes: "Searching notes...",
+    searchDone: "Found {count} notes. To reduce requests, details and media load on demand.",
+    monitorIntervalInvalid: "Monitor interval cannot be less than 5 minutes",
+    savingMonitor: "Saving keyword monitor...",
+    monitorSaved: "Keyword monitor saved",
+    runningMonitor: "Running keyword monitor...",
+    monitorDone: "Monitor finished. Returned {returned}, new {saved}",
+    deletingMonitor: "Deleting keyword monitor...",
+    monitorDeleted: "Keyword monitor deleted",
+    deletingHistory: "Deleting publish history...",
+    historyDeleted: "Publish history deleted",
+    collectingSnapshot: "Collecting account snapshot...",
+    snapshotSaved: "Account snapshot saved",
+    loadingProfileNotes: "Loading profile notes...",
+    loadingMoreProfileNotes: "Loading next page of profile notes...",
+    profileNotesLoaded: "Loaded {count} profile notes",
+    loadingNoteDetail: "Loading note detail on demand...",
+    noteDetailLoaded: "Note detail loaded",
+    savingApiKey: "Saving API Key...",
+    apiKeySaved: "API Key saved",
+    qrPublishNeedsUrl: "QR publish requires URL media with publicly accessible URLs",
+    generatingQr: "Generating QR code...",
+    qrGenerated: "QR code generated",
+    publishReused: "Publish content loaded for editing"
   }
 };
+
+type LabelSet = (typeof labels)["zh"];
+
+function template(value: string, params: Record<string, string | number>): string {
+  return Object.entries(params).reduce(
+    (current, [key, item]) => current.split(`{${key}}`).join(String(item)),
+    value
+  );
+}
 
 function formatApiError(detail: unknown, fallback: string): string {
   if (typeof detail === "string") return detail;
@@ -296,6 +626,10 @@ function App() {
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [accountName, setAccountName] = useState("");
   const [accountCookies, setAccountCookies] = useState("");
+  const [loginPlatform] = useState<LoginPlatform>("pc");
+  const [qrAccountName, setQrAccountName] = useState("");
+  const [loginQrSession, setLoginQrSession] = useState<LoginQrSession | null>(null);
+  const qrCheckInFlight = useRef(false);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [location, setLocation] = useState("");
@@ -374,7 +708,7 @@ function App() {
 
   function requireSelectedAccount(): boolean {
     if (!selectedAccountId) {
-      setStatus({ type: "error", text: "请先选择账号" });
+      setStatus({ type: "error", text: text.selectAccountRequired });
       return false;
     }
     return true;
@@ -382,7 +716,7 @@ function App() {
 
   async function addAccount(event: FormEvent) {
     event.preventDefault();
-    setStatus({ type: "loading", text: "正在保存账号..." });
+    setStatus({ type: "loading", text: text.savingAccount });
     try {
       const data = await apiFetch<{ account: Account }>("/api/accounts", {
         method: "POST",
@@ -393,20 +727,69 @@ function App() {
       setAccountCookies("");
       await loadAccounts();
       setSelectedAccountId(data.account.id);
-      setStatus({ type: "success", text: "账号已保存" });
+      setStatus({ type: "success", text: text.accountSaved });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
   }
 
+  async function startQrLogin(event?: FormEvent) {
+    event?.preventDefault();
+    setStatus({ type: "loading", text: text.generatingLoginQr });
+    try {
+      const data = await apiFetch<LoginQrSession>("/api/login/qrcode", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ platform: loginPlatform })
+      });
+      setLoginQrSession(data);
+      setStatus({ type: "success", text: text.loginQrReady });
+    } catch (error) {
+      setLoginQrSession(null);
+      setStatus({ type: "error", text: (error as Error).message });
+    }
+  }
+
+  async function checkQrLogin(manual = true) {
+    if (!loginQrSession || qrCheckInFlight.current) return;
+    qrCheckInFlight.current = true;
+    if (manual) {
+      setStatus({ type: "loading", text: text.checkingLogin });
+    }
+    try {
+      const data = await apiFetch<LoginQrCheckResult>(`/api/login/qrcode/${loginQrSession.session_id}/check`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ account_name: qrAccountName, save_account: true })
+      });
+      if (data.status === "success" && data.account) {
+        setLoginQrSession(null);
+        setQrAccountName("");
+        await loadAccounts();
+        setSelectedAccountId(data.account.id);
+        setStatus({ type: "success", text: text.qrLoginSaved });
+      } else if (data.status === "expired") {
+        setLoginQrSession(null);
+        setStatus({ type: "error", text: data.msg || text.qrExpired });
+      } else if (manual || data.status === "confirm") {
+        setStatus({ type: "loading", text: data.msg });
+      }
+    } catch (error) {
+      setLoginQrSession(null);
+      setStatus({ type: "error", text: (error as Error).message });
+    } finally {
+      qrCheckInFlight.current = false;
+    }
+  }
+
   async function deleteAccount() {
     if (!requireSelectedAccount()) return;
-    setStatus({ type: "loading", text: "正在删除账号..." });
+    setStatus({ type: "loading", text: text.deletingAccount });
     try {
       await apiFetch(`/api/accounts/${selectedAccountId}`, { method: "DELETE" });
       setSelectedAccountId("");
       await loadAccounts();
-      setStatus({ type: "success", text: "账号已删除" });
+      setStatus({ type: "success", text: text.accountDeleted });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -414,7 +797,7 @@ function App() {
 
   async function checkAccount() {
     if (!requireSelectedAccount()) return;
-    setStatus({ type: "loading", text: "正在校验 Cookie..." });
+    setStatus({ type: "loading", text: text.checkingCookie });
     try {
       const data = await apiFetch<{ success: boolean; msg: string }>(
         `/api/accounts/${selectedAccountId}/check`,
@@ -439,7 +822,7 @@ function App() {
     formData.append("privacy_type", privacyType);
     formData.append("media_type", mediaType);
     if (mediaSource !== "local") {
-      setStatus({ type: "error", text: "直接发布需要选择本地上传文件；链接媒体请使用扫码发布" });
+      setStatus({ type: "error", text: text.localPublishOnly });
       return;
     }
     if (mediaType === "image") {
@@ -448,7 +831,7 @@ function App() {
       formData.append("video", video);
     }
 
-    setStatus({ type: "loading", text: "正在校验账号并发布..." });
+    setStatus({ type: "loading", text: text.publishing });
     try {
       const data = await apiFetch<{ success: boolean; msg: string; data: unknown }>("/api/publish", {
         method: "POST",
@@ -466,7 +849,7 @@ function App() {
 
   async function getSelfProfile() {
     if (!requireSelectedAccount()) return;
-    setStatus({ type: "loading", text: "正在获取当前账号主页..." });
+    setStatus({ type: "loading", text: text.loadingSelfProfile });
     try {
       const data = await apiFetch<{ profile: Profile }>("/api/profile/self", {
         method: "POST",
@@ -478,7 +861,7 @@ function App() {
       setProfileCursor("");
       setProfileHasMore(false);
       setProfileNotesUserId("");
-      setStatus({ type: "success", text: "主页资料获取成功" });
+      setStatus({ type: "success", text: text.profileLoaded });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -487,7 +870,7 @@ function App() {
   async function queryProfile(event: FormEvent) {
     event.preventDefault();
     if (!requireSelectedAccount() || !profileInput.trim()) return;
-    setStatus({ type: "loading", text: "正在查询主页..." });
+    setStatus({ type: "loading", text: text.queryingProfile });
     try {
       const data = await apiFetch<{ profile: Profile }>("/api/profile/query", {
         method: "POST",
@@ -499,7 +882,7 @@ function App() {
       setProfileCursor("");
       setProfileHasMore(false);
       setProfileNotesUserId("");
-      setStatus({ type: "success", text: "主页资料获取成功" });
+      setStatus({ type: "success", text: text.profileLoaded });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -508,7 +891,7 @@ function App() {
   async function searchNotes(event: FormEvent) {
     event.preventDefault();
     if (!requireSelectedAccount() || !searchQuery.trim()) return;
-    setStatus({ type: "loading", text: "正在搜索笔记..." });
+    setStatus({ type: "loading", text: text.searchingNotes });
     try {
       const data = await apiFetch<{ notes: SearchNote[] }>("/api/search/notes", {
         method: "POST",
@@ -523,7 +906,7 @@ function App() {
         })
       });
       setSearchResults(data.notes);
-      setStatus({ type: "success", text: `找到 ${data.notes.length} 条笔记。为降低请求频率，正文和媒体请按需加载。` });
+      setStatus({ type: "success", text: template(text.searchDone, { count: data.notes.length }) });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -534,10 +917,10 @@ function App() {
     if (!requireSelectedAccount() || !monitorKeyword.trim()) return;
     const intervalMinutes = Number(monitorInterval);
     if (!Number.isFinite(intervalMinutes) || intervalMinutes < 5) {
-      setStatus({ type: "error", text: "监控间隔不能小于 5 分钟" });
+      setStatus({ type: "error", text: text.monitorIntervalInvalid });
       return;
     }
-    setStatus({ type: "loading", text: "正在保存关键词监控..." });
+    setStatus({ type: "loading", text: text.savingMonitor });
     try {
       await apiFetch<{ monitor: SearchMonitor }>("/api/search-monitors", {
         method: "POST",
@@ -555,21 +938,21 @@ function App() {
       });
       setMonitorKeyword("");
       await loadOperations();
-      setStatus({ type: "success", text: "关键词监控已保存" });
+      setStatus({ type: "success", text: text.monitorSaved });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
   }
 
   async function runMonitor(monitorId: string) {
-    setStatus({ type: "loading", text: "正在执行关键词监控..." });
+    setStatus({ type: "loading", text: text.runningMonitor });
     try {
       const data = await apiFetch<{ notes: SearchNote[]; saved: SavedSearchResult[] }>(
         `/api/search-monitors/${monitorId}/run`,
         { method: "POST" }
       );
       await loadOperations();
-      setStatus({ type: "success", text: `监控完成，返回 ${data.notes.length} 条，新增 ${data.saved.length} 条` });
+      setStatus({ type: "success", text: template(text.monitorDone, { returned: data.notes.length, saved: data.saved.length }) });
     } catch (error) {
       await loadOperations().catch(() => undefined);
       setStatus({ type: "error", text: (error as Error).message });
@@ -577,22 +960,22 @@ function App() {
   }
 
   async function deleteMonitor(monitorId: string) {
-    setStatus({ type: "loading", text: "正在删除关键词监控..." });
+    setStatus({ type: "loading", text: text.deletingMonitor });
     try {
       await apiFetch(`/api/search-monitors/${monitorId}`, { method: "DELETE" });
       await loadOperations();
-      setStatus({ type: "success", text: "关键词监控已删除" });
+      setStatus({ type: "success", text: text.monitorDeleted });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
   }
 
   async function deletePublishHistoryItem(taskId: string) {
-    setStatus({ type: "loading", text: "正在删除发布历史..." });
+    setStatus({ type: "loading", text: text.deletingHistory });
     try {
       await apiFetch(`/api/publish-tasks/${taskId}`, { method: "DELETE" });
       await loadOperations();
-      setStatus({ type: "success", text: "发布历史已删除" });
+      setStatus({ type: "success", text: text.historyDeleted });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -600,7 +983,7 @@ function App() {
 
   async function createAnalyticsSnapshot() {
     if (!requireSelectedAccount()) return;
-    setStatus({ type: "loading", text: "正在采集账号快照..." });
+    setStatus({ type: "loading", text: text.collectingSnapshot });
     try {
       await apiFetch<{ snapshot: AnalyticsSnapshot }>("/api/analytics/snapshots", {
         method: "POST",
@@ -608,7 +991,7 @@ function App() {
         body: JSON.stringify({ account_id: selectedAccountId })
       });
       await loadOperations();
-      setStatus({ type: "success", text: "账号快照已保存" });
+      setStatus({ type: "success", text: text.snapshotSaved });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -616,7 +999,7 @@ function App() {
 
   async function loadProfileNotes(reset = false) {
     if (!requireSelectedAccount() || !profile?.user_id) return;
-    setStatus({ type: "loading", text: reset ? "正在查询主页笔记..." : "正在加载下一页主页笔记..." });
+    setStatus({ type: "loading", text: reset ? text.loadingProfileNotes : text.loadingMoreProfileNotes });
     try {
       const data = await apiFetch<{ notes: SearchNote[]; cursor: string; has_more: boolean }>("/api/profile/notes", {
         method: "POST",
@@ -634,7 +1017,7 @@ function App() {
       setProfileCursor(data.cursor);
       setProfileHasMore(data.has_more);
       setProfileNotesUserId(profile.user_id);
-      setStatus({ type: "success", text: `已加载 ${data.notes.length} 条主页笔记` });
+      setStatus({ type: "success", text: template(text.profileNotesLoaded, { count: data.notes.length }) });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -655,7 +1038,7 @@ function App() {
     if (!requireSelectedAccount()) return;
     const key = `${note.note_id}-${note.xsec_token}`;
     setDetailLoadingIds((current) => Array.from(new Set([...current, key])));
-    setStatus({ type: "loading", text: "正在按需加载笔记详情..." });
+    setStatus({ type: "loading", text: text.loadingNoteDetail });
     try {
       const data = await apiFetch<{ note: SearchNote }>("/api/search/note-detail", {
         method: "POST",
@@ -669,7 +1052,7 @@ function App() {
         })
       });
       updateNote(data.note);
-      setStatus({ type: "success", text: "笔记详情已加载" });
+      setStatus({ type: "success", text: text.noteDetailLoaded });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     } finally {
@@ -679,7 +1062,7 @@ function App() {
 
   async function saveExternalConfig(event: FormEvent) {
     event.preventDefault();
-    setStatus({ type: "loading", text: lang === "zh" ? "正在保存 API Key..." : "Saving API Key..." });
+    setStatus({ type: "loading", text: text.savingApiKey });
     try {
       await apiFetch<{ config: ExternalPublishConfig }>("/api/external-publish/config", {
         method: "POST",
@@ -692,7 +1075,7 @@ function App() {
       });
       setExternalApiKey("");
       await loadOperations();
-      setStatus({ type: "success", text: lang === "zh" ? "API Key 已保存" : "API Key saved" });
+      setStatus({ type: "success", text: text.apiKeySaved });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -702,10 +1085,10 @@ function App() {
     event?.preventDefault();
     if (!requireSelectedAccount()) return;
     if (mediaSource !== "url") {
-      setStatus({ type: "error", text: lang === "zh" ? "扫码发布需要选择链接媒体，并填写公网可访问的 URL" : "QR publish requires URL media with public URLs" });
+      setStatus({ type: "error", text: text.qrPublishNeedsUrl });
       return;
     }
-    setStatus({ type: "loading", text: lang === "zh" ? "正在生成二维码..." : "Generating QR code..." });
+    setStatus({ type: "loading", text: text.generatingQr });
     try {
       const extractedTopics = extractTopicsFromText(desc);
       const data = await apiFetch<{ result: { qrcode?: string; url?: string; id?: string } }>("/api/external-publish/qrcode", {
@@ -725,7 +1108,7 @@ function App() {
       setExternalQr(data.result.qrcode || "");
       setExternalUrl(data.result.url || "");
       await loadOperations();
-      setStatus({ type: "success", text: lang === "zh" ? "二维码已生成" : "QR code generated" });
+      setStatus({ type: "success", text: text.qrGenerated });
     } catch (error) {
       setStatus({ type: "error", text: (error as Error).message });
     }
@@ -755,8 +1138,16 @@ function App() {
     }
     setCoverUrl("");
     setActiveTab("publish");
-    setStatus({ type: "success", text: "已带入发布内容，可在发布页继续编辑" });
+    setStatus({ type: "success", text: text.publishReused });
   }
+
+  useEffect(() => {
+    if (!loginQrSession) return;
+    const timer = window.setInterval(() => {
+      void checkQrLogin(false);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [loginQrSession?.session_id, qrAccountName]);
 
   return (
     <main className="app-shell">
@@ -780,7 +1171,7 @@ function App() {
         </div>
       </section>
 
-      <nav className="tabs" aria-label="功能导航">
+      <nav className="tabs" aria-label={lang === "zh" ? "功能导航" : "Navigation"}>
         {tabs.map((tab) => {
           const Icon = tabIcons[tab.key];
           return (
@@ -801,7 +1192,7 @@ function App() {
         <label>
           {text.currentAccount}
           <select value={selectedAccountId} onChange={(event) => setSelectedAccountId(event.target.value)}>
-            <option value="">未选择</option>
+            <option value="">{text.notSelected}</option>
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
                 {account.name}
@@ -813,7 +1204,7 @@ function App() {
           <div className="account-summary compact">
             <strong>{selectedAccount.name}</strong>
             <span>{selectedAccount.cookie_preview}</span>
-            <span>状态：{selectedAccount.last_check_status || "未校验"}</span>
+            <span>{text.statusLabel}: {selectedAccount.last_check_status || text.unchecked}</span>
           </div>
         )}
       </section>
@@ -823,29 +1214,29 @@ function App() {
           <section className="stats-grid">
             <div className="stat-card">
               <strong>{summary?.publish_total || 0}</strong>
-              <span>发布历史</span>
+              <span>{text.dashboardPublishHistory}</span>
             </div>
             <div className="stat-card">
               <strong>{summary?.publish_done || 0}</strong>
-              <span>已发布记录</span>
+              <span>{text.dashboardPublished}</span>
             </div>
             <div className="stat-card">
               <strong>{summary?.monitor_enabled || 0}</strong>
-              <span>启用监控</span>
+              <span>{text.enabledMonitors}</span>
             </div>
             <div className="stat-card">
               <strong>{summary?.search_result_total || 0}</strong>
-              <span>监控结果</span>
+              <span>{text.monitorResults}</span>
             </div>
             <div className="stat-card">
               <strong>{summary?.analytics_snapshot_total || 0}</strong>
-              <span>账号快照</span>
+              <span>{text.accountSnapshots}</span>
             </div>
           </section>
           <section className="panel">
             <div className="section-head">
-              <h2>最近操作</h2>
-              <button type="button" onClick={loadOperations}>刷新</button>
+              <h2>{text.recentOps}</h2>
+              <button type="button" onClick={loadOperations}>{text.refresh}</button>
             </div>
             <div className="table-list">
               {(summary?.latest_logs || []).map((log) => (
@@ -855,69 +1246,128 @@ function App() {
                   <span>{log.created_at}</span>
                 </div>
               ))}
-              {(!summary || summary.latest_logs.length === 0) && <p className="empty-state">暂无操作记录。</p>}
+              {(!summary || summary.latest_logs.length === 0) && <p className="empty-state">{text.noOps}</p>}
             </div>
           </section>
         </section>
       )}
 
       {activeTab === "accounts" && (
-        <section className="panel narrow-panel">
-          <h2>账号管理</h2>
-          <form onSubmit={addAccount} className="stack">
-            <label>
-              账号名
-              <input value={accountName} onChange={(event) => setAccountName(event.target.value)} required />
-            </label>
-            <label>
-              Cookie
-              <textarea
-                value={accountCookies}
-                onChange={(event) => setAccountCookies(event.target.value)}
-                rows={6}
-                required
-              />
-            </label>
-            <button type="submit">保存账号</button>
-          </form>
-          <div className="button-row">
-            <button type="button" onClick={checkAccount} disabled={!selectedAccountId}>
-              校验当前账号
-            </button>
-            <button type="button" className="danger" onClick={deleteAccount} disabled={!selectedAccountId}>
-              删除当前账号
-            </button>
-          </div>
+        <section className="layout account-layout">
+          <section className="panel qr-login-panel">
+            <div className="section-head">
+              <div>
+                <h2>{text.pcQrLogin}</h2>
+                <p className="empty-state">{text.pcQrLoginDesc}</p>
+              </div>
+              <span className="soft-badge">{text.recommended}</span>
+            </div>
+            <form onSubmit={startQrLogin} className="stack">
+              <label>
+                {text.accountName}
+                <input
+                  value={qrAccountName}
+                  onChange={(event) => setQrAccountName(event.target.value)}
+                  placeholder={text.autoNameAfterLogin}
+                />
+              </label>
+              <div className="button-row">
+                <button type="submit" className="primary">
+                  <QrCode aria-hidden />
+                  {text.generateLoginQr}
+                </button>
+                <button type="button" onClick={() => checkQrLogin(true)} disabled={!loginQrSession}>
+                  <Smartphone aria-hidden />
+                  {text.checkStatus}
+                </button>
+              </div>
+            </form>
+            {loginQrSession && (
+              <div className="login-qr-card">
+                <img src={loginQrSession.qr_image} alt={text.scanQrAlt} />
+                <div>
+                  <strong>{text.pcQrLogin}</strong>
+                  <span>{text.scanQrConfirm}</span>
+                  <span>{text.scanQrUsage}</span>
+                  <span>{template(text.qrExpires, { seconds: loginQrSession.expires_in_seconds })}</span>
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="panel manual-cookie-panel">
+            <div>
+              <h2>{text.manualCookie}</h2>
+              <p className="empty-state">{text.manualCookieDesc}</p>
+            </div>
+            <form onSubmit={addAccount} className="stack">
+              <label>
+                {text.accountName}
+                <input
+                  value={accountName}
+                  onChange={(event) => setAccountName(event.target.value)}
+                  placeholder={text.autoNameAfterSave}
+                />
+              </label>
+              <label>
+                Cookie
+                <textarea
+                  value={accountCookies}
+                  onChange={(event) => setAccountCookies(event.target.value)}
+                  rows={5}
+                  required
+                />
+              </label>
+              <button type="submit">{text.saveAccount}</button>
+            </form>
+          </section>
+
+          <section className="panel account-tools-panel">
+            <h2>{text.accountTools}</h2>
+            {selectedAccount ? (
+              <div className="account-summary">
+                <strong>{selectedAccount.name}</strong>
+                <span>{selectedAccount.cookie_preview}</span>
+                <span>{text.statusLabel}: {selectedAccount.last_check_status || text.unchecked}</span>
+              </div>
+            ) : (
+              <p className="empty-state">{text.noAccount}</p>
+            )}
+            <div className="button-row">
+              <button type="button" onClick={checkAccount} disabled={!selectedAccountId}>{text.checkAccount}</button>
+              <button type="button" className="danger" onClick={deleteAccount} disabled={!selectedAccountId}>{text.deleteAccount}</button>
+            </div>
+          </section>
         </section>
       )}
 
       {activeTab === "publish" && (
         <section className="layout two-panel-layout">
           <section className="panel publisher-panel">
-            <h2>发布笔记</h2>
+            <h2>{text.directPublish}</h2>
             <form onSubmit={publish} className="publisher-form">
               <label>
-                标题
+                {text.title}
                 <input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={60} required />
               </label>
               <label>
-                正文
+                {text.content}
                 <textarea value={desc} onChange={(event) => setDesc(event.target.value)} rows={7} />
               </label>
               <label>
-                地点
+                {text.location}
                 <input value={location} onChange={(event) => setLocation(event.target.value)} />
               </label>
               <div className="two-col">
                 <label>
-                  可见性
+                  {text.visibility}
                   <select value={privacyType} onChange={(event) => setPrivacyType(event.target.value)}>
-                    <option value="1">私密</option>
-                    <option value="0">公开</option>
+                    <option value="1">{text.private}</option>
+                    <option value="0">{text.public}</option>
                   </select>
                 </label>
                 <label>
-                  媒体类型
+                  {text.mediaType}
                   <select
                     value={mediaType}
                     onChange={(event) => {
@@ -929,8 +1379,8 @@ function App() {
                       setCoverUrl("");
                     }}
                   >
-                    <option value="image">图文</option>
-                    <option value="video">视频</option>
+                    <option value="image">{text.imageNote}</option>
+                    <option value="video">{text.videoNote}</option>
                   </select>
                 </label>
               </div>
@@ -944,12 +1394,12 @@ function App() {
               {mediaSource === "local" ? (
                 mediaType === "image" ? (
                   <label>
-                    图片
+                    {text.image}
                     <input type="file" accept="image/*" multiple onChange={(event) => setImages(event.target.files)} />
                   </label>
                 ) : (
                   <label>
-                    视频
+                    {text.video}
                     <input type="file" accept="video/*" onChange={(event) => setVideo(event.target.files?.[0] || null)} />
                   </label>
                 )
@@ -1000,8 +1450,8 @@ function App() {
               </label>
               <p className="empty-state">
                 {externalConfig?.has_api_key
-                  ? `${lang === "zh" ? "已保存" : "Saved"}：${externalConfig.api_key_preview}`
-                  : lang === "zh" ? "尚未保存 API Key" : "No API Key saved"}
+                  ? `${text.saved}: ${externalConfig.api_key_preview}`
+                  : text.noApiKey}
               </p>
               <button type="submit" className="primary">{text.saveConfig}</button>
             </form>
@@ -1036,8 +1486,8 @@ function App() {
       {activeTab === "tasks" && (
         <section className="panel">
           <div className="section-head">
-            <h2>发布历史</h2>
-            <button type="button" onClick={loadOperations}>刷新</button>
+            <h2>{text.publishHistory}</h2>
+            <button type="button" onClick={loadOperations}>{text.refresh}</button>
           </div>
           <div className="table-list">
             {publishHistory.map((task) => (
@@ -1048,12 +1498,12 @@ function App() {
                 <span>{(task.topics || []).map((topic) => `#${topic}`).join(" ")}</span>
                 {task.last_error && <span>{task.last_error}</span>}
                 <div className="row-actions">
-                  <button type="button" onClick={() => reusePublishHistoryItem(task)}>带入发布</button>
-                  <button type="button" className="danger" onClick={() => deletePublishHistoryItem(task.id)}>删除</button>
+                  <button type="button" onClick={() => reusePublishHistoryItem(task)}>{text.reusePublish}</button>
+                  <button type="button" className="danger" onClick={() => deletePublishHistoryItem(task.id)}>{text.delete}</button>
                 </div>
               </div>
             ))}
-            {publishHistory.length === 0 && <p className="empty-state">还没有发布历史。成功发布或生成二维码后会记录在这里。</p>}
+            {publishHistory.length === 0 && <p className="empty-state">{text.noPublishHistory}</p>}
           </div>
         </section>
       )}
@@ -1061,15 +1511,15 @@ function App() {
       {activeTab === "profile" && (
         <section className="layout two-panel-layout">
           <section className="panel">
-            <h2>主页查询</h2>
+            <h2>{text.profileQuery}</h2>
             <div className="button-row">
               <button type="button" onClick={getSelfProfile} disabled={!selectedAccountId}>
-                获取当前账号主页
+                {text.getSelfProfile}
               </button>
             </div>
             <form onSubmit={queryProfile} className="stack">
               <label>
-                用户主页链接或 user_id
+                {text.profileInput}
                 <input
                   value={profileInput}
                   onChange={(event) => setProfileInput(event.target.value)}
@@ -1077,7 +1527,7 @@ function App() {
                 />
               </label>
               <button type="submit" className="primary" disabled={!selectedAccountId}>
-                查询主页
+                {text.queryProfile}
               </button>
             </form>
           </section>
@@ -1085,16 +1535,17 @@ function App() {
             profile={profile}
             onLoadNotes={() => loadProfileNotes(true)}
             canLoadNotes={Boolean(selectedAccountId && profile?.user_id)}
+            text={text}
           />
           {profileNotes.length > 0 && (
             <section className="panel wide-panel">
               <div className="section-head">
-                <h2>主页笔记</h2>
+                <h2>{text.profileNotes}</h2>
                 <button type="button" onClick={() => loadProfileNotes(false)} disabled={!profileHasMore}>
-                  {profileHasMore ? "加载下一页" : "没有更多"}
+                  {profileHasMore ? text.loadNextPage : text.noMore}
                 </button>
               </div>
-              <NoteResults notes={profileNotes} detailLoadingIds={detailLoadingIds} onLoadDetail={loadNoteDetail} />
+              <NoteResults notes={profileNotes} detailLoadingIds={detailLoadingIds} onLoadDetail={loadNoteDetail} text={text} />
             </section>
           )}
         </section>
@@ -1102,14 +1553,14 @@ function App() {
 
       {activeTab === "search" && (
         <section className="panel">
-          <h2>关键词查询</h2>
+          <h2>{text.keywordSearch}</h2>
           <form onSubmit={searchNotes} className="search-form">
             <label>
-              关键词
+              {text.keyword}
               <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} required />
             </label>
             <label>
-              数量
+              {text.count}
               <select value={searchCount} onChange={(event) => setSearchCount(event.target.value)}>
                 <option value="10">10</option>
                 <option value="20">20</option>
@@ -1117,52 +1568,52 @@ function App() {
               </select>
             </label>
             <label>
-              排序
+              {text.sort}
               <select value={sortType} onChange={(event) => setSortType(event.target.value)}>
-                <option value="0">综合</option>
-                <option value="1">最新</option>
-                <option value="2">最多点赞</option>
-                <option value="3">最多评论</option>
-                <option value="4">最多收藏</option>
+                <option value="0">{text.comprehensive}</option>
+                <option value="1">{text.latest}</option>
+                <option value="2">{text.mostLiked}</option>
+                <option value="3">{text.mostCommented}</option>
+                <option value="4">{text.mostCollected}</option>
               </select>
             </label>
             <label>
-              类型
+              {text.type}
               <select value={noteType} onChange={(event) => setNoteType(event.target.value)}>
-                <option value="0">不限</option>
-                <option value="1">视频</option>
-                <option value="2">图文</option>
+                <option value="0">{text.unlimited}</option>
+                <option value="1">{text.videoNote}</option>
+                <option value="2">{text.imageNote}</option>
               </select>
             </label>
             <label>
-              时间
+              {text.time}
               <select value={noteTime} onChange={(event) => setNoteTime(event.target.value)}>
-                <option value="0">不限</option>
-                <option value="1">一天内</option>
-                <option value="2">一周内</option>
-                <option value="3">半年内</option>
+                <option value="0">{text.unlimited}</option>
+                <option value="1">{text.oneDay}</option>
+                <option value="2">{text.oneWeek}</option>
+                <option value="3">{text.halfYear}</option>
               </select>
             </label>
             <button type="submit" className="primary" disabled={!selectedAccountId}>
-              搜索笔记
+              {text.searchNotes}
             </button>
           </form>
-          <NoteResults notes={searchResults} detailLoadingIds={detailLoadingIds} onLoadDetail={loadNoteDetail} />
+          <NoteResults notes={searchResults} detailLoadingIds={detailLoadingIds} onLoadDetail={loadNoteDetail} text={text} />
         </section>
       )}
 
       {activeTab === "monitors" && (
         <section className="layout two-panel-layout">
           <section className="panel">
-            <h2>关键词监控</h2>
+            <h2>{text.keywordMonitor}</h2>
             <form onSubmit={createMonitor} className="stack">
               <label>
-                关键词
+                {text.keyword}
                 <input value={monitorKeyword} onChange={(event) => setMonitorKeyword(event.target.value)} required />
               </label>
               <div className="two-col">
                 <label>
-                  数量
+                  {text.count}
                   <select value={searchCount} onChange={(event) => setSearchCount(event.target.value)}>
                     <option value="10">10</option>
                     <option value="20">20</option>
@@ -1170,7 +1621,7 @@ function App() {
                   </select>
                 </label>
                 <label>
-                  间隔分钟
+                  {text.intervalMinutes}
                   <input
                     type="number"
                     min="5"
@@ -1180,36 +1631,37 @@ function App() {
                   />
                 </label>
               </div>
-              <button type="submit" className="primary" disabled={!selectedAccountId}>保存监控</button>
+              <button type="submit" className="primary" disabled={!selectedAccountId}>{text.saveMonitor}</button>
             </form>
           </section>
           <section className="panel">
             <div className="section-head">
-              <h2>监控列表</h2>
-              <button type="button" onClick={loadOperations}>刷新</button>
+              <h2>{text.monitorList}</h2>
+              <button type="button" onClick={loadOperations}>{text.refresh}</button>
             </div>
             <div className="table-list">
               {searchMonitors.map((monitor) => (
                 <div className="list-row" key={monitor.id}>
                   <strong>{monitor.keyword}</strong>
-                  <span>每 {monitor.interval_minutes} 分钟 · {monitor.enabled ? "启用" : "停用"}</span>
-                  <span>{monitor.last_run_status || "未执行"} {monitor.last_run_message || ""}</span>
+                  <span>{template(text.everyMinutes, { minutes: monitor.interval_minutes })} · {monitor.enabled ? text.enabled : text.disabled}</span>
+                  <span>{monitor.last_run_status || text.notRun} {monitor.last_run_message || ""}</span>
                   <div className="row-actions">
-                    <button type="button" onClick={() => runMonitor(monitor.id)}>执行一次</button>
-                    <button type="button" className="danger" onClick={() => deleteMonitor(monitor.id)}>删除</button>
+                    <button type="button" onClick={() => runMonitor(monitor.id)}>{text.runOnce}</button>
+                    <button type="button" className="danger" onClick={() => deleteMonitor(monitor.id)}>{text.delete}</button>
                   </div>
                 </div>
               ))}
-              {searchMonitors.length === 0 && <p className="empty-state">还没有关键词监控。</p>}
+              {searchMonitors.length === 0 && <p className="empty-state">{text.noMonitors}</p>}
             </div>
           </section>
           {savedSearchResults.length > 0 && (
             <section className="panel wide-panel">
-              <h2>监控结果</h2>
+              <h2>{text.monitorResults}</h2>
               <NoteResults
                 notes={savedSearchResults.map((item) => item.note)}
                 detailLoadingIds={detailLoadingIds}
                 onLoadDetail={loadNoteDetail}
+                text={text}
               />
             </section>
           )}
@@ -1219,21 +1671,21 @@ function App() {
       {activeTab === "analytics" && (
         <section className="panel">
           <div className="section-head">
-            <h2>账号分析</h2>
+            <h2>{text.analytics}</h2>
             <button type="button" className="primary" onClick={createAnalyticsSnapshot} disabled={!selectedAccountId}>
-              采集当前账号快照
+              {text.collectSnapshot}
             </button>
           </div>
           <div className="table-list">
             {analyticsSnapshots.map((snapshot) => (
               <div className="list-row" key={snapshot.id}>
-                <strong>{snapshot.profile?.nickname || "未知账号"}</strong>
-                <span>粉丝 {snapshot.profile?.fans || 0} · 获赞收藏 {snapshot.profile?.interaction || 0}</span>
-                <span>最近笔记 {snapshot.recent_notes?.length || 0} 条</span>
+                <strong>{snapshot.profile?.nickname || text.unknownAccount}</strong>
+                <span>{text.fans} {snapshot.profile?.fans || 0} · {text.likesCollects} {snapshot.profile?.interaction || 0}</span>
+                <span>{template(text.recentNotesCount, { count: snapshot.recent_notes?.length || 0 })}</span>
                 <span>{snapshot.created_at}</span>
               </div>
             ))}
-            {analyticsSnapshots.length === 0 && <p className="empty-state">还没有账号快照。</p>}
+            {analyticsSnapshots.length === 0 && <p className="empty-state">{text.noSnapshots}</p>}
           </div>
         </section>
       )}
@@ -1250,11 +1702,13 @@ function App() {
 function NoteResults({
   notes,
   detailLoadingIds,
-  onLoadDetail
+  onLoadDetail,
+  text
 }: {
   notes: SearchNote[];
   detailLoadingIds: string[];
   onLoadDetail: (note: SearchNote) => void;
+  text: LabelSet;
 }) {
   const [expandedDescKeys, setExpandedDescKeys] = useState<string[]>([]);
   const [viewer, setViewer] = useState<{ images: string[]; index: number; title: string } | null>(null);
@@ -1307,9 +1761,9 @@ function NoteResults({
                 {note.cover && <img src={mediaProxyUrl(note.cover)} alt={note.title} />}
                 <div>
                   <h3>{note.title}</h3>
-                  <p>{note.nickname || "未知作者"} · {note.note_type || "笔记"}</p>
-                  {note.upload_time && <p>发布时间：{note.upload_time}</p>}
-                  <p>赞 {note.liked_count || 0} · 藏 {note.collected_count || 0} · 评 {note.comment_count || 0}</p>
+                  <p>{note.nickname || text.unknownAuthor} · {note.note_type || text.note}</p>
+                  {note.upload_time && <p>{text.publishTime}: {note.upload_time}</p>}
+                  <p>{text.likeShort} {note.liked_count || 0} · {text.collectShort} {note.collected_count || 0} · {text.commentShort} {note.comment_count || 0}</p>
                 </div>
               </div>
               {note.desc && (
@@ -1317,7 +1771,7 @@ function NoteResults({
                   <p className={descExpanded ? "note-desc expanded" : "note-desc"}>{note.desc}</p>
                   {canToggleDesc && (
                     <button type="button" className="text-button" onClick={() => toggleDesc(key)}>
-                      {descExpanded ? "收起" : "展开"}
+                      {descExpanded ? text.collapse : text.expand}
                     </button>
                   )}
                 </div>
@@ -1333,7 +1787,7 @@ function NoteResults({
                     >
                       <img
                         src={mediaProxyUrl(imageUrl)}
-                        alt={`${note.title} 图片 ${index + 1}`}
+                        alt={`${note.title} ${text.picture} ${index + 1}`}
                         loading="lazy"
                       />
                     </button>
@@ -1345,14 +1799,14 @@ function NoteResults({
               )}
               <div className="note-actions">
                 <button type="button" onClick={() => onLoadDetail(note)} disabled={detailLoadingIds.includes(key)}>
-                  {detailLoaded ? "刷新详情" : "加载详情"}
+                  {detailLoaded ? text.refreshDetail : text.loadDetail}
                 </button>
                 {detailLoaded && note.note_url ? (
                   <a href={note.note_url} target="_blank" rel="noreferrer">
-                    打开笔记
+                    {text.openNote}
                   </a>
                 ) : (
-                  <span>加载详情后可打开</span>
+                  <span>{text.openAfterDetail}</span>
                 )}
               </div>
             </article>
@@ -1360,21 +1814,21 @@ function NoteResults({
         })}
       </div>
       {viewer && (
-        <div className="image-viewer" role="dialog" aria-modal="true" aria-label="图片查看器" onClick={closeViewer}>
+        <div className="image-viewer" role="dialog" aria-modal="true" aria-label={text.imageViewer} onClick={closeViewer}>
           <div className="image-viewer-inner" onClick={(event) => event.stopPropagation()}>
             <div className="image-viewer-head">
-              <span>{viewer.title || "图片"} · {viewer.index + 1}/{viewer.images.length}</span>
-              <button type="button" onClick={closeViewer}>关闭</button>
+              <span>{viewer.title || text.picture} · {viewer.index + 1}/{viewer.images.length}</span>
+              <button type="button" onClick={closeViewer}>{text.close}</button>
             </div>
             <div className="image-viewer-stage">
               {viewer.images.length > 1 && (
-                <button type="button" className="image-viewer-nav left" onClick={() => shiftViewer(-1)} aria-label="上一张">
+                <button type="button" className="image-viewer-nav left" onClick={() => shiftViewer(-1)} aria-label={text.previousImage}>
                   ‹
                 </button>
               )}
-              <img src={mediaProxyUrl(viewer.images[viewer.index])} alt={`${viewer.title} 大图 ${viewer.index + 1}`} />
+              <img src={mediaProxyUrl(viewer.images[viewer.index])} alt={`${viewer.title} ${text.largeImage} ${viewer.index + 1}`} />
               {viewer.images.length > 1 && (
-                <button type="button" className="image-viewer-nav right" onClick={() => shiftViewer(1)} aria-label="下一张">
+                <button type="button" className="image-viewer-nav right" onClick={() => shiftViewer(1)} aria-label={text.nextImage}>
                   ›
                 </button>
               )}
@@ -1388,7 +1842,7 @@ function NoteResults({
                     className={index === viewer.index ? "active" : ""}
                     onClick={() => setViewer((current) => current ? { ...current, index } : current)}
                   >
-                    <img src={mediaProxyUrl(imageUrl)} alt={`缩略图 ${index + 1}`} />
+                    <img src={mediaProxyUrl(imageUrl)} alt={`${text.thumbnail} ${index + 1}`} />
                   </button>
                 ))}
               </div>
@@ -1403,17 +1857,19 @@ function NoteResults({
 function ProfileCard({
   profile,
   onLoadNotes,
-  canLoadNotes
+  canLoadNotes,
+  text
 }: {
   profile: Profile | null;
   onLoadNotes: () => void;
   canLoadNotes: boolean;
+  text: LabelSet;
 }) {
   if (!profile) {
     return (
       <section className="panel empty-state">
-        <h2>主页资料</h2>
-        <p>查询后会在这里显示头像、昵称、主页链接和基础指标。</p>
+        <h2>{text.profileData}</h2>
+        <p>{text.profileEmpty}</p>
       </section>
     );
   }
@@ -1422,24 +1878,24 @@ function ProfileCard({
       <div className="profile-head">
         {profile.avatar && <img src={profile.avatar} alt={profile.nickname} />}
         <div>
-          <h2>{profile.nickname || "未知用户"}</h2>
-          <p>小红书号：{profile.red_id || "未知"}</p>
+          <h2>{profile.nickname || text.unknownUser}</h2>
+          <p>{text.redId}: {profile.red_id || text.unknown}</p>
           {profile.home_url && (
             <a href={profile.home_url} target="_blank" rel="noreferrer">
-              打开主页
+              {text.openProfile}
             </a>
           )}
         </div>
       </div>
-      <p>{profile.desc || "暂无简介"}</p>
+      <p>{profile.desc || text.noBio}</p>
       <div className="metric-grid">
-        <span>关注 {profile.follows || 0}</span>
-        <span>粉丝 {profile.fans || 0}</span>
-        <span>获赞收藏 {profile.interaction || 0}</span>
-        <span>{profile.gender || "未知"} · {profile.ip_location || "未知"}</span>
+        <span>{text.follows} {profile.follows || 0}</span>
+        <span>{text.fans} {profile.fans || 0}</span>
+        <span>{text.likesCollects} {profile.interaction || 0}</span>
+        <span>{profile.gender || text.unknown} · {profile.ip_location || text.unknown}</span>
       </div>
       <button type="button" className="primary" onClick={onLoadNotes} disabled={!canLoadNotes}>
-        查询主页笔记
+        {text.queryProfileNotes}
       </button>
       {profile.tags.length > 0 && (
         <div className="topic-list">
