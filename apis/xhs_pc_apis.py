@@ -129,7 +129,8 @@ class XHS_Apis():
                 "target_user_id": user_id
             }
             splice_api = splice_str(api, params)
-            headers, cookies, data = generate_request_params(cookies_str, splice_api, '', 'GET')
+            referer = f"https://www.xiaohongshu.com/user/profile/{user_id}"
+            headers, cookies, data = generate_request_params(cookies_str, splice_api, '', 'GET', referer=referer)
             response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
@@ -646,7 +647,8 @@ class XHS_Apis():
                 "xsec_token": xsec_token
             }
             splice_api = splice_str(api, params)
-            headers, cookies, data = generate_request_params(cookies_str, splice_api, '', 'GET')
+            referer = f"https://www.xiaohongshu.com/explore/{note_id}"
+            headers, cookies, data = generate_request_params(cookies_str, splice_api, '', 'GET', referer=referer)
             response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]
@@ -703,7 +705,8 @@ class XHS_Apis():
                 "xsec_token": xsec_token
             }
             splice_api = splice_str(api, params)
-            headers, cookies, data = generate_request_params(cookies_str, splice_api, '', 'GET')
+            referer = f"https://www.xiaohongshu.com/explore/{comment['note_id']}"
+            headers, cookies, data = generate_request_params(cookies_str, splice_api, '', 'GET', referer=referer)
             response = requests.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=proxies, timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json["msg"]

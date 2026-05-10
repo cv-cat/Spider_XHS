@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 
 import execjs
 from xhs_utils.cookie_util import trans_cookies
+from xhs_utils.http_util import get_random_user_agent
 
 _STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
@@ -105,7 +106,7 @@ def get_request_headers_template():
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-site",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
+        "user-agent": get_random_user_agent(),
         "x-b3-traceid": "",
         "x-mns": "unload",
         "x-s": "",
@@ -114,7 +115,7 @@ def get_request_headers_template():
         "x-xray-traceid": generate_xray_traceid()
     }
 
-def generate_headers(a1, api, data='', method='POST'):
+def generate_headers(a1, api, data='', method='POST', referer=None):
     xs, xt, xs_common = generate_xs_xs_common(a1, api, data, method)
     x_b3_traceid = generate_x_b3_traceid()
     headers = get_request_headers_template()
@@ -122,14 +123,16 @@ def generate_headers(a1, api, data='', method='POST'):
     headers['x-t'] = str(xt)
     headers['x-s-common'] = xs_common
     headers['x-b3-traceid'] = x_b3_traceid
+    if referer:
+        headers['referer'] = referer
     if data:
         data = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
     return headers, data
 
-def generate_request_params(cookies_str, api, data='', method='POST'):
+def generate_request_params(cookies_str, api, data='', method='POST', referer=None):
     cookies = trans_cookies(cookies_str)
     a1 = cookies['a1']
-    headers, data = generate_headers(a1, api, data, method)
+    headers, data = generate_headers(a1, api, data, method, referer)
     return headers, cookies, data
 
 def splice_str(api, params):
