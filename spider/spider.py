@@ -2,6 +2,7 @@ import json
 import os
 import random
 import time
+from datetime import datetime
 from loguru import logger
 from apis.xhs_pc_apis import XHS_Apis
 from xhs_utils.common_util import init
@@ -183,9 +184,9 @@ class Data_Spider():
         :param proxies                 代理配置
         """
         reset_request_counter()
-        all_comments = []
-        seen_user_ids = set()
-        candidate_user_ids = []
+        all_filtered_comments = []
+        all_final_users = []
+        seen_user_ids: set = set()
 
         # 健康检查：pipeline 启动前确认 cookie 有效
         logger.info('[Pipeline] 校验 Cookie 有效性...')
@@ -207,140 +208,113 @@ class Data_Spider():
             logger.error(f'[Pipeline] 搜索失败: {msg}')
             return [], [], False, msg
 
-        # 跳过零评论笔记；随机打乱访问顺序
-        def _comment_count(n: dict) -> int:
+        def _note_comment_count(n: dict) -> int:
             try:
                 return int(n.get('note_card', {}).get('interact_info', {}).get('comment_count', 0) or 0)
             except (ValueError, TypeError):
                 return 0
 
-        valid_notes = [n for n in notes if n.get('model_type') == 'note' and _comment_count(n) > 0]
+        valid_notes = [n for n in notes if n.get('model_type') == 'note' and _note_comment_count(n) > 0]
         skipped = len([n for n in notes if n.get('model_type') == 'note']) - len(valid_notes)
         if skipped:
             logger.info(f'[Pipeline] 跳过零评论笔记 {skipped} 篇')
-
         random.shuffle(valid_notes)
+        logger.info(f'[Pipeline] 有效笔记 {len(valid_notes)} 篇（已打乱顺序），开始深度优先处理')
 
-        note_urls = [
-            f"https://www.xiaohongshu.com/explore/{n['id']}?xsec_token={n['xsec_token']}"
-            for n in valid_notes
-        ]
-        logger.info(f'[Pipeline] 有效笔记 {len(note_urls)} 篇（已打乱顺序）')
+        # 深度优先：每篇笔记独立走完 评论→过滤→用户→LLM 全流程
+        for note in valid_notes:
+            note_url = f"https://www.xiaohongshu.com/explore/{note['id']}?xsec_token={note['xsec_token']}"
 
-        # Step 2: 逐篇爬评论
-        for note_url in note_urls:
+            # Step 2: 拉取本篇笔记评论
             self._maybe_keepalive(cookies_str, proxies)
-            rate_limited_delay(*delay_range, cooldown_every=cooldown_every, cooldown_min=cooldown_range[0], cooldown_max=cooldown_range[1])
-            success, msg, out_comments = self.xhs_apis.get_note_all_comment(
-                note_url, cookies_str, proxies
-            )
+            rate_limited_delay(*delay_range, cooldown_every=cooldown_every,
+                               cooldown_min=cooldown_range[0], cooldown_max=cooldown_range[1])
+            success, msg, out_comments = self.xhs_apis.get_note_all_comment(note_url, cookies_str, proxies)
             if not success:
                 if _is_session_expired(msg):
                     raise SessionExpiredError(f'爬评论时 Cookie 失效: {msg}')
                 logger.warning(f'[Pipeline] 评论获取失败 {note_url}: {msg}')
                 continue
 
+            note_comments = []
             for comment in out_comments:
-                comment_info = handle_comment_info({**comment, 'note_url': note_url})
-                all_comments.append(comment_info)
-                # 收集二级评论
+                note_comments.append(handle_comment_info({**comment, 'note_url': note_url}))
                 for sub in comment.get('sub_comments', []):
-                    sub_info = handle_comment_info({**sub, 'note_url': note_url})
-                    all_comments.append(sub_info)
+                    note_comments.append(handle_comment_info({**sub, 'note_url': note_url}))
 
-        logger.info(f'[Pipeline] 共获取评论 {len(all_comments)} 条')
+            # Step 3: 按省份 + 时间过滤本篇评论
+            filtered = filter_comments(note_comments, comment_filter_regions, comment_filter_days)
+            all_filtered_comments.extend(filtered)
 
-        # Step 3: 按省份 + 时间过滤评论，去重得到候选用户
-        filtered_comments = filter_comments(all_comments, comment_filter_regions, comment_filter_days)
-        logger.info(f'[Pipeline] 过滤后评论 {len(filtered_comments)} 条')
-
-        for c in filtered_comments:
-            uid = c.get('user_id')
-            if uid and uid not in seen_user_ids:
+            # Steps 4-6: 对本篇新出现的候选用户逐一完成全流程
+            for c in filtered:
+                uid = c.get('user_id')
+                if not uid or uid in seen_user_ids:
+                    continue
                 seen_user_ids.add(uid)
-                candidate_user_ids.append(uid)
-        logger.info(f'[Pipeline] 候选用户 {len(candidate_user_ids)} 人')
 
-        # Step 4: 拉取用户信息
-        user_list = []
-        for user_id in candidate_user_ids:
-            self._maybe_keepalive(cookies_str, proxies)
-            rate_limited_delay(*delay_range, cooldown_every=cooldown_every, cooldown_min=cooldown_range[0], cooldown_max=cooldown_range[1])
-            success, msg, res_json = self.xhs_apis.get_user_info(user_id, cookies_str, proxies)
-            if not success or not res_json:
-                if _is_session_expired(msg):
-                    raise SessionExpiredError(f'拉用户信息时 Cookie 失效: {msg}')
-                logger.warning(f'[Pipeline] 用户信息获取失败 {user_id}: {msg}')
-                continue
-            try:
-                user_info = handle_user_info(res_json['data'], user_id)
-                user_list.append(user_info)
-            except Exception as e:
-                logger.warning(f'[Pipeline] 用户信息解析失败 {user_id}: {e}')
+                # Step 4: 拉取用户信息
+                self._maybe_keepalive(cookies_str, proxies)
+                rate_limited_delay(*delay_range, cooldown_every=cooldown_every,
+                                   cooldown_min=cooldown_range[0], cooldown_max=cooldown_range[1])
+                success, msg, res_json = self.xhs_apis.get_user_info(uid, cookies_str, proxies)
+                if not success or not res_json:
+                    if _is_session_expired(msg):
+                        raise SessionExpiredError(f'拉用户信息时 Cookie 失效: {msg}')
+                    logger.warning(f'[Pipeline] 用户信息获取失败 {uid}: {msg}')
+                    continue
+                try:
+                    user_info = handle_user_info(res_json['data'], uid)
+                except Exception as e:
+                    logger.warning(f'[Pipeline] 用户信息解析失败 {uid}: {e}')
+                    continue
 
-        logger.info(f'[Pipeline] 获取用户信息 {len(user_list)} 人')
+                # Step 5: 人口属性过滤（性别 / 年龄 / 粉丝数）
+                if not filter_users([user_info], user_filter_genders, user_filter_age_range, user_filter_fans_max):
+                    continue
 
-        # Step 5: 按性别 + 年龄区间 + 粉丝数过滤用户
-        final_users = filter_users(user_list, user_filter_genders, user_filter_age_range, user_filter_fans_max)
-        logger.info(f'[Pipeline] 过滤后用户 {len(final_users)} 人')
+                # Step 5b: LLM 过滤营销号
+                mkt = is_marketing_account(user_info.get('nickname', ''), user_info.get('desc', ''), user_info.get('tags', []))
+                if mkt.get('is_marketing'):
+                    logger.info(f'[Pipeline] 过滤营销号 {user_info["nickname"]}: {mkt.get("reason", "")}')
+                    continue
 
-        # Step 5b: LLM 过滤营销号
-        logger.info(f'[Pipeline] LLM 过滤营销号，共 {len(final_users)} 人')
-        real_users = []
-        for user in final_users:
-            result = is_marketing_account(
-                user.get('nickname', ''),
-                user.get('desc', ''),
-                user.get('tags', []),
-            )
-            if result.get('is_marketing'):
-                logger.info(f'[Pipeline] 过滤营销号 {user["nickname"]}: {result.get("reason", "")}')
-            else:
-                real_users.append(user)
-        logger.info(f'[Pipeline] 过滤后真实用户 {len(real_users)} 人（排除营销号 {len(final_users) - len(real_users)} 人）')
-        final_users = real_users
+                # Step 6: 拉取用户笔记标题 → LLM 分析交友倾向
+                note_titles = []
+                try:
+                    self._maybe_keepalive(cookies_str, proxies)
+                    rate_limited_delay(*delay_range, cooldown_every=cooldown_every,
+                                       cooldown_min=cooldown_range[0], cooldown_max=cooldown_range[1])
+                    success, msg, nres = self.xhs_apis.get_user_note_info(uid, '', cookies_str, proxies=proxies)
+                    if success and nres:
+                        for n in nres.get('data', {}).get('notes', [])[:10]:
+                            title = (
+                                n.get('display_title') or n.get('title')
+                                or n.get('note_card', {}).get('display_title', '')
+                                or n.get('note_card', {}).get('title', '')
+                            )
+                            if title:
+                                note_titles.append(title)
+                except Exception as e:
+                    logger.warning(f'[Pipeline] 获取笔记标题失败 {uid}: {e}')
 
-        # Step 6: LLM 分析交友倾向（爬取用户笔记标题 → Ollama qwen2.5:7b）
-        logger.info(f'[Pipeline] 开始 LLM 分析，共 {len(final_users)} 人')
-        for user in final_users:
-            note_titles = []
-            try:
-                random_delay(*delay_range)
-                success, msg, res_json = self.xhs_apis.get_user_note_info(
-                    user['user_id'], '', cookies_str, proxies=proxies
-                )
-                if success and res_json:
-                    raw_notes = res_json.get('data', {}).get('notes', [])
-                    for n in raw_notes[:10]:
-                        title = (
-                            n.get('display_title')
-                            or n.get('title')
-                            or n.get('note_card', {}).get('display_title', '')
-                            or n.get('note_card', {}).get('title', '')
-                        )
-                        if title:
-                            note_titles.append(title)
-            except Exception as e:
-                logger.warning(f'[Pipeline] 获取笔记标题失败 {user["user_id"]}: {e}')
+                tendency = analyze_dating_tendency(user_info.get('desc', ''), note_titles)
+                user_info['dating_tendency'] = tendency.get('tendency', '未分析')
+                user_info['dating_reason'] = tendency.get('reason', '')
+                all_final_users.append(user_info)
+                logger.info(f'[Pipeline] 新增用户 {user_info["nickname"]} → {user_info["dating_tendency"]}')
 
-            result = analyze_dating_tendency(user.get('desc', ''), note_titles)
-            user['dating_tendency'] = result.get('tendency', '未分析')
-            user['dating_reason'] = result.get('reason', '')
-            logger.info(f'[Pipeline] LLM {user["nickname"]} → {user["dating_tendency"]}')
+        logger.info(f'[Pipeline] 完成。过滤评论 {len(all_filtered_comments)} 条，最终用户 {len(all_final_users)} 人')
 
         # Step 7: 保存 CSV
-        import os
-        from datetime import datetime
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
         safe_query = query.replace('/', '_').replace('\\', '_')[:20]
-
         comment_csv = os.path.join(base_path['excel'], f'{safe_query}_评论_{ts}.csv')
         user_csv = os.path.join(base_path['excel'], f'{safe_query}_用户_{ts}.csv')
+        save_to_csv(all_filtered_comments, comment_csv, type='comment')
+        save_to_csv(all_final_users, user_csv, type='user')
 
-        save_to_csv(filtered_comments, comment_csv, type='comment')
-        save_to_csv(final_users, user_csv, type='user')
-
-        return filtered_comments, final_users, True, 'ok'
+        return all_filtered_comments, all_final_users, True, 'ok'
 
 
 if __name__ == '__main__':
