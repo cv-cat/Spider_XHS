@@ -196,6 +196,87 @@ Cookie 获取方式：浏览器登录小红书后，按 `F12` 打开开发者工
 
 > **注意：必须是登录后的 Cookie，未登录状态无效。**
 
+### 🔐 自动化 Cookie 管理（可选）
+
+如果你不想手动从浏览器复制 Cookie，可以使用 [SigCLI](https://github.com/sigcli/sigcli) 自动化管理：
+
+```bash
+# 安装
+npm install -g @sigcli/cli && sig init
+```
+
+在 `~/.sig/config.yaml` 的 `providers:` 下添加：
+
+```yaml
+xiaohongshu:
+    domains:
+        - www.xiaohongshu.com
+        - edith.xiaohongshu.com
+    entryUrl: https://www.xiaohongshu.com/explore
+    validateUrl: https://www.xiaohongshu.com/notifications
+    strategy: browser
+    ttl: 2h
+    extract:
+        - from: cookies
+          as: cookie
+          match: '*'
+    apply:
+        - in: header
+          name: Cookie
+          value: ${cookie}
+```
+
+```bash
+# 一次性登录（浏览器扫码）
+sig login xiaohongshu
+
+# 方式一（推荐）：通过环境变量注入，Cookie 不暴露到终端/日志
+sig run xiaohongshu -- bash -c 'COOKIES="$SIG_XIAOHONGSHU_COOKIE" python -m spider.spider'
+
+# 方式二：将 Cookie 写入 .env（Spider_XHS 自动读取）
+echo "COOKIES='$(sig get xiaohongshu --no-redaction --format value)'" > .env
+python -m spider.spider
+```
+
+**在 Python 代码中使用（SDK）：**
+
+```bash
+pip install sigcli-sdk
+```
+
+```python
+from sigcli_sdk import SigClient
+
+client = SigClient()
+cred = client.get_credential("xiaohongshu")
+cookies_str = cred.values["cookie"]
+# 直接传给 Spider_XHS 的 API
+```
+
+SigCLI 的优势：
+
+- 无需手动打开 DevTools 复制 Cookie
+- Cookie 过期后静默自动刷新（支持配置 TTL）
+- 使用原生 Edge 或者 Chrome 配合 CDP 登录，没有爬虫特征
+- 加密存储，支持多账号
+- 支持远程/无头环境
+
+案例：自动 refresh 小红书 cookie 并推送到远端 VPS 使用
+
+1. 本地机器自动刷新
+
+```bash
+sig remote add <your-devbox-name, e.g mydevbox> <your-ip, e,g. 1.2.3.4> --user root
+sig watch add xiaohongshu && sig proxy start
+```
+
+2. 远端 VPS (也需安装 sig)
+
+```
+echo "COOKIES='$(sig get xiaohongshu --no-redaction --format value)'" > .env
+python -m spider.spider
+```
+
 ### 🚀 运行项目
 
 ```bash
