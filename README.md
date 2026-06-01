@@ -1,4 +1,4 @@
-<img width="966" height="1482" alt="group16" src="https://github.com/user-attachments/assets/26d40d60-5543-4a38-a148-a8441e851b24" /><p align="center">
+<p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank">
     <picture>
       <img width="220" src="./author/logo.jpg" alt="Spider_XHS logo">
