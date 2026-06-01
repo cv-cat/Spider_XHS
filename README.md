@@ -1,4 +1,4 @@
-<p align="center">
+<img width="966" height="1482" alt="group16" src="https://github.com/user-attachments/assets/26d40d60-5543-4a38-a148-a8441e851b24" /><p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank">
     <picture>
       <img width="220" src="./author/logo.jpg" alt="Spider_XHS logo">
@@ -308,10 +308,10 @@ Spider_XHS/
 
 如果你对爬虫和 AI Agent 感兴趣，请加作者主页 wx 通过邀请加入群聊
 
-ps: 请加群14、15，人满或者过期 issue | wx 提醒
+ps: 请加群16、17，人满或者过期 issue | wx 提醒
 
-![group14](https://github.com/user-attachments/assets/736fa3a2-1e7d-4681-af5e-c15dbefde1cd)
+![group16](https://github.com/user-attachments/assets/c6f73388-d45f-4113-9a92-f516eb351882)
 
-![group15](https://github.com/user-attachments/assets/dbc24f80-4307-46d7-ae83-98d694a306b6)
+![group17](https://github.com/user-attachments/assets/f9e53245-a0f6-4759-9d64-2108eeeac98a)
 
 
