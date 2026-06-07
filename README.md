@@ -313,5 +313,9 @@ ps: 请加群16、17，人满或者过期 issue | wx 提醒
 ![group16](https://github.com/user-attachments/assets/c6f73388-d45f-4113-9a92-f516eb351882)
 
 ![group17](https://github.com/user-attachments/assets/f9e53245-a0f6-4759-9d64-2108eeeac98a)
+<img width="966" height="1482" alt="group14" src="https://github.com/user-attachments/assets/4ff4e202-7fc2-42f7-910a-e12d55456bd1" />
+<img width="966" height="1482" alt="group17" src="https://github.com/user-attachments/assets/6406398d-a4c7-4b08-a92c-496ea10a4440" />
+
+<img width="966" height="1482" alt="group18" src="https://github.com/user-attachments/assets/57f6a18c-d9d0-4343-b2eb-c32e1e991115" />
 
 
