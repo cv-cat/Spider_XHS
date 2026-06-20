@@ -1,3 +1,7 @@
+<div align="center">
+
+# Spider_XHS
+
 <p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank">
     <picture>
@@ -6,27 +10,45 @@
   </a>
 </p>
 
-<div align="center">
-
-# Spider_XHS
-
-**专业的小红书数据采集 & 全域运营解决方案 & Agent Skills**
+### The All-in-One Manager for XHS
 
 [![Skills](https://img.shields.io/badge/skills-supported-success)](https://github.com/cv-cat/XhsSkills)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![Node.js](https://img.shields.io/badge/nodejs-20%2B-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-orange)](LICENSE)
 
-</div>
+<a href="https://trendshift.io/repositories/13631" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13631" alt="cv-cat%2FSpider_XHS | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
+<div align="center">
+
+
+---
+
+## ❤️Sponsor
+
+> [Want to appear here?](992822653@qq.com)
+
+<details open>
+<summary>Click to collapse</summary>
+
+
+<table>
+<tr>
+<td width="180"><a href="https://api.icreat.ai/register?aff=Spider_XHS"><img src="https://github.com/user-attachments/assets/457f46d1-2a39-4e64-9240-4b7420a41242" alt="iCreat API" width="150"></a></td>
+<td><a href="https://api.icreat.ai/register?aff=Spider_XHS">iCreat API</a> 
+  感谢iCreat API赞助了本项目!iCreat API是面向个人开发者、团队和企业的高性能AI模型API中转平台，稳定接入官方渠道，覆盖谷歌、火山、昆仑万维、腾讯云等开白名单资源。平台集成Anthropic、ByteDance、OpenAl、DeepSeek、Google、Minimax、Kwai等主流供应商，提供超60款模型调用，并通过统一控制台支持多维度模型筛选、计费类型管理和分组权限控制。支持Pay as you go 与余额计费,企业用户可正常开票并获得专属对接服务。</td>
+</tr>
+
+</table>
+
+</details>
+
+## 为什么需要这个项目？
 
 > **在 AI 大模型爆发的时代，内容运营的竞争本质是效率竞争。**
 > 本项目封装了小红书平台完整的数据采集与内容发布能力，为开发者构建 AI 运营智能体提供可靠、稳定的底层 API 支撑。
 
 **⚠️ 本项目仅供学习交流使用，禁止任何商业化行为，如有违反，后果自负**
-
----
-
-## 为什么需要这个项目？
 
 ```
 采集竞品笔记 ──► [Spider_XHS] ──► 你的 AI Agent（改写 / 生成 / 分析）──► 自动上传发布
