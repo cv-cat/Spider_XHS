@@ -1,7 +1,5 @@
 <div align="center">
 
-# Spider_XHS
-
 <p align="center">
   <a href="https://github.com/cv-cat/Spider_XHS" target="_blank">
     <picture>
@@ -9,6 +7,7 @@
     </picture>
   </a>
 </p>
+# Spider_XHS
 
 ### The All-in-One Manager for XHS
 
@@ -19,10 +18,7 @@
 
 <a href="https://trendshift.io/repositories/13631" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13631" alt="cv-cat%2FSpider_XHS | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-<div align="center">
-
-
----
+</div>
 
 ## ❤️Sponsor
 
