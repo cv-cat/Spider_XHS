@@ -23,7 +23,7 @@
 
 ## ❤️Sponsor
 
-> [Want to appear here?](992822653@qq.com)
+> [Want to appear here?](mailto:992822653@qq.com)
 
 <details open>
 <summary>Click to collapse</summary>
