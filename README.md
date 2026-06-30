@@ -326,10 +326,10 @@ Spider_XHS/
 
 如果你对爬虫和 AI Agent 感兴趣，请加作者主页 wx 通过邀请加入群聊
 
-ps: 请加群18、19、20，人满或者过期 issue | wx 提醒
+ps: 请加群19、20、21，人满或者过期 issue | wx 提醒
 
-| group18 | group19 | group20 |
+| group19 | group20 | group21 |
 |:--:|:--:|:--:|
-| <img width="280" alt="group18" src="https://github.com/user-attachments/assets/2980ca3c-a971-40b7-bddc-eead474001cb" /> | <img width="280" alt="group19" src="https://github.com/user-attachments/assets/2fc0d033-79e3-4022-b220-b9521414547c" /> | <img width="280" alt="group20" src="https://github.com/user-attachments/assets/b97ed102-c30f-414a-a1c4-2b5590df8e87" /> |
+| <img width="280" alt="group19" src="https://github.com/user-attachments/assets/c3b4cb63-eeb7-40de-8ee4-e597c77dd53e" /> | <img width="280" alt="group20" src="https://github.com/user-attachments/assets/5246820c-3e6f-4fa8-b812-056deb15dd7f" /> | <img width="280" alt="group21" src="https://github.com/user-attachments/assets/ddb73efa-34c1-4a74-b103-8fe1cdb21469" /> |
 
 
