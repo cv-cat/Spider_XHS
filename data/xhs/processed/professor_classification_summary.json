@@ -1,0 +1,147 @@
+{
+  "total_posts": 492,
+  "total_comments": 2618,
+  "posts_with_professor_match": 25,
+  "comments_with_professor_match": 20,
+  "professors_found": 23,
+  "professor_statistics": [
+    {
+      "name": "Aiping Lu",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Alison Suk Kuen CHAN",
+      "post_count": 3,
+      "comment_count": 1,
+      "total_mentions": 4
+    },
+    {
+      "name": "Angela K. Y. MAK",
+      "post_count": 0,
+      "comment_count": 1,
+      "total_mentions": 1
+    },
+    {
+      "name": "Anna QIN Lai Yin",
+      "post_count": 0,
+      "comment_count": 1,
+      "total_mentions": 1
+    },
+    {
+      "name": "CHOW Kwok Ching",
+      "post_count": 0,
+      "comment_count": 1,
+      "total_mentions": 1
+    },
+    {
+      "name": "Chris ZHAO",
+      "post_count": 2,
+      "comment_count": 0,
+      "total_mentions": 2
+    },
+    {
+      "name": "Fang ZHANG",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Florin Constantin Serban",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Henry T. Y. Fung",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Jamie CHEUNG",
+      "post_count": 1,
+      "comment_count": 1,
+      "total_mentions": 2
+    },
+    {
+      "name": "Janet KWAN",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Keonyoung Park",
+      "post_count": 0,
+      "comment_count": 1,
+      "total_mentions": 1
+    },
+    {
+      "name": "Leevan LING",
+      "post_count": 5,
+      "comment_count": 3,
+      "total_mentions": 8
+    },
+    {
+      "name": "Liang TIAN",
+      "post_count": 0,
+      "comment_count": 5,
+      "total_mentions": 5
+    },
+    {
+      "name": "Mark YAN",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Min LI",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Prof. WONG, Martin Ding Fat",
+      "post_count": 2,
+      "comment_count": 0,
+      "total_mentions": 2
+    },
+    {
+      "name": "Shu Kong SO",
+      "post_count": 7,
+      "comment_count": 0,
+      "total_mentions": 7
+    },
+    {
+      "name": "Song CHANG",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "Ting CHEN",
+      "post_count": 6,
+      "comment_count": 2,
+      "total_mentions": 8
+    },
+    {
+      "name": "Vivienne S. Y. Leung",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    },
+    {
+      "name": "XIAO, Xiaosui 蕭小穗",
+      "post_count": 2,
+      "comment_count": 1,
+      "total_mentions": 3
+    },
+    {
+      "name": "Xu HUANG",
+      "post_count": 0,
+      "comment_count": 3,
+      "total_mentions": 3
+    }
+  ]
+}
