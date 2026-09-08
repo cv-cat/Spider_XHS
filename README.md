@@ -30,7 +30,7 @@
 
 <div align="center">
 
-[![FastAIToken](https://github.com/TheSmallHanCat/flow2api/blob/main/static/sponsors/fastaitoken-banner.png)](https://www.fastaitoken.com/register?aff=48J4VXUABAAV)
+[![FastAIToken](./author/fastaitoken-banner.png)](https://www.fastaitoken.com/register?aff=48J4VXUABAAV)
 
 </div>
 
