@@ -1,0 +1,15 @@
+{
+  "total_posts": 492,
+  "total_comments": 2618,
+  "posts_with_course_match": 1,
+  "comments_with_course_match": 0,
+  "courses_found": 1,
+  "course_statistics": [
+    {
+      "course_code": "MGNT7090",
+      "post_count": 1,
+      "comment_count": 0,
+      "total_mentions": 1
+    }
+  ]
+}
