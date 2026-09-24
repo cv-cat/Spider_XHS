@@ -25,33 +25,6 @@
 
 > [想出现在这里？](mailto:992822653@qq.com)
 
-<details open>
-<summary>点击折叠</summary>
-
-<div align="center">
-
-[![FastAIToken](https://github.com/TheSmallHanCat/flow2api/blob/main/static/sponsors/fastaitoken-banner.png)](https://www.fastaitoken.com/register?aff=48J4VXUABAAV)
-
-</div>
-
-**FastAIToken** 是面向开发者的 AI API 聚合平台，支持 OpenAI、Claude、Gemini 等主流大模型，兼容 OpenAI API 协议，可无缝接入 **Claude Code、Codex、Gemini CLI、Cherry Studio、Cline、Continue** 等各类 AI 开发工具。平台采用 **充值 1:1（1 元 = 1 美元 API 额度）**，帮助开发者以更低成本、更高效率地使用全球领先的大模型服务。
-
-平台提供多个可选分组与公开状态页，开发者可根据成本、响应速度和稳定性自由选择不同渠道，并享受 **7×24 小时真人技术支持**（非机器人）。
-
-**主要做 AI 开发接入？可以试试 [FastAIToken](https://www.fastaitoken.com/register?aff=48J4VXUABAAV)，兼容 Codex / Claude Code / Gemini CLI 等主流工具。**
-
-
----
-
-<table>
-<tr>
-<td width="180"><a href="https://www.ipwo.net/?ref=githubcvcat"><img src="https://github.com/user-attachments/assets/174f644d-779e-42b9-82ba-37973201fb20" alt="ipwo" width="150"></a></td>
-<td><a href="https://www.ipwo.net/?ref=githubcvcat">IPWO</a> 全球住宅代理，为开发者提供灵活的网络访问资源，适用于数据采集、市场研究、AI 应用开发等场景。开发者在不同应用场景下优化访问体验，为小红书数据研究、内容分析以及自动化开发提供更多支持。HTTP/HTTPS/socks5多种协议，免费试用，优惠折扣码“0109”</td>
-</tr>
-
-</table>
-
-</details>
 
 ## 为什么需要这个项目？
 
