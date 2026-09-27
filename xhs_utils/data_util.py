@@ -99,9 +99,17 @@ def handle_note_info(data):
         video_cover = image_list[0] if image_list else None
         video_addr = None
         video_info = data.get('note_card', {}).get('video', {})
-        streams = video_info.get('media', {}).get('stream', {}).get('h264', [])
-        if streams:
-            video_addr = streams[0].get('master_url') or streams[0].get('url')
+        stream_map = video_info.get('media', {}).get('stream', {}) or {}
+        # 新版 Web 把编码名混淆为 EF4(h264) / EF5(h265) 等，优先兼容性最好的 h264
+        preferred = ['h264', 'EF4', 'h265', 'EF5']
+        codecs = preferred + [k for k in stream_map if k not in preferred]
+        for codec in codecs:
+            for stream in stream_map.get(codec) or []:
+                video_addr = stream.get('master_url') or stream.get('url') or next(iter(stream.get('backup_urls') or []), None)
+                if video_addr:
+                    break
+            if video_addr:
+                break
         if not video_addr and 'consumer' in video_info:
             origin_key = video_info['consumer'].get('origin_video_key')
             if origin_key:
