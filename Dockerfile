@@ -19,6 +19,12 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 签名算法在 xhs_utils/**/js/profile.js 里 require('crypto-js')，
+# 而 node_modules/ 被 .gitignore 排除，所以必须在这里装一次。
+COPY package.json package-lock.json ./
+
+RUN npm ci --omit=dev
+
 COPY . .
 
 EXPOSE 5000
