@@ -1,0 +1,2646 @@
+[
+  {
+    "id": "local_ACCT1006",
+    "code": "ACCT1006",
+    "name": "Principles of Accounting II",
+    "credits": 2,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT2005",
+    "code": "ACCT2005",
+    "name": "Intermediate Accounting I",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT2006",
+    "code": "ACCT2006",
+    "name": "Intermediate Accounting II",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT3006",
+    "code": "ACCT3006",
+    "name": "Hong Kong Taxation",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT3007",
+    "code": "ACCT3007",
+    "name": "Cost and Management Accounting II",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT3026",
+    "code": "ACCT3026",
+    "name": "Accounting Internship I",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT3045",
+    "code": "ACCT3045",
+    "name": "Accounting Internship II",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT4017",
+    "code": "ACCT4017",
+    "name": "Auditing II",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ACCT4035",
+    "code": "ACCT4035",
+    "name": "Big Data in Accounting with Power BI",
+    "credits": 3,
+    "department": "Accountancy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ARTT1006",
+    "code": "ARTT1006",
+    "name": "Arts Tech Practices I (Making Senses)",
+    "credits": 3,
+    "department": "Creative Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ARTT2006",
+    "code": "ARTT2006",
+    "name": "Arts Tech Practices II (Transmedia Beyond Spectacles)",
+    "credits": 3,
+    "department": "Creative Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ARTT3006",
+    "code": "ARTT3006",
+    "name": "Transdisciplinary Collaboration II",
+    "credits": 6,
+    "department": "Creative Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ARTT3007",
+    "code": "ARTT3007",
+    "name": "Arts Tech Work Experience",
+    "credits": 3,
+    "department": "Creative Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ARTT4006",
+    "code": "ARTT4006",
+    "name": "Arts Tech Honours Project",
+    "credits": 7,
+    "department": "Creative Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ARTT4007",
+    "code": "ARTT4007",
+    "name": "Arts Tech - Special Topics",
+    "credits": 3,
+    "department": "Creative Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BAGE3006",
+    "code": "BAGE3006",
+    "name": "Industry Internship",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BAGE3015",
+    "code": "BAGE3015",
+    "name": "Transdisciplinary Collaboration II",
+    "credits": 6,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BAGE4899",
+    "code": "BAGE4899",
+    "name": "Honours Project II",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL1005",
+    "code": "BIOL1005",
+    "name": "Introduction to Biology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2015",
+    "code": "BIOL2015",
+    "name": "Biodiversity",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2016",
+    "code": "BIOL2016",
+    "name": "Biodiversity Laboratory",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2017",
+    "code": "BIOL2017",
+    "name": "Cell Biology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2025",
+    "code": "BIOL2025",
+    "name": "Cell Biology Laboratory",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2026",
+    "code": "BIOL2026",
+    "name": "Genetics and Evolution",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2027",
+    "code": "BIOL2027",
+    "name": "Genetics and Evolution Laboratory",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL2046",
+    "code": "BIOL2046",
+    "name": "Summer Internship",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3005",
+    "code": "BIOL3005",
+    "name": "Animal Physiology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3006",
+    "code": "BIOL3006",
+    "name": "Animal Physiology Laboratory",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3016",
+    "code": "BIOL3016",
+    "name": "Environmental Health and Toxicology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3025",
+    "code": "BIOL3025",
+    "name": "Plant Physiology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3026",
+    "code": "BIOL3026",
+    "name": "Plant Physiology Laboratory",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3027",
+    "code": "BIOL3027",
+    "name": "Waste Treatment and Recycling",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3056",
+    "code": "BIOL3056",
+    "name": "Introduction to Genome Biology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3065",
+    "code": "BIOL3065",
+    "name": "Soil Science and Fertility",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3066",
+    "code": "BIOL3066",
+    "name": "Soil Science and Fertility Laboratory",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL3067",
+    "code": "BIOL3067",
+    "name": "Crop Production and Management",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4017",
+    "code": "BIOL4017",
+    "name": "Environmental Biotechnology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4025",
+    "code": "BIOL4025",
+    "name": "Biotechnology Studies Laboratory II",
+    "credits": 2,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4027",
+    "code": "BIOL4027",
+    "name": "Developmental Biology",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4045",
+    "code": "BIOL4045",
+    "name": "Environmental Science Laboratory II",
+    "credits": 2,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4047",
+    "code": "BIOL4047",
+    "name": "Farm Management for Urban Environment",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4057",
+    "code": "BIOL4057",
+    "name": "Organic Certification and Inspector Training",
+    "credits": 1,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4067",
+    "code": "BIOL4067",
+    "name": "Sustainable Urban Environment",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4899",
+    "code": "BIOL4899",
+    "name": "Applied Biology Project II",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BIOL4999",
+    "code": "BIOL4999",
+    "name": "Bioresource and Agricultural Science Project II",
+    "credits": 3,
+    "department": "Biology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC1007",
+    "code": "BMSC1007",
+    "name": "Physiology 生理學",
+    "credits": 3,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC1008",
+    "code": "BMSC1008",
+    "name": "Biomedical Sciences Laboratory I 生物醫學實驗 I",
+    "credits": 1,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC1009",
+    "code": "BMSC1009",
+    "name": "Biomedical Sciences Laboratory IIA 生物醫學實驗 IIA",
+    "credits": 1,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC1015",
+    "code": "BMSC1015",
+    "name": "Biochemistry and Molecular Biology 生化及分子生物學",
+    "credits": 3,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC1017",
+    "code": "BMSC1017",
+    "name": "Biomedical Sciences Laboratory III 生物醫學實驗 III",
+    "credits": 0.5,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC1025",
+    "code": "BMSC1025",
+    "name": "Anatomy and Physiology 解剖及生理學",
+    "credits": 3,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC2015",
+    "code": "BMSC2015",
+    "name": "Clinical Sciences Laboratory 臨床醫學實驗",
+    "credits": 1,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC2016",
+    "code": "BMSC2016",
+    "name": "Fundamental Diagnosis 西醫診斷學",
+    "credits": 4,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC2017",
+    "code": "BMSC2017",
+    "name": "Pharmacology 藥理學",
+    "credits": 3,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC3005",
+    "code": "BMSC3005",
+    "name": "Hematology 血液學",
+    "credits": 2,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC3017",
+    "code": "BMSC3017",
+    "name": "Endocrinology 內分泌",
+    "credits": 2,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC3026",
+    "code": "BMSC3026",
+    "name": "Renal System 泌尿",
+    "credits": 2,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC3027",
+    "code": "BMSC3027",
+    "name": "Reproductive System 生殖",
+    "credits": 2,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC3046",
+    "code": "BMSC3046",
+    "name": "Surgery and Emergency Medicine 外科,急診科",
+    "credits": 3,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BMSC4899",
+    "code": "BMSC4899",
+    "name": "Honours Project II 專題研究 II",
+    "credits": 3,
+    "department": "Biomedical Sciences",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI1005",
+    "code": "BUSI1005",
+    "name": "The World of Business and Entrepreneurship",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI1006",
+    "code": "BUSI1006",
+    "name": "Business Research Methods",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI1007",
+    "code": "BUSI1007",
+    "name": "Business Coding",
+    "credits": 1,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI2005",
+    "code": "BUSI2005",
+    "name": "Organisational Behaviour",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI2035",
+    "code": "BUSI2035",
+    "name": "Entrepreneurship and Innovative Thinking",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI2045",
+    "code": "BUSI2045",
+    "name": "Data Analytics for Business Decision Making",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI2055",
+    "code": "BUSI2055",
+    "name": "AI for Business",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3006",
+    "code": "BUSI3006",
+    "name": "Business Ethics, CSR and Impact Investing",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3035",
+    "code": "BUSI3035",
+    "name": "Service Learning and Community Engagement",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3046",
+    "code": "BUSI3046",
+    "name": "Business Communications in the Technology Era",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3055",
+    "code": "BUSI3055",
+    "name": "Fundamentals of Social Entrepreneurship and Social Impact",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3057",
+    "code": "BUSI3057",
+    "name": "Managing Entrepreneurial Ventures",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3095",
+    "code": "BUSI3095",
+    "name": "Project Management for Digital Initiatives",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI3097",
+    "code": "BUSI3097",
+    "name": "Data Analytics for Business Decision Making",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI4005",
+    "code": "BUSI4005",
+    "name": "BBA Project",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_BUSI4006",
+    "code": "BUSI4006",
+    "name": "Strategic Management",
+    "credits": 3,
+    "department": "Business",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM1005",
+    "code": "CHEM1005",
+    "name": "Introduction to Chemistry",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM2006",
+    "code": "CHEM2006",
+    "name": "Integrated Chemistry Tutorials I",
+    "credits": 0,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM2007",
+    "code": "CHEM2007",
+    "name": "Integrated Chemistry Tutorials II",
+    "credits": 0,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM2066",
+    "code": "CHEM2066",
+    "name": "Analytical Chemistry",
+    "credits": 4,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM2067",
+    "code": "CHEM2067",
+    "name": "Organic Chemistry I",
+    "credits": 4,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3015",
+    "code": "CHEM3015",
+    "name": "Inorganic Chemistry",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3016",
+    "code": "CHEM3016",
+    "name": "Inorganic Chemistry Laboratory",
+    "credits": 1,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3017",
+    "code": "CHEM3017",
+    "name": "Physical Chemistry Laboratory II",
+    "credits": 1,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3035",
+    "code": "CHEM3035",
+    "name": "Integrated Laboratory for Testing and Certification",
+    "credits": 1,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3036",
+    "code": "CHEM3036",
+    "name": "Biochemistry I",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3047",
+    "code": "CHEM3047",
+    "name": "Chemistry Research Methods",
+    "credits": 1,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3056",
+    "code": "CHEM3056",
+    "name": "Integrated Chemistry Tutorials IV",
+    "credits": 0,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM3065",
+    "code": "CHEM3065",
+    "name": "Seminar",
+    "credits": 1,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4016",
+    "code": "CHEM4016",
+    "name": "Dissertation in Chemistry",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4017",
+    "code": "CHEM4017",
+    "name": "Environmental Chemistry and Analysis",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4025",
+    "code": "CHEM4025",
+    "name": "Advanced Instrumental Analysis",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4045",
+    "code": "CHEM4045",
+    "name": "Organic Synthesis",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4057",
+    "code": "CHEM4057",
+    "name": "Spectroscopic Techniques for Structure Determination",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4076",
+    "code": "CHEM4076",
+    "name": "Chemical Testing Laboratory Management and Accreditation",
+    "credits": 4,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4086",
+    "code": "CHEM4086",
+    "name": "Forensic Chemistry and Analysis",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4879",
+    "code": "CHEM4879",
+    "name": "Final Year Project II",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHEM4899",
+    "code": "CHEM4899",
+    "name": "Final Year Project II",
+    "credits": 3,
+    "department": "Chemistry",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL2016",
+    "code": "CHIL2016",
+    "name": "Chinese Etymology 文字學",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL2017",
+    "code": "CHIL2017",
+    "name": "Classical Chinese 古代漢語",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL2025",
+    "code": "CHIL2025",
+    "name": "History of Classical Chinese Literature (Song to Qing Dynasties) 中國文學史(宋至清)",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL3015",
+    "code": "CHIL3015",
+    "name": "Selected Chinese Lyrics and Songs 詞曲選 - 女性詞人選讀",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL3026",
+    "code": "CHIL3026",
+    "name": "Modern Chinese Fiction Writing 現代中文小說寫作",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4005",
+    "code": "CHIL4005",
+    "name": "Literary Criticism 文學批評",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4026",
+    "code": "CHIL4026",
+    "name": "Modern Views on Traditional Chinese Culture 傳統中國文化的現代觀照",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4027",
+    "code": "CHIL4027",
+    "name": "Selected Readings from Classical Confucian Works 先秦儒家專書選讀 - 禮記",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4035",
+    "code": "CHIL4035",
+    "name": "Selected Readings from Traditional Chinese Thinkers (Zi) 諸子選讀 - 孟子",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4057",
+    "code": "CHIL4057",
+    "name": "Special Topics in Chinese Language 中國語文專題研究 - 詞匯與中國文化",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4106",
+    "code": "CHIL4106",
+    "name": "Special Topics in the History of Chinese Literature (Modern Literature) 中國文學史專題研究 (現代文學) - 香港文學",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CHIL4899",
+    "code": "CHIL4899",
+    "name": "Honours Project 畢業寫作（論文╱創作）",
+    "credits": 3,
+    "department": "Chinese Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED1016",
+    "code": "CMED1016",
+    "name": "Ancient Chinese Medical Prose - Selected Readings 醫古文 - 中醫文獻選讀",
+    "credits": 2,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED1017",
+    "code": "CMED1017",
+    "name": "Diagnostics of Chinese Medicine",
+    "credits": 5,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED2017",
+    "code": "CMED2017",
+    "name": "Chinese Medicinal Formulae 方劑學",
+    "credits": 6,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED2025",
+    "code": "CMED2025",
+    "name": "Selected Readings of Chinese Medicine Classics (II) - Treatise on Exogenous Febrile Diseases 中醫經典選讀(二)傷寒論",
+    "credits": 5,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED2027",
+    "code": "CMED2027",
+    "name": "Selected Readings of Chinese Medicine Classics (IV) - Science of Seasonal Febrile Diseases 中醫經典選讀(四)溫病學",
+    "credits": 4,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3035",
+    "code": "CMED3035",
+    "name": "Surgery of Chinese Medicine 中醫外科學",
+    "credits": 5,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3036",
+    "code": "CMED3036",
+    "name": "Acupuncture - Clinical Practice 臨床針灸學",
+    "credits": 4,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3039",
+    "code": "CMED3039",
+    "name": "Internal Medicine of Chinese Medicine II 中醫內科學 II",
+    "credits": 4,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3049",
+    "code": "CMED3049",
+    "name": "Internal Medicine of Chinese Medicine Clinic II 中醫內科學見習 II",
+    "credits": 0.5,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3057",
+    "code": "CMED3057",
+    "name": "Paediatrics of Chinese Medicine 中醫兒科學",
+    "credits": 4,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3059",
+    "code": "CMED3059",
+    "name": "Orthopaedics and Traumatology of Chinese Medicine and Tui Na II 中醫骨傷、推拿學 II",
+    "credits": 3,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3065",
+    "code": "CMED3065",
+    "name": "Acupuncture - Clinical Practice Attachment 臨床針灸學見習",
+    "credits": 0.5,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED3069",
+    "code": "CMED3069",
+    "name": "Orthopaedics and Traumatology of Chinese Medicine and Tui Na Laboratory II 中醫骨傷、推拿學實驗 II",
+    "credits": 1,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED4015",
+    "code": "CMED4015",
+    "name": "Specialty Studies and Professional Training of Chinese Medicine 中醫專科研習與職業訓練",
+    "credits": 12,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CMED4018",
+    "code": "CMED4018",
+    "name": "Clinical Internship I 畢業實習 I",
+    "credits": 19,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMM1015",
+    "code": "COMM1015",
+    "name": "Studies in Communication, Media, and Journalism",
+    "credits": 3,
+    "department": "Communication",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMM2006",
+    "code": "COMM2006",
+    "name": "Communication Theory (Communication Studies)",
+    "credits": 3,
+    "department": "Communication",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMM2026",
+    "code": "COMM2026",
+    "name": "Human Communication",
+    "credits": 3,
+    "department": "Communication",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMM2027",
+    "code": "COMM2027",
+    "name": "AI and Digital Communication",
+    "credits": 3,
+    "department": "Communication",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMM2036",
+    "code": "COMM2036",
+    "name": "Media Design and Digital Applications",
+    "credits": 3,
+    "department": "Communication",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP1005",
+    "code": "COMP1005",
+    "name": "Essence of Computing",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP1016",
+    "code": "COMP1016",
+    "name": "Mathematical Methods for Business Computing",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP1025",
+    "code": "COMP1025",
+    "name": "Coding for Humanists",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP2015",
+    "code": "COMP2015",
+    "name": "Data Structures and Algorithms",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP2016",
+    "code": "COMP2016",
+    "name": "Database Management",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP2017",
+    "code": "COMP2017",
+    "name": "Operating Systems",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP2035",
+    "code": "COMP2035",
+    "name": "AI and Data Analytics for Health and Social Innovation I",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP3065",
+    "code": "COMP3065",
+    "name": "Artificial Intelligence Application Development",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP3066",
+    "code": "COMP3066",
+    "name": "Health and Assistive Technology: Practicum",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP3076",
+    "code": "COMP3076",
+    "name": "AI and Generative Arts",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP3115",
+    "code": "COMP3115",
+    "name": "Exploratory Data Analysis and Visualization",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP3925",
+    "code": "COMP3925",
+    "name": "Data Analysis Studio",
+    "credits": 1,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4025",
+    "code": "COMP4025",
+    "name": "Interactive Computer Graphics",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4026",
+    "code": "COMP4026",
+    "name": "Computer Vision and Pattern Recognition",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4027",
+    "code": "COMP4027",
+    "name": "Data Mining and Knowledge Discovery",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4046",
+    "code": "COMP4046",
+    "name": "Information Systems Control and Auditing",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4057",
+    "code": "COMP4057",
+    "name": "Distributed and Cloud Computing",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4107",
+    "code": "COMP4107",
+    "name": "Software Design, Development and Testing",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4117",
+    "code": "COMP4117",
+    "name": "Information Systems: Design and Integration",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4127",
+    "code": "COMP4127",
+    "name": "Information Security",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4135",
+    "code": "COMP4135",
+    "name": "Recommender Systems and Applications",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4137",
+    "code": "COMP4137",
+    "name": "Blockchain Technology and Applications",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4146",
+    "code": "COMP4146",
+    "name": "Prompt Engineering for Generative AI",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4869",
+    "code": "COMP4869",
+    "name": "Informatics Project II",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4878",
+    "code": "COMP4878",
+    "name": "Innovative Computing Project I",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4879",
+    "code": "COMP4879",
+    "name": "Innovative Computing Project II",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4908",
+    "code": "COMP4908",
+    "name": "Data Media Project I",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4909",
+    "code": "COMP4909",
+    "name": "Data Media Project II",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4918",
+    "code": "COMP4918",
+    "name": "Final Year Project I",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4919",
+    "code": "COMP4919",
+    "name": "Final Year Project II",
+    "credits": 3,
+    "department": "Computer Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_COMP4929",
+    "code": "COMP4929",
+    "name": "Artificial Intelligence Project II",
+    "credits": 3,
+    "department": "Computer Science"
+  },
+  {
+    "id": "local_CRIN3005",
+    "code": "CRIN3005",
+    "name": "Special Topics on Creative Industry I",
+    "credits": 3,
+    "department": "Creative Industries",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CRIN3006",
+    "code": "CRIN3006",
+    "name": "Artiste Management",
+    "credits": 3,
+    "department": "Creative Industries",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_DIFH1005",
+    "code": "DIFH1005",
+    "name": "AI and Digital Futures in the Humanities",
+    "credits": 3,
+    "department": "Digital Futures",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON1006",
+    "code": "ECON1006",
+    "name": "Principles of Economics II",
+    "credits": 2,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON1007",
+    "code": "ECON1007",
+    "name": "Basic Economic Principles",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3006",
+    "code": "ECON3006",
+    "name": "Asia-Pacific Economies",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3007",
+    "code": "ECON3007",
+    "name": "Industrial Organization and Competitive Strategy",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3066",
+    "code": "ECON3066",
+    "name": "Business Economics Internship",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3075",
+    "code": "ECON3075",
+    "name": "Service-Learning in Sustainable Development",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3077",
+    "code": "ECON3077",
+    "name": "Managerial Macroeconomics",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3086",
+    "code": "ECON3086",
+    "name": "Python Programming for FinTech",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3087",
+    "code": "ECON3087",
+    "name": "Understanding the Digital Economy",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3105",
+    "code": "ECON3105",
+    "name": "Big Data Analytics with Python",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON3107",
+    "code": "ECON3107",
+    "name": "Environmental Cost and Benefit Analysis",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EDUC4899",
+    "code": "EDUC4899",
+    "name": "Honours Project",
+    "credits": 3,
+    "department": "Education",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL1005",
+    "code": "ENGL1005",
+    "name": "English, Creativity, and Cultures",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL2016",
+    "code": "ENGL2016",
+    "name": "Sounds of English around the World",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL2017",
+    "code": "ENGL2017",
+    "name": "Stepping Stones in English Grammar",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL2025",
+    "code": "ENGL2025",
+    "name": "The Art of Storytelling",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL2027",
+    "code": "ENGL2027",
+    "name": "Academic and Professional Writing",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL2097",
+    "code": "ENGL2097",
+    "name": "Virtual Storytelling: Narration across Dimensions",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL3026",
+    "code": "ENGL3026",
+    "name": "Special Topic in Language - From Theory to Practice in Second Language Speech",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL3055",
+    "code": "ENGL3055",
+    "name": "Literature and Film",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL3205",
+    "code": "ENGL3205",
+    "name": "Components of a Word",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL3416",
+    "code": "ENGL3416",
+    "name": "Internship in English Studies: From Classroom to Workplace",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL4006",
+    "code": "ENGL4006",
+    "name": "Advanced Topic in Language",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL4007",
+    "code": "ENGL4007",
+    "name": "Advanced Topic in Linguistic Theory - Language Learning and Cognition",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL4027",
+    "code": "ENGL4027",
+    "name": "Exploring Bilingualism and Bilingual Education",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL4067",
+    "code": "ENGL4067",
+    "name": "Comics and Graphic Novels",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL4127",
+    "code": "ENGL4127",
+    "name": "Introducing African Literatures",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ENGL4899",
+    "code": "ENGL4899",
+    "name": "Honours Project",
+    "credits": 3,
+    "department": "English",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO2007",
+    "code": "EURO2007",
+    "name": "The Political Economy of the European Union",
+    "credits": 3,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO2015",
+    "code": "EURO2015",
+    "name": "Model European Union",
+    "credits": 3,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO3009",
+    "code": "EURO3009",
+    "name": "European Academic/Internship Semester II",
+    "credits": 12,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO4005",
+    "code": "EURO4005",
+    "name": "Current Issues of European Integration",
+    "credits": 3,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO4006",
+    "code": "EURO4006",
+    "name": "European Economic and Business Life: travailler en contexte international",
+    "credits": 3,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO4007",
+    "code": "EURO4007",
+    "name": "European Economic and Business Life: Wirtschaft im Wandel/Deutsch-chinesische Wirtschaftsbeziehungen",
+    "credits": 3,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_EURO4899",
+    "code": "EURO4899",
+    "name": "Honours Project (European Studies)",
+    "credits": 3,
+    "department": "European Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS1016",
+    "code": "FAGS1016",
+    "name": "Fundamentals of Directing",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2005",
+    "code": "FAGS2005",
+    "name": "Voice and Speech II",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2006",
+    "code": "FAGS2006",
+    "name": "Movement II",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2007",
+    "code": "FAGS2007",
+    "name": "Acting and Directing",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2025",
+    "code": "FAGS2025",
+    "name": "Dance for Actors",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2026",
+    "code": "FAGS2026",
+    "name": "Special Topic in Screen Performance",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2027",
+    "code": "FAGS2027",
+    "name": "Special Topic in Acting: Asia Focus",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2035",
+    "code": "FAGS2035",
+    "name": "World Theatre",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS2036",
+    "code": "FAGS2036",
+    "name": "Performativity & Online Content Creation",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS3007",
+    "code": "FAGS3007",
+    "name": "Acting Internship",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS3025",
+    "code": "FAGS3025",
+    "name": "Technology, Body and Performance",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS3026",
+    "code": "FAGS3026",
+    "name": "My Acting Career",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS3027",
+    "code": "FAGS3027",
+    "name": "Global Studies in Acting",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS4005",
+    "code": "FAGS4005",
+    "name": "Casting, Film Festival & Acting as a Business",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FAGS4899",
+    "code": "FAGS4899",
+    "name": "Honours Project",
+    "credits": 3,
+    "department": "Film & Screen",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM2007",
+    "code": "FILM2007",
+    "name": "Photography",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM2009",
+    "code": "FILM2009",
+    "name": "Practicum I",
+    "credits": 0,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM2047",
+    "code": "FILM2047",
+    "name": "Storytelling",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM2067",
+    "code": "FILM2067",
+    "name": "The Art of Script Writing",
+    "credits": 6,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM2086",
+    "code": "FILM2086",
+    "name": "Digital Advertising Production",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM2087",
+    "code": "FILM2087",
+    "name": "Ideologies, Gender and Cinema",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3006",
+    "code": "FILM3006",
+    "name": "Film Sound",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3009",
+    "code": "FILM3009",
+    "name": "Practicum II",
+    "credits": 0,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3016",
+    "code": "FILM3016",
+    "name": "Non-Fiction Film",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3027",
+    "code": "FILM3027",
+    "name": "Television Studio Production",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3035",
+    "code": "FILM3035",
+    "name": "Chinese-Language Cinema",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3047",
+    "code": "FILM3047",
+    "name": "Hollywood Cinema",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3076",
+    "code": "FILM3076",
+    "name": "Screen Acting Workshop",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3077",
+    "code": "FILM3077",
+    "name": "The Art of Documentary Film",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3125",
+    "code": "FILM3125",
+    "name": "Honours Project Preparation Workshop",
+    "credits": 1,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM3147",
+    "code": "FILM3147",
+    "name": "Entertainment 3.0: Creative Industries and Technology",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM4026",
+    "code": "FILM4026",
+    "name": "East Asian Cinemas: History and Current Issues",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM4046",
+    "code": "FILM4046",
+    "name": "Advanced Cinematography",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM4047",
+    "code": "FILM4047",
+    "name": "Film Theory and Criticism",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM4065",
+    "code": "FILM4065",
+    "name": "Art Direction",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM4869",
+    "code": "FILM4869",
+    "name": "Honours Project in Animation and Media Arts",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FILM4879",
+    "code": "FILM4879",
+    "name": "Honours Project in Film and Television",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE1005",
+    "code": "FINE1005",
+    "name": "Financial Planning and Investment Analysis",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE2005",
+    "code": "FINE2005",
+    "name": "Financial Management",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE2006",
+    "code": "FINE2006",
+    "name": "Banking and Credit",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE3005",
+    "code": "FINE3005",
+    "name": "Investment Management",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE3006",
+    "code": "FINE3006",
+    "name": "Introduction to Futures and Options Markets",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE3007",
+    "code": "FINE3007",
+    "name": "Fixed Income Securities",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE3015",
+    "code": "FINE3015",
+    "name": "Corporate Finance",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE3026",
+    "code": "FINE3026",
+    "name": "Finance Internship",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE3035",
+    "code": "FINE3035",
+    "name": "ESG, Green Finance and Sustainable Investment",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE4006",
+    "code": "FINE4006",
+    "name": "Financial Risk Management",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE4025",
+    "code": "FINE4025",
+    "name": "Compliance in Finance",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE4026",
+    "code": "FINE4026",
+    "name": "FinTech for Banking and Finance",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FINE4027",
+    "code": "FINE4027",
+    "name": "Mergers, Acquisitions and Corporate Restructuring",
+    "credits": 3,
+    "department": "Finance",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_FREN1005",
+    "code": "FREN1005",
+    "name": "French I",
+    "credits": 3,
+    "department": "French",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GAME1005",
+    "code": "GAME1005",
+    "name": "Fundamentals of Animation for Game Design and Film",
+    "credits": 3,
+    "department": "Game Design",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GCAP3005",
+    "code": "GCAP3005",
+    "name": "MathRomance",
+    "credits": 3,
+    "department": "General Education",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GCAP3126",
+    "code": "GCAP3126",
+    "name": "Fact-checking Misinformation and Disinformation",
+    "credits": 3,
+    "department": "General Education",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GCST1005",
+    "code": "GCST1005",
+    "name": "Approaches in Global Studies",
+    "credits": 3,
+    "department": "Global Studies",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GEOG2007",
+    "code": "GEOG2007",
+    "name": "Introduction to Quantitative Methods in Geography",
+    "credits": 3,
+    "department": "Geography",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GERM1005",
+    "code": "GERM1005",
+    "name": "German I",
+    "credits": 3,
+    "department": "German",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GEST1005",
+    "code": "GEST1005",
+    "name": "Introduction to Green Energy and Smart Technology",
+    "credits": 3,
+    "department": "Green Energy",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GFAI1005",
+    "code": "GFAI1005",
+    "name": "AI Literacies for Social Good",
+    "credits": 2,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GSIS2005",
+    "code": "GSIS2005",
+    "name": "Statistics for Social Sciences",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GTCU2005",
+    "code": "GTCU2005",
+    "name": "Art, Culture and Creativity",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GTSC2005",
+    "code": "GTSC2005",
+    "name": "Astronomy for the 21st Century",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GTSU2007",
+    "code": "GTSU2007",
+    "name": "Fighting Poverty and Striving for a Sustainable Society",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_HIST1105",
+    "code": "HIST1105",
+    "name": "China in the Imperial Age",
+    "credits": 3,
+    "department": "History",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_HRMN3007",
+    "code": "HRMN3007",
+    "name": "Applied Social Psychology in Organisations",
+    "credits": 3,
+    "department": "Human Resources",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_HUMN1006",
+    "code": "HUMN1006",
+    "name": "Introduction to the Humanities",
+    "credits": 3,
+    "department": "Humanities",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ISEM2005",
+    "code": "ISEM2005",
+    "name": "Management Information Systems",
+    "credits": 3,
+    "department": "Information Systems",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_JOUR2085",
+    "code": "JOUR2085",
+    "name": "English News Reporting and Writing",
+    "credits": 3,
+    "department": "Journalism",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_JPSE1005",
+    "code": "JPSE1005",
+    "name": "Japanese I",
+    "credits": 3,
+    "department": "Japanese",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_LANG1005",
+    "code": "LANG1005",
+    "name": "Elementary Putonghua",
+    "credits": 3,
+    "department": "Language",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_LLAW3007",
+    "code": "LLAW3007",
+    "name": "Principles of Law",
+    "credits": 3,
+    "department": "Law",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_MATH1005",
+    "code": "MATH1005",
+    "name": "Calculus I",
+    "credits": 3,
+    "department": "Mathematics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_MKTG2005",
+    "code": "MKTG2005",
+    "name": "Marketing Management",
+    "credits": 3,
+    "department": "Marketing",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_MUSI1009",
+    "code": "MUSI1009",
+    "name": "Applied Music II",
+    "credits": 1,
+    "department": "Music",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_PCMD1025",
+    "code": "PCMD1025",
+    "name": "Supervised Practicum I 中題實習 I (藥用植物學)",
+    "credits": 1,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_PERM1006",
+    "code": "PERM1006",
+    "name": "Human Anatomy and Physiology",
+    "credits": 3,
+    "department": "Physical Education",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_POLS1005",
+    "code": "POLS1005",
+    "name": "Foundations of Political Science",
+    "credits": 3,
+    "department": "Political Science",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_RELI1005",
+    "code": "RELI1005",
+    "name": "Quest for Truth and Meaning",
+    "credits": 3,
+    "department": "Religion",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_REMT3006",
+    "code": "REMT3006",
+    "name": "Smart Retailing",
+    "credits": 3,
+    "department": "Retailing",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_SOCI1005",
+    "code": "SOCI1005",
+    "name": "Invitation to Sociology",
+    "credits": 3,
+    "department": "Sociology",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_SOSC1005",
+    "code": "SOSC1005",
+    "name": "Internship I",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_SOWK1006",
+    "code": "SOWK1006",
+    "name": "Human Development through the Life Span",
+    "credits": 3,
+    "department": "Social Work",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_SPAN1005",
+    "code": "SPAN1005",
+    "name": "Spanish I",
+    "credits": 3,
+    "department": "Spanish",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_TRAN1005",
+    "code": "TRAN1005",
+    "name": "Introduction to Translation",
+    "credits": 3,
+    "department": "Translation",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_UCLC1005",
+    "code": "UCLC1005",
+    "name": "University Chinese",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_VART1006",
+    "code": "VART1006",
+    "name": "Visual Arts Practice II",
+    "credits": 3,
+    "department": "Visual Arts",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_WRIT1005",
+    "code": "WRIT1005",
+    "name": "Creativity: Theory & Practice",
+    "credits": 3,
+    "department": "Writing",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_CTV7040",
+    "code": "CTV 7040",
+    "name": "Film Production II",
+    "credits": 3,
+    "department": "Film",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_ECON7025",
+    "code": "ECON7025",
+    "name": "Business Economics Internship",
+    "credits": 3,
+    "department": "Economics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_GEOG7520",
+    "code": "GEOG7520",
+    "name": "Urban & Regional Development of China",
+    "credits": 3,
+    "department": "Geography",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_LSE7040",
+    "code": "LSE 7040",
+    "name": "Values & Socio-Cultural Issues in HK Today",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_MATH7720",
+    "code": "MATH7720",
+    "name": "Investment Management",
+    "credits": 4,
+    "department": "Mathematics",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_AIDM7010",
+    "code": "AIDM7010",
+    "name": "Media Psychology",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_MCM7060",
+    "code": "MCM 7060",
+    "name": "Formulation Theories and Practices of Chinese Medicinal Formulae 方劑配伍的理論與實踐",
+    "credits": 3,
+    "department": "Chinese Medicine",
+    "rating": 0,
+    "reviewCount": 0
+  },
+  {
+    "id": "local_MGNT7090",
+    "code": "MGNT7090",
+    "name": "Strategic Management & Business Policy",
+    "credits": 3,
+    "department": "General",
+    "rating": 0,
+    "reviewCount": 0
+  }
+]
