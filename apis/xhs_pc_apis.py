@@ -1105,15 +1105,22 @@ class XHS_Apis():
                        show_qrcode=True, timeout=180.0, on_qrcode=None):
         """461/471 风控的 App 扫码验证（verifytype 124，redcaptcha QRCodeLite）。
 
-        浏览器链路（2026-10-17 逆向）：/website-login/captcha 页 ->
-        POST /api/redcaptcha/v2/qr/init {verifyType,verifyUuid,verifyBiz,sourceSite}
-        -> rid；二维码内容为
-        https://www.xiaohongshu.com/web-login/qrcode-transfer?rid=..&verifyUuid=..
-        -> 轮询 POST /api/redcaptcha/v2/qr/status/query（带 rid）。
-        status：1=INIT 2=SCAN 3=CANCEL 4=CONFIRM(通过) 5=EXPIRE 6=FAIL。
-        verifyBiz：461=antiSpider、471=antiSpam。
+        协议（2026-10-17 浏览器验证页逆向 + Python 侧实抓）：
+        - ⚠️ qr/init 只认「刚出炉」的安全引导：浏览器验证页在 init 前会重跑整条
+          引导链（scripting/seccallback→websectiga 换新→activate→webprofile），
+          拿登录时的旧引导态调 init 会被 40001「为了保护账号安全」拒——防重放，
+          b1 本身没失效，服务端校验的是引导动作的时效与页面上下文（fe-login）。
+          因此这里先用 XHSLoginApi 对当前会话重跑引导，再 init。
+        - POST /api/redcaptcha/v2/qr/init {verifyType,verifyUuid,verifyBiz,sourceSite}
+          → rid；二维码内容 https://www.xiaohongshu.com/web-login/qrcode-transfer?rid=..&verifyUuid=..
+        - 轮询 POST /api/redcaptcha/v2/qr/status/query（带 rid）：
+          status 1=INIT 2=SCAN 3=CANCEL 4=CONFIRM(通过) 5=EXPIRE 6=FAIL
+        - verifyBiz：461=antiSpider、471=antiSpam（验证机制共用）。
         """
         import qrcode as _qrcode
+        from apis.xhs_pc_login_apis import XHSLoginApi, build_pc_login_headers
+        from xhs_utils.xhs_core.cookies import parse_cookie_kv
+
         deadline = time.time() + timeout
         payload_base = {
             "verifyType": str(verify_type),
@@ -1121,63 +1128,69 @@ class XHS_Apis():
             "verifyBiz": str(verify_biz),
             "sourceSite": "/",
         }
-        # 浏览器验证页上下文：cookie 的 xsecappid 切到 fe-login，签名走 0201 档
-        # auth.cookies 是原始 Cookie 字符串；验证页上下文的 xsecappid=fe-login
-        raw_cookies = str(getattr(self.auth, 'cookies', '') or '')
-        saved_appid = 'xsecappid=fe-login' in raw_cookies  # 原本就是 fe-login 时无需恢复
-        if 'xsecappid=' in raw_cookies:
-            import re as _re
-            self.auth.cookies = _re.sub(r'xsecappid=[^;]*', 'xsecappid=fe-login', raw_cookies, count=1)
-        else:
-            self.auth.cookies = (raw_cookies + '; xsecappid=fe-login').lstrip('; ')
-        while time.time() < deadline:
-            api = "/api/redcaptcha/v2/qr/init"
-            headers, cookies, _ = self._request_params(api, payload_base, 'POST', tier='0201')
-            response = self.http.post(self.base_url + api, headers=headers, cookies=cookies,
-                                      proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
-            res = response.json() if response.text.strip().startswith('{') else {}
-            rid = (res.get('data') or {}).get('rid')
-            if not res.get('success') or not rid:
-                raise RuntimeError(res.get('msg') or 'redcaptcha qr/init 未返回 rid')
-            qr_url = (f'https://www.xiaohongshu.com/web-login/qrcode-transfer'
-                      f'?rid={rid}&verifyUuid={verify_uuid}&verifyType={verify_type}')
-            logger.info('风控验证二维码已生成，用小红书 App 扫码并在手机上确认')
-            if on_qrcode:
-                on_qrcode(qr_url)
-            if show_qrcode:
-                qr = _qrcode.QRCode(box_size=1, border=1)
-                qr.add_data(qr_url)
-                qr.make(fit=True)
-                qr.print_ascii(invert=True)
-            else:
-                logger.info(qr_url)
+
+        # 1) 对当前会话重跑安全引导（关键：init 的防重放前提）
+        va = XHSLoginApi(proxies=self._proxies(proxies))
+        try:
+            boot_cookies = dict(parse_cookie_kv(str(getattr(self.auth, 'cookies', '') or '')))
+            va._ensure_profile(boot_cookies)
+            va._initialize_security(boot_cookies)
+            va._activate(boot_cookies)
+            va.ensure_webprofile(boot_cookies)
+            boot_cookies['xsecappid'] = 'fe-login'
+
+            def signed_post(path, payload):
+                headers, body = va._signed_request_params(
+                    boot_cookies, path, dict(payload),
+                    sec_domain=True, tier='0201', mns_profile='security_initial')
+                headers = build_pc_login_headers(
+                    headers, va._cookies_for_url(va.base_url, boot_cookies), kind='post')
+                return va.http.post(va.base_url + path, headers=headers,
+                                    data=body.encode('utf-8'),
+                                    proxies=va.proxies, timeout=REQUEST_TIMEOUT)
+
             while time.time() < deadline:
-                qapi = "/api/redcaptcha/v2/qr/status/query"
-                qpayload = dict(payload_base, rid=rid)
-                qheaders, qcookies, _ = self._request_params(qapi, qpayload, 'POST', tier='0201')
-                qresp = self.http.post(self.base_url + qapi, headers=qheaders, cookies=qcookies,
-                                       proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
-                qres = qresp.json() if qresp.text.strip().startswith('{') else {}
-                status = (qres.get('data') or {}).get('status')
-                if status == 2:
-                    logger.info('已扫码，等待手机确认…')
-                elif status == 4:
-                    logger.info('风控验证通过')
-                    if not saved_appid:
-                        import re as _re
-                        self.auth.cookies = _re.sub(r'xsecappid=[^;]*', 'xsecappid=xhs-pc-web', str(self.auth.cookies), count=1)
-                    return True
-                elif status in (3, 6):
-                    logger.warning(f'验证取消/失败（status={status}），重新生成二维码')
-                    break
-                elif status == 5:
-                    logger.warning('二维码过期，重新生成')
-                    break
-                time.sleep(2)
-        if not saved_appid and 'xsecappid=' in str(self.auth.cookies or ''):
-            import re as _re
-            self.auth.cookies = _re.sub(r'xsecappid=[^;]*', 'xsecappid=xhs-pc-web', str(self.auth.cookies), count=1)
-        return False
+                # 2) init → rid → 出码
+                resp = signed_post('/api/redcaptcha/v2/qr/init', payload_base)
+                rid = None
+                if resp.text.strip().startswith('{'):
+                    rid = ((resp.json().get('data') or {}).get('rid'))
+                if not rid:
+                    raise RuntimeError(resp.text[:120] or 'redcaptcha qr/init 未返回 rid')
+                qr_url = (f'https://www.xiaohongshu.com/web-login/qrcode-transfer'
+                          f'?rid={rid}&verifyUuid={verify_uuid}&verifyType={verify_type}')
+                logger.info('风控验证二维码已生成，用小红书 App 扫码并在手机上确认')
+                if on_qrcode:
+                    on_qrcode(qr_url)
+                if show_qrcode:
+                    qr = _qrcode.QRCode(box_size=1, border=1)
+                    qr.add_data(qr_url)
+                    qr.make(fit=True)
+                    qr.print_ascii(invert=True)
+                else:
+                    logger.info(qr_url)
+
+                # 3) 轮询 status/query
+                poll_payload = dict(payload_base, rid=rid)
+                while time.time() < deadline:
+                    qresp = signed_post('/api/redcaptcha/v2/qr/status/query', poll_payload)
+                    qres = qresp.json() if qresp.text.strip().startswith('{') else {}
+                    status = (qres.get('data') or {}).get('status')
+                    if status == 2:
+                        logger.info('已扫码，等待手机确认…')
+                    elif status == 4:
+                        logger.info('风控验证通过')
+                        return True
+                    elif status in (3, 6):
+                        logger.warning(f'验证取消/失败（status={status}），重新生成二维码')
+                        break
+                    elif status == 5:
+                        logger.warning('二维码过期，重新生成')
+                        break
+                    time.sleep(1.5)
+            return False
+        finally:
+            va.close()
 
     def get_note_out_comment(self, note_id: str, cursor: str, xsec_token: str, proxies: dict = None):
         """
