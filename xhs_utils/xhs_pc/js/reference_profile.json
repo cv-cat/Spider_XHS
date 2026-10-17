@@ -36,22 +36,14 @@
       "__h"
     ],
     "mouse": {
-      "me": 4,
-      "mm": 31,
-      "md": 3,
-      "mu": 3,
-      "c": 3,
-      "dc": 1
+      "me": 1,
+      "mm": 15
     },
     "keyboard": {},
     "page": {
-      "ulr": 2,
+      "ulr": 0,
       "ps": 1,
-      "f": 1,
-      "b": 19,
-      "vc": 2,
-      "rs": 1,
-      "sc": 1
+      "f": 1
     },
     "state": {
       "h": 0,
@@ -72,14 +64,14 @@
   "b1Profiles": {
     "login": {
       "frameCount": 2,
-      "x39": 0,
+      "x39": "2",
       "x50": "",
       "generatedAtOffsetMs": 1839,
       "secCanvas": "__SEC_CAV__1-1-1-1-1|",
       "timeOriginOffsetMs": -2618.8,
       "telemetryProfile": "login",
-      "telemetryTemplate": "{mt:{to:__TIME_ORIGIN__},m:{mm:31,me:4},k:{},p:{ulr:2,ps:1,f:1},st:{h:0,f:1,kr:0},ft:{ae:2.5540932739850417,ak:4.927237887556826,cdr:null,bf:{ar:1.463768115942029,fr:3.19351939237125},fi:732.2000000476837}}",
-      "x37": "0|0|0|0|0|0|0|0|0|1|0|0|0|0|0|0|0|0|1|0|0|0|0|0",
+      "telemetryTemplate": "{mt:{to:__TIME_ORIGIN__},m:{me:1,mm:15},k:{},p:{ulr:0,ps:1,f:1},st:{h:0,f:1,kr:0},ft:{ae:1.9877733714879842,ak:6.691071021630506,cdr:null,bf:{ar:2.742857142857143,fr:1.8627068671086042},fi:200358.19999980927}}",
+      "x37": "0|0|0|0|0|0|0|0|0|1|0|0|1|0|0|0|0|1|1|0|0|0|0|0",
       "x38": "0|0|1|0|1|0|0|0|0|0|1|0|1|0|1|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0",
       "x82": "1|_BHjFmfUMEtxhI|_AUuXfEG27Xa3x|__XHS_AGENT_V2|__xhsPendingNotePoint25300ReportMap|__xhsReportedNotePoint25300RecordMap|anti_hp_sign_config|__rap_app_id__|__rap_report__|__rap_last_sign_cost__|__rap_last_transform_cost__|__rap_hijack_installed__|__ed1a7dddf7c818e4bd|__hp_xhs_search_input_state__|__h",
       "evidence": "Fresh isolated Chrome 155 PC login webprofile collector, 2026-10-17"
