@@ -802,7 +802,15 @@ class XHSLoginApi:
             return False, res.get('msg', '验证码响应缺少 mobile_token'), {'cookies': cookies, 'res_json': res}
 
         login_api = '/api/sns/web/v2/login/code'
-        data = {"mobile_token": mobile_token, "zone": zone, "phone": phone}
+        # 2026-10-17 浏览器实测：login/code 的 body 额外带 X25519 客户端公钥，
+        # 响应 data.ssk 为 80 字符加密包，与扫码链路 / 登录 qrcode/status 同协议。
+        login_private_key = ssk_generate_private_key()
+        data = {
+            "mobile_token": mobile_token,
+            "zone": zone,
+            "phone": phone,
+            "client_public_key_base64": ssk_public_key_base64(login_private_key),
+        }
         headers, data = self._signed_request_params(cookies, login_api, data)
         headers = build_pc_login_headers(
             headers,
@@ -815,7 +823,16 @@ class XHSLoginApi:
             proxies=self.proxies,
             timeout=REQUEST_TIMEOUT
         )
-        self._merge_response_cookies(cookies, resp)
+        self._merge_response_cookies(
+            cookies,
+            resp,
+            append_shared=(
+                'web_session',
+                'id_token',
+                'x-rednote-datactry',
+                'x-rednote-holderctry',
+            ),
+        )
 
         res = resp.json()
         if not res.get('success'):
