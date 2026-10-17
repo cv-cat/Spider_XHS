@@ -116,7 +116,7 @@ def get_upload_media_headers(message, signature, token, *, user_agent, upload_ho
 
 def get_post_note_image_data(title, desc, postTime, post_loc, privacy_type, fileInfos):
     if postTime is None:
-        business_binds = "{\"version\":1,\"noteId\":0,\"bizType\":0,\"noteOrderBind\":{},\"notePostTiming\":{},\"noteCollectionBind\":{\"id\":\"\"},\"noteSketchCollectionBind\":{\"id\":\"\"},\"coProduceBind\":{\"enable\":true},\"noteCopyBind\":{\"copyable\":true},\"interactionPermissionBind\":{\"commentPermission\":0},\"optionRelationList\":[]}"
+        business_binds = "{\"version\":1,\"noteId\":0,\"bizType\":0,\"noteOrderBind\":{},\"notePostTiming\":{},\"noteCollectionBind\":{\"id\":\"\"},\"noteSketchCollectionBind\":{\"id\":\"\"},\"noteCopyBind\":{\"copyable\":false},\"interactionPermissionBind\":{\"commentPermission\":0},\"optionRelationList\":[]}"
     else:
         # 13位时间戳
         business_binds = f"{{\"version\":1,\"noteId\":0,\"bizType\":13,\"noteOrderBind\":{{}},\"notePostTiming\":{{\"postTime\":\"{postTime}\"}},\"noteCollectionBind\":{{\"id\":\"\"}}}}"
@@ -132,10 +132,6 @@ def get_post_note_image_data(title, desc, postTime, post_loc, privacy_type, file
             "height": height,
             "metadata": {
                 "source": -1
-            },
-            "stickers": {
-                "version": 2,
-                "floating": []
             },
             "extra_info_json": json.dumps({
                 "mimeType": fileInfo.get("mime_type", "image/png"),
