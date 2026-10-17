@@ -194,7 +194,7 @@ def get_loc_data(keyword):
 
 def get_post_note_video_data(title, desc, postTime, post_loc, privacy_type, fileInfo, coverInfo, metadata=None):
     if postTime is None:
-        business_binds = "{\"version\":1,\"noteId\":0,\"bizType\":0,\"noteOrderBind\":{},\"notePostTiming\":{},\"noteCollectionBind\":{\"id\":\"\"},\"noteSketchCollectionBind\":{\"id\":\"\"},\"coProduceBind\":{\"enable\":true},\"noteCopyBind\":{\"copyable\":true},\"interactionPermissionBind\":{\"commentPermission\":0},\"optionRelationList\":[]}"
+        business_binds = "{\"version\":1,\"noteId\":0,\"bizType\":0,\"noteOrderBind\":{},\"notePostTiming\":{},\"noteCollectionBind\":{\"id\":\"\"},\"noteSketchCollectionBind\":{\"id\":\"\"},\"noteCopyBind\":{\"copyable\":false},\"interactionPermissionBind\":{\"commentPermission\":0},\"optionRelationList\":[]}"
     else:
         # 13位时间戳
         business_binds = f"{{\"version\":1,\"noteId\":0,\"bizType\":13,\"noteOrderBind\":{{}},\"notePostTiming\":{{\"postTime\":\"{postTime}\"}},\"noteCollectionBind\":{{\"id\":\"\"}}}}"
