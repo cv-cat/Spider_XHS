@@ -5,17 +5,18 @@
     "appId": "ugc",
     "platform": "Windows",
     "signVersion": "4.3.6",
-    "b1SdkVersion": "3.5.4",
+    "b1SdkVersion": "3.5.6",
     "webProfileSdkVersion": "4.3.6",
     "webBuild": "1.26.0",
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
-    "secChUa": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"152\", \"Google Chrome\";v=\"152\""
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "secChUa": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+    "source": "xhs-creator-browser-fixtures-20261017"
   },
   "webProfile": {
     "algorithm": "base64-des-ecb-zero-padding-hex",
     "svn": "2",
     "fields": {
-      "x1": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "x1": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
       "x2": "false",
       "x3": "zh-CN",
       "x4": "24",
@@ -36,7 +37,7 @@
       "x19": "Win32",
       "x20": "un",
       "x21": "PDF Viewer,Chrome PDF Viewer,Chromium PDF Viewer,Microsoft Edge PDF Viewer,WebKit built-in PDF",
-      "x22": "c8e2f6ff2a07957f70a18cde6b905ebb",
+      "x22": "3c3e8ce593fc6dc512725073fcac1d26",
       "x23": "false",
       "x24": "false",
       "x25": "false",
@@ -45,20 +46,20 @@
       "x28": "10,false,false",
       "x29": "4,7,8",
       "x30": "swf object not loaded",
-      "x31": "124.04347527516074",
+      "x31": "124.04347776696522",
       "x33": "0",
       "x34": "0",
       "x35": "0",
-      "x36": "2",
+      "x36": "4",
       "x37": "0|0|0|0|0|0|0|0|0|1|0|0|0|0|0|0|0|0|1|0|0|0|0|0",
       "x38": "0|0|1|0|1|0|0|0|0|0|1|0|1|0|1|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0",
-      "x39": "2",
+      "x39": "0",
       "x40": "0",
       "x41": "0",
-      "x42": "3.5.4",
+      "x42": "3.5.6",
       "x43": "Canvas not supported",
-      "x44": "__TIMESTAMP_MS__",
-      "x45": "__SEC_CAV__1-1-1-1-1|__SEC_UD__|",
+      "x44": "1792235228773",
+      "x45": "__SEC_CAV__1-1-1-1-1|",
       "x46": "false",
       "x47": "1|0|0|0|0|0",
       "x48": "",
@@ -67,21 +68,21 @@
       "x51": "",
       "x52": "",
       "x54": "11311144241322244122",
-      "x55": "320,260,280,280,280,300,260,260,340,260,240,280,240,320",
+      "x55": "320,280,240,260,260,240,240,260,380,260,240,280,320,520",
       "x56": "Google Inc. (NVIDIA)|ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)|0ebc53d03ea89d69525d81de558e2544|35",
       "x53": "993da9a681fd3994c9f53de11f2903b3",
-      "x57": "__DOCUMENT_COOKIE__",
-      "x58": "575",
-      "x59": "141",
+      "x57": "abRequestId=c619573c-aae2-585d-9c54-2e52aeac8e5b; ets=1792231750645; a1=1a149563c3bkarx5s4qh1a1tf5714a90ogzxleel750000223438; webId=be5a99d21525fa0eab8fce47699aba66; gid=y0y4j2K4d4lKy0y4j2KqSkddqDT0FC2M4Axyu1W0y9i2WC28y40j81888JJq4qY8fWWd80fK; unread={%22ub%22:%226aaf5e16000000000b00296b%22%2C%22ue%22:%226a933c46000000001f0011cc%22%2C%22uc%22:17}; _gray_did=d60f6baf-7e4b-4422-b388-95719bbc2a48; webBuild=1.33.0; xsecappid=ugc; loadts=1792235226853; websectiga=3fff3a6f9f07284b62c0f2ebf91a3b10193175c06e4f71492b60e056edcdebb2; sec_poison_id=f4875a61-dc22-4713-b9a3-7b4ca434a624",
+      "x58": "94",
+      "x59": "63",
       "x60": "63",
-      "x61": "1342",
+      "x61": "1343",
       "x62": "2047",
       "x63": "0",
       "x64": "0",
       "x65": "0",
       "x66": {
-        "referer": "https://creator.xiaohongshu.com/login",
-        "location": "https://creator.xiaohongshu.com/new/home",
+        "referer": "",
+        "location": "https://creator.xiaohongshu.com/publish/publish?source=official",
         "frame": 0
       },
       "x67": "1|0",
@@ -97,27 +98,27 @@
       ],
       "x71": "true",
       "x72": "complete",
-      "x73": "990",
+      "x73": "536",
       "x74": "0|0|0",
       "x75": "Google Inc.",
       "x76": "true",
       "x77": "1|1|1|1|1|1|1|1|1|1",
       "x78": {
         "x": 0,
-        "y": 1213,
+        "y": 1214,
         "left": 0,
         "right": 319.40625,
-        "bottom": 1230,
+        "bottom": 1231,
         "height": 17,
-        "top": 1213,
+        "top": 1214,
         "width": 319.40625,
         "font": "RedNum, RedZh, RedEn, -apple-system"
       },
-      "x79": "32851|10737451091",
+      "x79": "221184|10737639424",
       "x80": "1|[object FileSystemDirectoryHandle]",
-      "x82": "_AUuXfEG27Xa3x|CUSTOMER_SSO_LOGIN_GLOBAL_EMITTER|anti_hp_sign_config|__rap_app_id__|__rap_report__|__rap_last_sign_cost__|__rap_last_transform_cost__|__rap_hijack_installed__|__setVerifyMsgBase64__|_BHjFmfUMEtxhI|anti__hp__|__hp_creator_tab_state__|__SW_AB_GROUP__|MicroappMountContainer|spamTimer",
-      "x83": "eyJkIjp7IjAiOjEzMiwiMSI6MTYyLCIyIjoxMDksIjMiOjExNiwiNCI6MTI5LCI1IjoxNjIsIjYiOjExNiwiNyI6MTExLCI4IjoyMDMsIjkiOjY2LCIxMCI6MTIxLCIxMSI6MjQ3LCIxMiI6MTAyLCIxMyI6MTQyLCIxNCI6MjM2LCIxNSI6MjMyLCIxNiI6MCwiMTciOjE2MSwiMTgiOjEwOSwiMTkiOjEyOCwiMjAiOjE2MSwiMjEiOjEwNywiMjIiOjEyOCwiMjMiOjE2MSwiMjQiOjExMiwiMjUiOjEzMCwiMjYiOjE2MywiMjciOjExNywiMjgiOjEwOCwiMjkiOjExNCwiMzAiOjE0NSwiMzEiOjE0NiwiMzIiOjIwMywiMzMiOjY2LCIzNCI6MTIxLCIzNSI6MjQ3LCIzNiI6MTAyLCIzNyI6NSwiMzgiOjEzLCIzOSI6MjMwLCI0MCI6MTAyLCI0MSI6MjA2LCI0MiI6MCwiNDMiOjgsIjQ0IjoxNTcsIjQ1IjoyMzksIjQ2IjoxNjIsIjQ3IjoxMTIsIjQ4IjoxMTUsIjQ5IjoxNDUsIjUwIjoxMzEsIjUxIjoxNjIsIjUyIjoxMTYsIjUzIjoxMTUsIjU0IjoyMDUsIjU1IjozLCI1NiI6NDAsIjU3IjoxNjEsIjU4IjoxMDQsIjU5IjoxOTQsIjYwIjoxNjEsIjYxIjoxMDIsIjYyIjoxOTV9LCJ2IjoxLCJlIjoibSJ9",
-      "x84": "__TELEMETRY__"
+      "x82": "_AUuXfEG27Xa3x|CUSTOMER_SSO_LOGIN_GLOBAL_EMITTER|anti_hp_sign_config|__rap_app_id__|__rap_report__|__rap_last_sign_cost__|__rap_last_transform_cost__|__rap_hijack_installed__|_BHjFmfUMEtxhI|__USE_CUSTOM_TIMING__|__CUSTOM_FMP_ELEMENTS__|__COLLECTED_FMP_ELEMENTS__|__CUSTOM_TTI_ELEMENTS__|__setVerifyMs",
+      "x83": "eyJkIjp7IjAiOjEzMiwiMSI6MTYyLCIyIjoxMDksIjMiOjExNiwiNCI6MTI5LCI1IjoxNjIsIjYiOjExNiwiNyI6MTExLCI4IjoyMDMsIjkiOjY2LCIxMCI6MTIyLCIxMSI6MjAsIjEyIjoxNTIsIjEzIjoxODAsIjE0Ijo1NCwiMTUiOjAsIjE2IjowLCIxNyI6MTYxLCIxOCI6MTA5LCIxOSI6MTI4LCIyMCI6MTYxLCIyMSI6MTA3LCIyMiI6MTI4LCIyMyI6MTYxLCIyNCI6MTEyLCIyNSI6MTMxLCIyNiI6MTYzLCIyNyI6MTE3LCIyOCI6MTA4LCIyOSI6MTE0LCIzMCI6MTQ0LCIzMSI6MTYyLCIzMiI6MTE0LCIzMyI6MTE1LCIzNCI6MTQ1LCIzNSI6MTMxLCIzNiI6MTYyLCIzNyI6MTE2LCIzOCI6MTE1LCIzOSI6MjA1LCI0MCI6MywiNDEiOjE3MiwiNDIiOjE2MSwiNDMiOjEwNCwiNDQiOjE5NCwiNDUiOjE2MSwiNDYiOjEwMiwiNDciOjE5NSwiNDgiOjE2MiwiNDkiOjExMiwiNTAiOjExNSwiNTEiOjE0NSwiNTIiOjEzMSwiNTMiOjE2MiwiNTQiOjExNiwiNTUiOjExNSwiNTYiOjIwNSwiNTciOjQsIjU4IjoyMywiNTkiOjE2MSwiNjAiOjEwNCwiNjEiOjE5NCwiNjIiOjE2MSwiNjMiOjEwMiwiNjQiOjE5NX0sInYiOjEsImUiOiJtIn0=",
+      "x84": "{mt:{to:1792235225952},m:{},k:{},p:{ulr:0,rs:1,ps:1},st:{h:0,f:1,kr:0},ft:{ae:null,ak:null,cdr:null,bf:null,fi:null}}"
     }
   },
   "b1Reference": {
@@ -146,9 +147,23 @@
       "__CUSTOM_TTI_ELEMENTS__",
       "__setVerifyMsgBase64__"
     ],
-    "page": {"ulr": 5, "rs": 1, "ps": 1},
-    "state": {"h": 0, "f": 1, "kr": 0},
-    "features": {"ae": null, "ak": null, "cdr": null, "bf": null, "fi": null},
+    "page": {
+      "ulr": 5,
+      "rs": 1,
+      "ps": 1
+    },
+    "state": {
+      "h": 0,
+      "f": 1,
+      "kr": 0
+    },
+    "features": {
+      "ae": null,
+      "ak": null,
+      "cdr": null,
+      "bf": null,
+      "fi": null
+    },
     "evidence": "Fresh authenticated Creator publish page b1 decoded on Chrome 152, 2026-09-07"
   },
   "b1Profiles": {
@@ -177,15 +192,28 @@
         "MicroappMountContainer",
         "spamTimer"
       ],
-      "mouse": {"me": 14, "mm": 28},
+      "mouse": {
+        "me": 14,
+        "mm": 28
+      },
       "keyboard": {},
-      "page": {"ulr": 5, "ps": 1},
-      "state": {"h": 0, "f": 1, "kr": 0},
+      "page": {
+        "ulr": 5,
+        "ps": 1
+      },
+      "state": {
+        "h": 0,
+        "f": 1,
+        "kr": 0
+      },
       "features": {
         "ae": 2.5875282962354187,
         "ak": 6.255902207830465,
         "cdr": null,
-        "bf": {"ar": 0.42814667988107036, "fr": 4.885235736344873},
+        "bf": {
+          "ar": 0.42814667988107036,
+          "fr": 4.885235736344873
+        },
         "fi": 6438.29999999702
       },
       "evidence": "Fresh post-login Creator note-manager req1155 decoded on 2026-07-19"
