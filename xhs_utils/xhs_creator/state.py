@@ -86,6 +86,9 @@ def _js_atom(value: Any) -> str:
         return 'true'
     if value is False:
         return 'false'
+    if isinstance(value, float) and value.is_integer():
+        # JS String(整数浮点) 不带 .0（浏览器 x84 的 to 即如此）
+        return str(int(value))
     return str(value)
 
 
@@ -245,8 +248,9 @@ class CreatorB1RuntimeState:
         bf_text = 'null' if bf is None else (
             f"{{ar:{_js_atom(bf.get('ar'))},fr:{_js_atom(bf.get('fr'))}}}"
         )
+        to_text = _js_atom(self.time_origin_ms)
         return (
-            f'{{mt:{{to:{self.time_origin_ms}}},'
+            f'{{mt:{{to:{to_text}}},'
             f'm:{{{_map_text(self.mouse)}}},'
             f'k:{{{_map_text(self.keyboard)}}},'
             f'p:{{{_map_text(self.page)}}},'

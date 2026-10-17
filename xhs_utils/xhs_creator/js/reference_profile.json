@@ -168,13 +168,13 @@
   },
   "b1Profiles": {
     "note_manager": {
-      "frameCount": 6,
-      "x39": 22,
-      "x50": "",
-      "x51": "",
+      "frameCount": 7,
+      "x39": 2,
+      "x50": "1,1",
+      "x51": "3,4,2,3,4",
       "x37": "0|0|0|0|0|0|0|0|0|1|0|0|1|0|0|0|0|1|1|0|0|0|0|0",
       "generatedAtOffsetMs": -5816,
-      "timeOriginOffsetMs": -357490.2,
+      "timeOriginOffsetMs": -901.0,
       "selectedGlobalNames": [
         "_AUuXfEG27Xa3x",
         "CUSTOMER_SSO_LOGIN_GLOBAL_EMITTER",
@@ -185,21 +185,27 @@
         "__rap_last_transform_cost__",
         "__rap_hijack_installed__",
         "_BHjFmfUMEtxhI",
-        "__setVerifyMsgBase64__",
-        "anti__hp__",
-        "__hp_creator_tab_state__",
-        "__SW_AB_GROUP__",
-        "MicroappMountContainer",
-        "spamTimer"
+        "__USE_CUSTOM_TIMING__",
+        "__CUSTOM_FMP_ELEMENTS__",
+        "__COLLECTED_FMP_ELEMENTS__",
+        "__CUSTOM_TTI_ELEMENTS__",
+        "__setVerifyMs"
       ],
       "mouse": {
-        "me": 14,
-        "mm": 28
+        "me": 12,
+        "mm": 13,
+        "md": 2,
+        "mu": 2,
+        "c": 3
       },
       "keyboard": {},
       "page": {
-        "ulr": 5,
-        "ps": 1
+        "ulr": 0,
+        "rs": 1,
+        "ps": 1,
+        "f": 3,
+        "b": 3,
+        "sc": 1
       },
       "state": {
         "h": 0,
@@ -207,16 +213,17 @@
         "kr": 0
       },
       "features": {
-        "ae": 2.5875282962354187,
-        "ak": 6.255902207830465,
+        "ae": 2.3685225277282065,
+        "ak": 8.852066735430391,
         "cdr": null,
         "bf": {
-          "ar": 0.42814667988107036,
-          "fr": 4.885235736344873
+          "ar": 1.5658119658119658,
+          "fr": 2.396839300881843
         },
-        "fi": 6438.29999999702
+        "fi": 49296.90000009537
       },
-      "evidence": "Fresh post-login Creator note-manager req1155 decoded on 2026-07-19"
+      "evidence": "Creator note-manager b1 decoded from browser localStorage, 2026-10-17",
+      "secCanvas": "__SEC_CAV__1-1-1-1-1|"
     }
   },
   "mnsStages": {
