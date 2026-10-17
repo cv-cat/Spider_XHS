@@ -1122,12 +1122,14 @@ class XHS_Apis():
             "sourceSite": "/",
         }
         # 浏览器验证页上下文：cookie 的 xsecappid 切到 fe-login，签名走 0201 档
-        saved_appid = self.auth.cookie.get('xsecappid') if getattr(self.auth, 'cookie', None) else None
-        try:
-            if getattr(self.auth, 'cookie', None) is not None:
-                self.auth.cookie['xsecappid'] = 'fe-login'
-        except Exception:
-            pass
+        # auth.cookies 是原始 Cookie 字符串；验证页上下文的 xsecappid=fe-login
+        raw_cookies = str(getattr(self.auth, 'cookies', '') or '')
+        saved_appid = 'xsecappid=fe-login' in raw_cookies  # 原本就是 fe-login 时无需恢复
+        if 'xsecappid=' in raw_cookies:
+            import re as _re
+            self.auth.cookies = _re.sub(r'xsecappid=[^;]*', 'xsecappid=fe-login', raw_cookies, count=1)
+        else:
+            self.auth.cookies = (raw_cookies + '; xsecappid=fe-login').lstrip('; ')
         while time.time() < deadline:
             api = "/api/redcaptcha/v2/qr/init"
             headers, cookies, _ = self._request_params(api, payload_base, 'POST', tier='0201')
@@ -1161,8 +1163,9 @@ class XHS_Apis():
                     logger.info('已扫码，等待手机确认…')
                 elif status == 4:
                     logger.info('风控验证通过')
-                    if saved_appid is not None and getattr(self.auth, 'cookie', None) is not None:
-                        self.auth.cookie['xsecappid'] = saved_appid
+                    if not saved_appid:
+                        import re as _re
+                        self.auth.cookies = _re.sub(r'xsecappid=[^;]*', 'xsecappid=xhs-pc-web', str(self.auth.cookies), count=1)
                     return True
                 elif status in (3, 6):
                     logger.warning(f'验证取消/失败（status={status}），重新生成二维码')
@@ -1171,8 +1174,9 @@ class XHS_Apis():
                     logger.warning('二维码过期，重新生成')
                     break
                 time.sleep(2)
-        if saved_appid is not None and getattr(self.auth, 'cookie', None) is not None:
-            self.auth.cookie['xsecappid'] = saved_appid
+        if not saved_appid and 'xsecappid=' in str(self.auth.cookies or ''):
+            import re as _re
+            self.auth.cookies = _re.sub(r'xsecappid=[^;]*', 'xsecappid=xhs-pc-web', str(self.auth.cookies), count=1)
         return False
 
     def get_note_out_comment(self, note_id: str, cursor: str, xsec_token: str, proxies: dict = None):
