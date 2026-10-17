@@ -5,7 +5,7 @@ import time
 
 from loguru import logger
 
-from apis.app.ssk import (
+from xhs_utils.xhs_core.ssk import (
     SERVER_PUBLIC_KEY_9_43_1,
     decrypt_ssk_base64,
     generate_private_key as ssk_generate_private_key,
