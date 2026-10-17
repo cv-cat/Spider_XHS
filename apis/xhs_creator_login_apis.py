@@ -37,7 +37,7 @@ CREATOR_LOGIN_ACCEPT_LANGUAGE = 'zh-CN,zh;q=0.9'
 CREATOR_USER_AGENT = (
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
     'AppleWebKit/537.36 (KHTML, like Gecko) '
-    'Chrome/152.0.0.0 Safari/537.36'
+    'Chrome/155.0.0.0 Safari/537.36'
 )
 _GETDSS_RE = re.compile(r"function\s+getdss\s*\(\s*\)\s*\{\s*return\s+'(\d+)'")
 _SECURITY_COOKIE_LENGTHS = {

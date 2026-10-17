@@ -446,17 +446,17 @@ class PcDeviceProfile:
 
     def _sync_release_for_web_build(self) -> None:
         """Apply release-specific UA hints after a Cookie/state update."""
-        if str(self.web_build) == '6.47.2':
+        if str(self.web_build) in ('6.47.2', '6.57.6'):
             self.release['signVersion'] = '4.4.3'
             self.release['webProfileSdkVersion'] = '4.4.3'
             self.release['userAgent'] = (
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                 'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/152.0.0.0 Safari/537.36'
+                'Chrome/155.0.0.0 Safari/537.36'
             )
             self.release['secChUa'] = (
-                '\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"152\", '
-                '\"Google Chrome\";v=\"152\"'
+                '\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", '
+                '\"Not(A:Brand\";v=\"24\"'
             )
         elif str(self.web_build) == '6.32.2':
             self.release['signVersion'] = '4.3.7'

@@ -587,6 +587,9 @@ class XHSLoginApi:
             data,
             tier='0301',
             mns_profile='qrcode_create',
+            # 浏览器实测：create 在 b1 采集完成前发出，X-S-Common 的 x8 为
+            # null（冷启动）；首个 userinfo 轮询才携带 b1。
+            include_b1=False,
         )
         headers = build_pc_login_headers(
             headers,
