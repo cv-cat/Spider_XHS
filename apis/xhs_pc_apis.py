@@ -297,6 +297,16 @@ class XHS_Apis():
             splice_api = splice_str(api, params)
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
+            if response.status_code in (461, 471) and response.headers.get('verifyuuid'):
+                verified = self.risk_qr_verify(
+                    response.headers['verifyuuid'],
+                    response.headers.get('verifytype'),
+                    str(response.status_code),
+                    proxies=proxies,
+                )
+                if verified:
+                    headers, cookies, data = self._request_params(splice_api, '', 'GET')
+                    response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
             success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
@@ -1091,6 +1101,80 @@ class XHS_Apis():
             user_list = user_list[:require_num]
         return success, msg, user_list
 
+    def risk_qr_verify(self, verify_uuid, verify_type, verify_biz, proxies: dict = None,
+                       show_qrcode=True, timeout=180.0, on_qrcode=None):
+        """461/471 风控的 App 扫码验证（verifytype 124，redcaptcha QRCodeLite）。
+
+        浏览器链路（2026-10-17 逆向）：/website-login/captcha 页 ->
+        POST /api/redcaptcha/v2/qr/init {verifyType,verifyUuid,verifyBiz,sourceSite}
+        -> rid；二维码内容为
+        https://www.xiaohongshu.com/web-login/qrcode-transfer?rid=..&verifyUuid=..
+        -> 轮询 POST /api/redcaptcha/v2/qr/status/query（带 rid）。
+        status：1=INIT 2=SCAN 3=CANCEL 4=CONFIRM(通过) 5=EXPIRE 6=FAIL。
+        verifyBiz：461=antiSpider、471=antiSpam。
+        """
+        import qrcode as _qrcode
+        deadline = time.time() + timeout
+        payload_base = {
+            "verifyType": str(verify_type),
+            "verifyUuid": str(verify_uuid),
+            "verifyBiz": str(verify_biz),
+            "sourceSite": "/",
+        }
+        # 浏览器验证页上下文：cookie 的 xsecappid 切到 fe-login，签名走 0201 档
+        saved_appid = self.auth.cookie.get('xsecappid') if getattr(self.auth, 'cookie', None) else None
+        try:
+            if getattr(self.auth, 'cookie', None) is not None:
+                self.auth.cookie['xsecappid'] = 'fe-login'
+        except Exception:
+            pass
+        while time.time() < deadline:
+            api = "/api/redcaptcha/v2/qr/init"
+            headers, cookies, _ = self._request_params(api, payload_base, 'POST', tier='0201')
+            response = self.http.post(self.base_url + api, headers=headers, cookies=cookies,
+                                      proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
+            res = response.json() if response.text.strip().startswith('{') else {}
+            rid = (res.get('data') or {}).get('rid')
+            if not res.get('success') or not rid:
+                raise RuntimeError(res.get('msg') or 'redcaptcha qr/init 未返回 rid')
+            qr_url = (f'https://www.xiaohongshu.com/web-login/qrcode-transfer'
+                      f'?rid={rid}&verifyUuid={verify_uuid}&verifyType={verify_type}')
+            logger.info('风控验证二维码已生成，用小红书 App 扫码并在手机上确认')
+            if on_qrcode:
+                on_qrcode(qr_url)
+            if show_qrcode:
+                qr = _qrcode.QRCode(box_size=1, border=1)
+                qr.add_data(qr_url)
+                qr.make(fit=True)
+                qr.print_ascii(invert=True)
+            else:
+                logger.info(qr_url)
+            while time.time() < deadline:
+                qapi = "/api/redcaptcha/v2/qr/status/query"
+                qpayload = dict(payload_base, rid=rid)
+                qheaders, qcookies, _ = self._request_params(qapi, qpayload, 'POST', tier='0201')
+                qresp = self.http.post(self.base_url + qapi, headers=qheaders, cookies=qcookies,
+                                       proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
+                qres = qresp.json() if qresp.text.strip().startswith('{') else {}
+                status = (qres.get('data') or {}).get('status')
+                if status == 2:
+                    logger.info('已扫码，等待手机确认…')
+                elif status == 4:
+                    logger.info('风控验证通过')
+                    if saved_appid is not None and getattr(self.auth, 'cookie', None) is not None:
+                        self.auth.cookie['xsecappid'] = saved_appid
+                    return True
+                elif status in (3, 6):
+                    logger.warning(f'验证取消/失败（status={status}），重新生成二维码')
+                    break
+                elif status == 5:
+                    logger.warning('二维码过期，重新生成')
+                    break
+                time.sleep(2)
+        if saved_appid is not None and getattr(self.auth, 'cookie', None) is not None:
+            self.auth.cookie['xsecappid'] = saved_appid
+        return False
+
     def get_note_out_comment(self, note_id: str, cursor: str, xsec_token: str, proxies: dict = None):
         """
             获取指定位置的笔记一级评论
@@ -1131,7 +1215,10 @@ class XHS_Apis():
                 success, msg, res_json = self.get_note_out_comment(note_id, cursor, xsec_token, proxies)
                 if not success:
                     raise Exception(msg)
-                comments = res_json["data"]["comments"]
+                # 末页/风控页 data 里可以没有 comments
+                comments = (res_json.get("data") or {}).get("comments") or []
+                if not comments and not (res_json.get("data") or {}).get("has_more"):
+                    break
                 if 'cursor' in res_json["data"]:
                     cursor = str(res_json["data"]["cursor"])
                 else:
@@ -1188,7 +1275,9 @@ class XHS_Apis():
                 success, msg, res_json = self.get_note_inner_comment(comment, cursor, xsec_token, proxies)
                 if not success:
                     raise Exception(msg)
-                comments = res_json["data"]["comments"]
+                comments = (res_json.get("data") or {}).get("comments") or []
+                if not comments and not (res_json.get("data") or {}).get("has_more"):
+                    break
                 if 'cursor' in res_json["data"]:
                     cursor = str(res_json["data"]["cursor"])
                 else:
