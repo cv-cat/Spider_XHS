@@ -195,7 +195,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(api, '', 'GET')
             response = self.http.get(self.base_url + api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -246,7 +246,7 @@ class XHS_Apis():
             headers, cookies, trans_data = self._request_params(api, data, 'POST')
             response = self.http.post(self.base_url + api, headers=headers, data=trans_data, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -297,8 +297,18 @@ class XHS_Apis():
             splice_api = splice_str(api, params)
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
+            if response.status_code in (461, 471) and response.headers.get('verifyuuid'):
+                verified = self.risk_qr_verify(
+                    response.headers['verifyuuid'],
+                    response.headers.get('verifytype'),
+                    str(response.status_code),
+                    proxies=proxies,
+                )
+                if verified:
+                    headers, cookies, data = self._request_params(splice_api, '', 'GET')
+                    response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -316,7 +326,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(api, '', 'GET')
             response = self.http.get(self.base_url + api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -344,7 +354,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -404,7 +414,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -463,7 +473,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -529,7 +539,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(api, data, 'POST')
             response = self.http.post(self.base_url + api, headers=headers, data=data, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -667,7 +677,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -689,7 +699,7 @@ class XHS_Apis():
             )
             self._merge_response_cookies(response, self.base_url + api)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -708,7 +718,7 @@ class XHS_Apis():
             )
             self._merge_response_cookies(response, target)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -992,7 +1002,7 @@ class XHS_Apis():
                 timeout=REQUEST_TIMEOUT,
             )
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1057,7 +1067,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(api, data, 'POST')
             response = self.http.post(self.base_url + api, headers=headers, data=data.encode('utf-8'), cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1091,6 +1101,97 @@ class XHS_Apis():
             user_list = user_list[:require_num]
         return success, msg, user_list
 
+    def risk_qr_verify(self, verify_uuid, verify_type, verify_biz, proxies: dict = None,
+                       show_qrcode=True, timeout=180.0, on_qrcode=None):
+        """461/471 风控的 App 扫码验证（verifytype 124，redcaptcha QRCodeLite）。
+
+        协议（2026-10-17 浏览器验证页逆向 + Python 侧实抓）：
+        - ⚠️ qr/init 只认「刚出炉」的安全引导：浏览器验证页在 init 前会重跑整条
+          引导链（scripting/seccallback→websectiga 换新→activate→webprofile），
+          拿登录时的旧引导态调 init 会被 40001「为了保护账号安全」拒——防重放，
+          b1 本身没失效，服务端校验的是引导动作的时效与页面上下文（fe-login）。
+          因此这里先用 XHSLoginApi 对当前会话重跑引导，再 init。
+        - POST /api/redcaptcha/v2/qr/init {verifyType,verifyUuid,verifyBiz,sourceSite}
+          → rid；二维码内容 https://www.xiaohongshu.com/web-login/qrcode-transfer?rid=..&verifyUuid=..
+        - 轮询 POST /api/redcaptcha/v2/qr/status/query（带 rid）：
+          status 1=INIT 2=SCAN 3=CANCEL 4=CONFIRM(通过) 5=EXPIRE 6=FAIL
+        - verifyBiz：461=antiSpider、471=antiSpam（验证机制共用）。
+        """
+        import qrcode as _qrcode
+        from apis.xhs_pc_login_apis import XHSLoginApi, build_pc_login_headers
+        from xhs_utils.xhs_core.cookies import parse_cookie_kv
+
+        deadline = time.time() + timeout
+        payload_base = {
+            "verifyType": str(verify_type),
+            "verifyUuid": str(verify_uuid),
+            "verifyBiz": str(verify_biz),
+            "sourceSite": "/",
+        }
+
+        # 1) 对当前会话重跑安全引导（关键：init 的防重放前提）
+        va = XHSLoginApi(proxies=self._proxies(proxies))
+        try:
+            boot_cookies = dict(parse_cookie_kv(str(getattr(self.auth, 'cookies', '') or '')))
+            va._ensure_profile(boot_cookies)
+            va._initialize_security(boot_cookies)
+            va._activate(boot_cookies)
+            va.ensure_webprofile(boot_cookies)
+            boot_cookies['xsecappid'] = 'fe-login'
+
+            def signed_post(path, payload):
+                headers, body = va._signed_request_params(
+                    boot_cookies, path, dict(payload),
+                    sec_domain=True, tier='0201', mns_profile='security_initial')
+                headers = build_pc_login_headers(
+                    headers, va._cookies_for_url(va.base_url, boot_cookies), kind='post')
+                return va.http.post(va.base_url + path, headers=headers,
+                                    data=body.encode('utf-8'),
+                                    proxies=va.proxies, timeout=REQUEST_TIMEOUT)
+
+            while time.time() < deadline:
+                # 2) init → rid → 出码
+                resp = signed_post('/api/redcaptcha/v2/qr/init', payload_base)
+                rid = None
+                if resp.text.strip().startswith('{'):
+                    rid = ((resp.json().get('data') or {}).get('rid'))
+                if not rid:
+                    raise RuntimeError(resp.text[:120] or 'redcaptcha qr/init 未返回 rid')
+                qr_url = (f'https://www.xiaohongshu.com/web-login/qrcode-transfer'
+                          f'?rid={rid}&verifyUuid={verify_uuid}&verifyType={verify_type}')
+                logger.info('风控验证二维码已生成，用小红书 App 扫码并在手机上确认')
+                if on_qrcode:
+                    on_qrcode(qr_url)
+                if show_qrcode:
+                    qr = _qrcode.QRCode(box_size=1, border=1)
+                    qr.add_data(qr_url)
+                    qr.make(fit=True)
+                    qr.print_ascii(invert=True)
+                else:
+                    logger.info(qr_url)
+
+                # 3) 轮询 status/query
+                poll_payload = dict(payload_base, rid=rid)
+                while time.time() < deadline:
+                    qresp = signed_post('/api/redcaptcha/v2/qr/status/query', poll_payload)
+                    qres = qresp.json() if qresp.text.strip().startswith('{') else {}
+                    status = (qres.get('data') or {}).get('status')
+                    if status == 2:
+                        logger.info('已扫码，等待手机确认…')
+                    elif status == 4:
+                        logger.info('风控验证通过')
+                        return True
+                    elif status in (3, 6):
+                        logger.warning(f'验证取消/失败（status={status}），重新生成二维码')
+                        break
+                    elif status == 5:
+                        logger.warning('二维码过期，重新生成')
+                        break
+                    time.sleep(1.5)
+            return False
+        finally:
+            va.close()
+
     def get_note_out_comment(self, note_id: str, cursor: str, xsec_token: str, proxies: dict = None):
         """
             获取指定位置的笔记一级评论
@@ -1112,7 +1213,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1131,7 +1232,10 @@ class XHS_Apis():
                 success, msg, res_json = self.get_note_out_comment(note_id, cursor, xsec_token, proxies)
                 if not success:
                     raise Exception(msg)
-                comments = res_json["data"]["comments"]
+                # 末页/风控页 data 里可以没有 comments
+                comments = (res_json.get("data") or {}).get("comments") or []
+                if not comments and not (res_json.get("data") or {}).get("has_more"):
+                    break
                 if 'cursor' in res_json["data"]:
                     cursor = str(res_json["data"]["cursor"])
                 else:
@@ -1167,7 +1271,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1188,7 +1292,9 @@ class XHS_Apis():
                 success, msg, res_json = self.get_note_inner_comment(comment, cursor, xsec_token, proxies)
                 if not success:
                     raise Exception(msg)
-                comments = res_json["data"]["comments"]
+                comments = (res_json.get("data") or {}).get("comments") or []
+                if not comments and not (res_json.get("data") or {}).get("has_more"):
+                    break
                 if 'cursor' in res_json["data"]:
                     cursor = str(res_json["data"]["cursor"])
                 else:
@@ -1237,7 +1343,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(api, '', 'GET')
             response = self.http.get(self.base_url + api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1260,7 +1366,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1308,7 +1414,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1356,7 +1462,7 @@ class XHS_Apis():
             headers, cookies, data = self._request_params(splice_api, '', 'GET')
             response = self.http.get(self.base_url + splice_api, headers=headers, cookies=cookies, proxies=self._proxies(proxies), timeout=REQUEST_TIMEOUT)
             res_json = response.json()
-            success, msg = res_json["success"], res_json["msg"]
+            success, msg = res_json["success"], res_json.get('msg', '')
         except Exception as e:
             success = False
             msg = _log_api_error(e)

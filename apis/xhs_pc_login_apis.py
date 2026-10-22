@@ -5,6 +5,12 @@ import time
 
 from loguru import logger
 
+from xhs_utils.xhs_core.ssk import (
+    SERVER_PUBLIC_KEY_9_43_1,
+    decrypt_ssk_base64,
+    generate_private_key as ssk_generate_private_key,
+    public_key_base64 as ssk_public_key_base64,
+)
 from xhs_utils.http_util import REQUEST_TIMEOUT
 from xhs_utils.xhs_core.auth import PC_PLATFORM_CONFIG
 from xhs_utils.xhs_core.cookies import HostCookieStore
@@ -581,6 +587,9 @@ class XHSLoginApi:
             data,
             tier='0301',
             mns_profile='qrcode_create',
+            # 浏览器实测：create 在 b1 采集完成前发出，X-S-Common 的 x8 为
+            # null（冷启动）；首个 userinfo 轮询才携带 b1。
+            include_b1=False,
         )
         headers = build_pc_login_headers(
             headers,
@@ -652,7 +661,17 @@ class XHSLoginApi:
 
     def _login_by_qrcode_status(self, qr_id, code, cookies):
         api = '/api/sns/web/v1/login/qrcode/status'
-        params = {"qr_id": qr_id, "code": code}
+        # 2026-10-17 浏览器实测（Chrome 155 隔离上下文全链 200，无 471）：
+        # status 必须带 32 字节 X25519 客户端公钥（44 字符 base64），响应
+        # login_info.ssk 为 80 字符加密包（nonce12+ct32+tag16），协议与 App 端
+        # AccountSskClient 一致（见 apis/app/research/ssk.md）。缺公钥时服务端
+        # 回 471 verifytype 120 人机验证。
+        login_private_key = ssk_generate_private_key()
+        params = {
+            "qr_id": qr_id,
+            "code": code,
+            "client_public_key_base64": ssk_public_key_base64(login_private_key),
+        }
         splice_api = splice_str(api, params)
         visitor_session = str(cookies.get('web_session') or '')
 
@@ -701,6 +720,21 @@ class XHSLoginApi:
             self.profile.update_cookies(cookies)
         elif not cookies.get('web_session') or cookies.get('web_session') == visitor_session:
             raise RuntimeError('二维码登录响应缺少正式 web_session')
+
+        # 浏览器把解密后的 32 字节 ssk 存 localStorage['webSsk']，格式
+        # {"xhs-pc-web":"<44 字符 base64>"}。服务器公钥暂用 App 9.43.1 的
+        # 协议常量；web 端若不同会认证失败，此时只告警不阻断登录。
+        encrypted_ssk = str(login_info.get('ssk') or '')
+        if encrypted_ssk:
+            try:
+                ssk_b64 = decrypt_ssk_base64(
+                    login_private_key, encrypted_ssk,
+                    server_public_key=SERVER_PUBLIC_KEY_9_43_1,
+                )
+                self.local_storage['webSsk'] = json.dumps({'xhs-pc-web': ssk_b64})
+                logger.info('webSsk 已解密并存入 local_storage')
+            except ValueError as exc:
+                logger.warning(f'ssk 解密失败（web 服务器公钥可能不同于 App 9.43.1）: {exc}')
 
         return cookies
 
@@ -771,7 +805,15 @@ class XHSLoginApi:
             return False, res.get('msg', '验证码响应缺少 mobile_token'), {'cookies': cookies, 'res_json': res}
 
         login_api = '/api/sns/web/v2/login/code'
-        data = {"mobile_token": mobile_token, "zone": zone, "phone": phone}
+        # 2026-10-17 浏览器实测：login/code 的 body 额外带 X25519 客户端公钥，
+        # 响应 data.ssk 为 80 字符加密包，与扫码链路 / 登录 qrcode/status 同协议。
+        login_private_key = ssk_generate_private_key()
+        data = {
+            "mobile_token": mobile_token,
+            "zone": zone,
+            "phone": phone,
+            "client_public_key_base64": ssk_public_key_base64(login_private_key),
+        }
         headers, data = self._signed_request_params(cookies, login_api, data)
         headers = build_pc_login_headers(
             headers,
@@ -784,7 +826,16 @@ class XHSLoginApi:
             proxies=self.proxies,
             timeout=REQUEST_TIMEOUT
         )
-        self._merge_response_cookies(cookies, resp)
+        self._merge_response_cookies(
+            cookies,
+            resp,
+            append_shared=(
+                'web_session',
+                'id_token',
+                'x-rednote-datactry',
+                'x-rednote-holderctry',
+            ),
+        )
 
         res = resp.json()
         if not res.get('success'):

@@ -13,6 +13,7 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 from typing import Any, Mapping, Optional
 
 
@@ -32,7 +33,7 @@ _TIER_GATE = {
     '0301': ('mns0301_', 200),
 }
 _WEBSECTIGA_RE = re.compile(r'^[0-9a-f]{64}$', re.I)
-_PROFILE_DATA_RE = re.compile(r'^[0-9a-f]{10000,20000}$', re.I)
+_PROFILE_DATA_RE = re.compile(r'^[0-9a-f]{10000,200000}$', re.I)
 
 
 def generate_b1(
@@ -106,9 +107,19 @@ def run_signer(
         if key in context:
             payload[key] = context[key]
 
+    # Windows CreateProcess 命令行约 32K 上限；webprofile 一类大 body
+    # （profileData 36K hex）必须走 @file 间接传参，否则 WinError 206。
+    arg = json.dumps(payload, ensure_ascii=False)
+    sign_arg = arg if len(arg) <= 8000 else None
+    tmp_path = None
+    if sign_arg is None:
+        fd, tmp_path = tempfile.mkstemp(prefix='xhs_sign_', suffix='.json')
+        with os.fdopen(fd, 'w', encoding='utf-8') as handle:
+            handle.write(arg)
+        sign_arg = '@' + tmp_path
     try:
         proc = subprocess.run(
-            ['node', _SIGN_JS, json.dumps(payload, ensure_ascii=False)],
+            ['node', _SIGN_JS, sign_arg],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -118,6 +129,12 @@ def run_signer(
         )
     except (OSError, subprocess.TimeoutExpired):
         return None
+    finally:
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
     if proc.returncode != 0:
         return None
 

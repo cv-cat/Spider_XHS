@@ -31,7 +31,7 @@ LIVE_ORIGIN = "https://live-room.xiaohongshu.com"
 PUSH_URL = "wss://apppush-rws.xiaohongshu.com/rwp"
 BROWSER_UA = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    "(KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
 )
 
 RSA_N = int(
