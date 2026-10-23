@@ -1,6 +1,8 @@
 PyExecJS
 requests
-curl_cffi==0.15.0
+# 创作者端使用 chrome150 指纹（见 xhs_utils/xhs_creator/http.py），
+# 0.15.0 只支持到 chrome146，会抛 ImpersonateError，必须 >=0.16.2
+curl_cffi==0.16.3
 loguru
 python-dotenv
 retry
