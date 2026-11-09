@@ -15,6 +15,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 
 RUN python --version && node --version && npm --version
 
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
