@@ -22,6 +22,14 @@ def norm_text(text):
     return text
 
 
+def excel_text(value):
+    """把外部文本写成 Excel 字面量，永不作为公式求值。"""
+    text = norm_text(str(value))
+    if text.lstrip().startswith(('=', '+', '-', '@')):
+        return "'" + text
+    return text
+
+
 def timestamp_to_str(timestamp):
     time_local = time.localtime(timestamp / 1000)
     dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
@@ -211,7 +219,7 @@ def save_to_xlsx(datas, file_path, type='note'):
     keys = field_keys.get(type, field_keys['comment'])
     ws.append(headers)
     for data in datas:
-        ws.append([norm_text(str(data.get(key, ''))) for key in keys])
+        ws.append([excel_text(data.get(key, '')) for key in keys])
     wb.save(file_path)
     logger.info(f'数据保存至 {file_path}')
 
