@@ -1233,16 +1233,20 @@ class XHS_Apis():
                 if not success:
                     raise Exception(msg)
                 # 末页/风控页 data 里可以没有 comments
-                comments = (res_json.get("data") or {}).get("comments") or []
-                if not comments and not (res_json.get("data") or {}).get("has_more"):
-                    break
-                if 'cursor' in res_json["data"]:
-                    cursor = str(res_json["data"]["cursor"])
-                else:
-                    break
+                data = res_json.get("data") or {}
+                comments = data.get("comments") or []
+                # 先收本页再判断是否继续，避免有评论但无 cursor 时丢掉最后一页
                 note_out_comment_list.extend(comments)
-                if len(note_out_comment_list) == 0 or not res_json["data"]["has_more"]:
+                if not comments or not data.get("has_more"):
                     break
+                next_cursor = data.get("cursor")
+                if next_cursor is None or next_cursor == '':
+                    break
+                next_cursor = str(next_cursor)
+                # 风控页可能 has_more=True 但 cursor 原地不动，会造成死循环
+                if next_cursor == cursor:
+                    break
+                cursor = next_cursor
         except Exception as e:
             success = False
             msg = _log_api_error(e)
@@ -1292,16 +1296,20 @@ class XHS_Apis():
                 success, msg, res_json = self.get_note_inner_comment(comment, cursor, xsec_token, proxies)
                 if not success:
                     raise Exception(msg)
-                comments = (res_json.get("data") or {}).get("comments") or []
-                if not comments and not (res_json.get("data") or {}).get("has_more"):
-                    break
-                if 'cursor' in res_json["data"]:
-                    cursor = str(res_json["data"]["cursor"])
-                else:
-                    break
+                data = res_json.get("data") or {}
+                comments = data.get("comments") or []
+                # 先收本页再判断是否继续，避免有评论但无 cursor 时丢掉最后一页
                 inner_comment_list.extend(comments)
-                if not res_json["data"]["has_more"]:
+                if not comments or not data.get("has_more"):
                     break
+                next_cursor = data.get("cursor")
+                if next_cursor is None or next_cursor == '':
+                    break
+                next_cursor = str(next_cursor)
+                # 风控页可能 has_more=True 但 cursor 原地不动，会造成死循环
+                if next_cursor == cursor:
+                    break
+                cursor = next_cursor
             comment['sub_comments'].extend(inner_comment_list)
         except Exception as e:
             success = False
